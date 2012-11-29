@@ -53,22 +53,22 @@ header {
   padding: 24px 0 0 0;
 }
 
-.horizon {
+.horizon, .horizon2 {
   border-bottom: solid 1px #000;
   overflow: hidden;
   position: relative;
 }
 
-.horizon {
+.horizon, .horizon2 {
   border-top: solid 1px #000;
   border-bottom: solid 1px #000;
 }
 
-.horizon + .horizon {
+.horizon + .horizon, .horizon2+.horizon2 {
   border-top: none;
 }
 
-.horizon canvas {
+.horizon canvas, .horizon2 canvas {
   display: block;
 }
 
@@ -82,11 +82,22 @@ header {
   white-space: nowrap;
 }
 
-.horizon .title {
+.horizon2 .title,
+.horizon2 .value {
+  bottom: 0;
+  line-height: 10px;
+  font-size: 10px;
+  margin: 0 6px;
+  position: absolute;
+  text-shadow: 0 1px 0 rgba(255,255,255,.5);
+  white-space: nowrap;
+}
+
+.horizon .title, .horizon2 .title {
   left: 0;
 }
 
-.horizon .value {
+.horizon .value, .horizon2 .value {
   right: 0;
 }
 

@@ -1,7 +1,6 @@
-
 <!DOCTYPE html>
 <meta charset="utf-8">
-<title>Cubism.js Demo</title>
+<title>Kijani Grows</title>
 <style>
 
 @import url(style.css);
@@ -18,7 +17,7 @@ var context = cubism.context()
 
 d3.select("body").selectAll(".axis")
     .data(["top", "bottom"])
-  .enter().append("div")
+    .enter().append("div")
     .attr("class", function(d) { return d + " axis"; })
     .each(function(d) { d3.select(this).call(context.axis().ticks(12).orient(d)); });
 
@@ -26,35 +25,84 @@ d3.select("body").append("div")
     .attr("class", "rule")
     .call(context.rule());
 
-var data = [{"report":{"garden":{"name":"v1.1"},"initialize":{"initializing":0,"baudRate":38400,"version":11824},"arduino":{"uptime":"00:14:09:16"},"tank_level_sensor":{"full":0},"flow_rate_sensor":{"flowRate":0},"flow_switch_sensor":{"flow":0},"reservior_level_sensor":{"full":0},"leak_detector_sensor":{"leak":0,"measured":0},"gb_level_sensor":{"gbLevel":51.32,"measured":10.41,"water_height":3.59,"max":14,"min":1},"photocell_sensor":{"lightLevel":95},"temperature_sensor":{"temperature":20.56},"fish_tank_pump":{"on":0},"reservior_pump":{"on":0},"grow_lights":{"on":1},"fish_feeder":{"on":1},"endString":{"end":1}},"_id":"50b3fa75b44b4a920301834a"}];
-
 d3.select("body").selectAll(".horizon")
-    .data(data)
-    //.data(d3.range(1, 50).map(random))
-  .enter().insert("div", ".bottom")
+    .data(["Photocell (light intensity)", "Flow rate", "Growbed level", "Temperature"].map(getData))
+    .enter().insert("div", ".bottom")
     .attr("class", "horizon")
-    .call(context.horizon().extent([-10, 10]));
+    .call(context.horizon().height(50));
+    //.call(context.horizon().extent([0,100]));
+
+d3.select("body").selectAll(".horizon2")
+    .data(["Tank level", "Fish feeder", "Fish tank pump", "Flow switch", "Grow lights", "Leak", "Backup reservoir", "Reservoir pump", "Tank full"].map(getData))
+    .enter().insert("div", ".bottom")
+    .attr("class", "horizon2")
+    .call(context.horizon().height(10));
 
 context.on("focus", function(i) {
   d3.selectAll(".value").style("right", i == null ? null : context.size() - i + "px");
 });
 
-// Replace this with context.graphite and graphite.metric!
-function random(x) {
-  var value = 0,
-      values = [],
-      i = 0,
-      last;
-  return context.metric(function(start, stop, step, callback) {
-    start = +start, stop = +stop;
-    if (isNaN(last)) last = start;
-    while (last < stop) {
-      last += step;
-      value = Math.max(-10, Math.min(10, value + .8 * Math.random() - .4 + .2 * Math.cos(i += x * .02)));
-      values.push(value);
-    }
-    callback(null, values = values.slice((start - stop) / step));
-  }, x);
+function getData(variable) {
+    var format = d3.time.format("%d-%b-%y");
+    return context.metric(function(start, stop, step, callback) {
+        var values = [];
+        var numEntries = (stop - start)/step;
+        d3.json("http://50.19.108.27/arduino/garden/v1.1?num="+numEntries, function(jsond) {
+            start = +start;
+          stop = +stop;
+          var i=0;
+          //console.log(jsond);
+        while (start < stop) {
+            start += step;
+            var v;
+            if (variable=="Photocell (light intensity)") {
+                v = jsond[i].report.photocell_sensor;
+                if (v) v = v.lightLevel;
+            } else if (variable == "Flow rate") {
+                v = jsond[i].report.flow_rate_sensor;
+                if (v) v = v.flowRate;
+            } else if (variable == "Growbed level") {
+                v = jsond[i].report.gb_level_sensor;
+                if (v) v = v.gbLevel;
+            } else if (variable == "Temperature") {
+                v = jsond[i].report.temperature_sensor;
+                if (v) v = v.temperature;
+            } else if (variable == "Tank level") {
+                v = jsond[i].report.tank_level_sensor;
+                if (v) v = v.full;
+            } else if (variable == "Fish feeder") {
+                v = jsond[i].report.fish_feeder;
+                if (v) v = v.on;
+            } else if (variable == "Fish tank pump") {
+                v = jsond[i].report.fish_tank_pump;
+                if (v) v = v.on;
+            } else if (variable == "Flow switch") {
+                v = jsond[i].report.flow_switch_sensor;
+                if (v) v = v.flow;
+            } else if (variable == "Grow lights") {
+                v = jsond[i].report.grow_lights;
+                if (v) v = v.on;
+            } else if (variable == "Leak") {
+                v = jsond[i].report.leak_detector_sensor;
+                if (v) v = v.leak;
+            } else if (variable == "Backup reservoir") {
+                v = jsond[i].report.reservior_level_sensor;
+                if (v) v = v.full;
+            } else if (variable == "Reservoir pump") {
+                v = jsond[i].report.reservior_pump;
+                if (v) v = v.on;
+            } else if (variable == "Tank full") {
+                v = jsond[i].report.tank_level_sensor;
+                if (v) v = v.full;
+            }
+            i++;
+            values.push(v);
+          }
+
+            callback(null, values);
+            //callback(null, values.slice(-context.size()));
+        });
+    }, variable);
 }
 
 </script>

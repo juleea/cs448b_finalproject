@@ -26,14 +26,14 @@ d3.select("body").append("div")
     .call(context.rule());
 
 d3.select("body").selectAll(".horizon")
-    .data(["Photocell (light intensity)", "Flow rate", "Growbed level", "Temperature"].map(getData))
+    .data(["Photocell (light intensity)", "Flow rate", "Growbed level", "Temperature", "Humidity", "pH", "Conductivity"].map(getData))
     .enter().insert("div", ".bottom")
     .attr("class", "horizon")
     .call(context.horizon().height(50));
     //.call(context.horizon().extent([0,100]));
 
 d3.select("body").selectAll(".horizon2")
-    .data(["Tank level", "Fish feeder", "Fish tank pump", "Flow switch", "Grow lights", "Leak", "Backup reservoir", "Reservoir pump", "Tank full"].map(getData))
+    .data(["Tank full", "Fish feeder", "Fish tank pump", "Flow switch", "Grow lights", "Leak", "Backup reservoir", "Reservoir pump"].map(getData))
     .enter().insert("div", ".bottom")
     .attr("class", "horizon2")
     .call(context.horizon().height(10));
@@ -47,10 +47,12 @@ function getData(variable) {
     return context.metric(function(start, stop, step, callback) {
         var values = [];
         var numEntries = (stop - start)/step;
-        d3.json("http://50.19.108.27/arduino/garden/v1.1?num="+numEntries, function(jsond) {
-            start = +start;
+        var curTime = new Date().toJSON();
+        //console.log(curTime);
+        d3.json("http://50.19.108.27/arduino/garden/range/v2?end_time="+curTime+"&num="+numEntries, function(jsond) {
+          start = +start;
           stop = +stop;
-          var i=0;
+          var i=numEntries - 1;
           //console.log(jsond);
         while (start < stop) {
             start += step;
@@ -67,7 +69,16 @@ function getData(variable) {
             } else if (variable == "Temperature") {
                 v = jsond[i].report.temperature_sensor;
                 if (v) v = v.temperature;
-            } else if (variable == "Tank level") {
+            } else if (variable == "Humidity") {
+                v = jsond[i].report.humidity_sensor;
+                if (v) v = v.humidity;
+            } else if (variable == "pH") {
+                v = jsond[i].report.ph;
+                if (v) v = v.ph;
+            } else if (variable == "Conductivity") {
+                v = jsond[i].report.conductivity;
+                if (v) v = v.ec;
+            } else if (variable == "Tank full") {
                 v = jsond[i].report.tank_level_sensor;
                 if (v) v = v.full;
             } else if (variable == "Fish feeder") {
@@ -91,11 +102,8 @@ function getData(variable) {
             } else if (variable == "Reservoir pump") {
                 v = jsond[i].report.reservior_pump;
                 if (v) v = v.on;
-            } else if (variable == "Tank full") {
-                v = jsond[i].report.tank_level_sensor;
-                if (v) v = v.full;
             }
-            i++;
+            i--;
             values.push(v);
           }
 

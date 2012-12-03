@@ -6,8 +6,9 @@
 	<link type="text/css" rel="stylesheet" href="css/detail.css">
 	<link type="text/css" rel="stylesheet" href="css/legend.css">
 	<link type="text/css" rel="stylesheet" href="css/lines.css">
-
-	<script src="../d3.v2.js"></script>
+    <link type="text/css" rel="stylesheet" href="css/custom.css">
+	
+    <script src="../d3.v2.js"></script>
 
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.15/jquery-ui.min.js"></script>
@@ -17,113 +18,176 @@
 </head>
 <body>
 
-<div id="chart_container">
-	<div id="chart"></div>
-	<div id="legend_container">
-		<div id="smoother" title="Smoothing"></div>
-		<div id="legend"></div>
-	</div>
-	<div id="slider"></div>
+<div id="charts">
+    <div id="chart_container"></div>
+
+    <div id="legend_container">
+        <div id="smoother" title="Smoothing"></div>
+        <div id="legend"></div>
+    </div>
+
+    <div id="slider"></div>
 </div>
 
 <script>
 
-// set up our data series with 50 random data points
+var garden = getQueryParameters();
+var categories = {
+    "Flow Rate": ["report", "flow_rate_sensor", "flowRate"],
+    "Temperature": ["report", "temperature_sensor", "temperature"],
+}
+//map (key is the same as in categories)
+var seriesData = initSeriesData(categories);
+var graphs = [];
 
-//var seriesData = [ [], [], [] ];
-var flowData = [];
-//flowData.push({'data':[]});
+getData(garden, 100, initGraphs);
+setInterval( function() { getLatestData(); }, 60000 );
 
-$.getJSON("http://50.19.108.27/arduino/garden/v1.1/?num=100",
-function(data) {
-    $.each(data, function(i,item){
-    var flowRate = item.report.flow_rate_sensor.flowRate;
-    var time = new Date(item.time).getTime()/1000.0;
-    if (flowRate != null && !isNaN(flowRate) && flowRate != undefined) {
-        flowData.unshift({x: time, y : flowRate});
+
+// *** FUNCTIONS *** //
+
+function getFieldValue(pathArray, object) {
+    var found = object;
+    $.each(pathArray, function(i, field) {
+        if (field in found) {
+            found = found[field];
+        } else {
+            console.error("getFieldValue(): " + field + " not found.");
+            return null;
+        }
+    });
+    return found;
+
+}
+
+function initSeriesData(categories) {
+    var series = {};
+    $.each(categories, function(label, path) {
+        series[label] = [];
+    });
+    return series;
+}
+
+function getQueryParameters() {
+    var query = window.location.href.split('?')[1];
+    //query won't be set if ? isn't in the URL
+    if(!query) {
+        return { };
     }
-    if (i > 100)
-        return false;
+
+    var params = query.split('&');
+    var pairs = {};
+    $.each(params, function(i, param) {
+        var pair = param.split('=');
+        pairs[pair[0]] = pair[1];
     });
 
-    initGraph();
+    garden = pairs.garden;
+    return garden;
+}
 
-});
+function getData(garden, numEntries, callback) {
+    var curTime = new Date().toJSON();
 
-function initGraph() {
-    // instantiate our graph!
-    graph = new Rickshaw.Graph( {
-	element: document.getElementById("chart"),
-	width: 960,
-	height: 500,
-	renderer: 'line',
-    //dataURL: "http://50.19.108.27/arduino/garden/v1.1/?num=100",
-    //onData: function(d) { return d },
-	series: [
-		{
-			color: "#c05020",
-			data: flowData,
-			name: 'flow rate'
-		}/*, {
-			color: "#30c020",
-			data: seriesData[1],
-			name: 'London'
-		}, {
-			color: "#6060c0",
-			data: seriesData[2],
-			name: 'Tokyo'
-		}
-        */
-	]
-    } );
+    var queryUrl = "http://50.19.108.27/arduino/garden/range/" + garden + 
+        "?end_time="+curTime+"&num="+numEntries;
 
-    graph.render();
+    jQuery.ajax({
+        url: queryUrl,
+        type: "GET",
+        dataType: "json",
+        success: callback
+    });
+}
 
-    hoverDetail = new Rickshaw.Graph.HoverDetail( {
+function initGraphs(data, textStatus, jqXHR) {
+    $.each(data, function(i, item) {
+        var time = new Date(item.time).getTime()/1000.0;
+        $.each(categories, function(label, pathArray) {
+            var val = getFieldValue(pathArray, item);
+            seriesData[label].push({x: time, y: val});
+        });
+    });
+
+    $.each(categories, function(label, path) {
+        seriesData[label] = seriesData[label].reverse();
+    });
+
+    initGraph("temperature", "Temperature", "#c05020", seriesData["Temperature"]);
+    initGraph("flowrate", "Flow Rate", "#30c020", seriesData["Flow Rate"]);
+
+    //create slider
+    var slider = new Rickshaw.Graph.RangeSlider(
+        {
+            graph: graphs,
+            element: $('#slider')
+        }
+    );
+
+
+} 
+
+function initGraph(htmlId, name, color, dataArr) {
+    // instantiate a graph!
+
+    $("#chart_container").append("<div id='" + htmlId + "' class='rsgraph'></div>");
+
+    var graph = new Rickshaw.Graph( {
+	   element: document.getElementById(htmlId),
+	   width: 960,
+	   height: 75,
+	   renderer: 'line',
+        //dataURL: "http://50.19.108.27/arduino/garden/v1.1/?num=100",
+        //onData: function(d) { return d },
+    	series: [{
+			color: color,
+			data: dataArr,
+			name: name,
+		}]
+    });
+    
+    graphs.push(graph);
+
+    graph.render(); 
+
+    var hoverDetail = new Rickshaw.Graph.HoverDetail( {
         graph: graph
     } );
 
-    legend = new Rickshaw.Graph.Legend( {
+    var legend = new Rickshaw.Graph.Legend( {
         graph: graph,
         element: document.getElementById('legend')
 
     } );
 
-    shelving = new Rickshaw.Graph.Behavior.Series.Toggle( {
+    var shelving = new Rickshaw.Graph.Behavior.Series.Toggle( {
         graph: graph,
         legend: legend
     } );
 
-    slider = new Rickshaw.Graph.RangeSlider( {
-        graph: graph,
-        element: $('#slider')
+    var axes = new Rickshaw.Graph.Axis.Time( {
+	   graph: graph
     } );
-    axes = new Rickshaw.Graph.Axis.Time( {
-	graph: graph
-    } );
+
     axes.render();
+
+
 }
 
 var getLatestData = function(){
     jQuery.ajax({
     url: "http://50.19.108.27/arduino/garden/v1.1?num=60",
     type: "GET",
-    /*data: {
-        campaign_id : <?= $campaignId; ?>,
-        most_recent : mostRecent
-    },*/
     dataType: "json",
     success: function(newData, textStatus, jqXHR){
         var flowRate = newData.report.flow_rate_sensor.flowRate;
         var time = new Date(newData.time).getTime()/1000.0;
-        console.log(flowRate);
         flowData.unshift( { x: time, y: flowRate } );
         graph.update();
-    }
+    },
 });
 };
 
-setInterval( function() { getLatestData(); }, 60000 );
 
 </script>
 

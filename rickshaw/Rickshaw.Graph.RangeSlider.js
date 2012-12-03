@@ -6,7 +6,7 @@ Rickshaw.Graph.RangeSlider = function(args) {
 	var graph = this.graph = args.graph;
 
 	$( function() {
-        startMin = graph.dataDomain()[0];
+        startLength = graph.dataDomain()[1] - graph.dataDomain()[0];
 		$(element).slider( {
 
 			range: true,
@@ -45,13 +45,14 @@ Rickshaw.Graph.RangeSlider = function(args) {
 		if (graph.window.xMin == undefined) {
 			//values[0] = graph.dataDomain()[0];
 			//values[0] = startMin;
+            values[0] = graph.dataDomain()[1] - startLength;
 		}
 		if (graph.window.xMax == undefined) {
 			values[1] = graph.dataDomain()[1];
 		}
 
 		$(element).slider('option', 'values', values);
-        console.log(values[0]);
+        //console.log(values[0]);
 
 	} );
 };

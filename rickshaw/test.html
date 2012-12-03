@@ -30,25 +30,41 @@
 
 // set up our data series with 50 random data points
 
-var seriesData = [ [], [], [] ];
-var random = new Rickshaw.Fixtures.RandomData(150);
+//var seriesData = [ [], [], [] ];
+var flowData = [];
+//flowData.push({'data':[]});
 
-for (var i = 0; i < 150; i++) {
-	random.addData(seriesData);
-}
+$.getJSON("http://50.19.108.27/arduino/garden/v1.1/?num=100",
+function(data) {
+    $.each(data, function(i,item){
+    var flowRate = item.report.flow_rate_sensor.flowRate;
+    var time = new Date(item.time).getTime()/1000.0;
+    if (flowRate != null && !isNaN(flowRate) && flowRate != undefined) {
+        flowData.unshift({x: time, y : flowRate});
+    }
+    if (i > 100)
+        return false;
+    });
 
-// instantiate our graph!
-var graph = new Rickshaw.Graph( {
+    initGraph();
+
+});
+
+function initGraph() {
+    // instantiate our graph!
+    graph = new Rickshaw.Graph( {
 	element: document.getElementById("chart"),
 	width: 960,
 	height: 500,
 	renderer: 'line',
+    //dataURL: "http://50.19.108.27/arduino/garden/v1.1/?num=100",
+    //onData: function(d) { return d },
 	series: [
 		{
 			color: "#c05020",
-			data: seriesData[0],
-			name: 'New York'
-		}, {
+			data: flowData,
+			name: 'flow rate'
+		}/*, {
 			color: "#30c020",
 			data: seriesData[1],
 			name: 'London'
@@ -57,56 +73,57 @@ var graph = new Rickshaw.Graph( {
 			data: seriesData[2],
 			name: 'Tokyo'
 		}
+        */
 	]
-} );
+    } );
 
-graph.render();
+    graph.render();
 
-var hoverDetail = new Rickshaw.Graph.HoverDetail( {
+    hoverDetail = new Rickshaw.Graph.HoverDetail( {
+        graph: graph
+    } );
+
+    legend = new Rickshaw.Graph.Legend( {
+        graph: graph,
+        element: document.getElementById('legend')
+
+    } );
+
+    shelving = new Rickshaw.Graph.Behavior.Series.Toggle( {
+        graph: graph,
+        legend: legend
+    } );
+
+    slider = new Rickshaw.Graph.RangeSlider( {
+        graph: graph,
+        element: $('#slider')
+    } );
+    axes = new Rickshaw.Graph.Axis.Time( {
 	graph: graph
-} );
-
-var legend = new Rickshaw.Graph.Legend( {
-	graph: graph,
-	element: document.getElementById('legend')
-
-} );
-
-var shelving = new Rickshaw.Graph.Behavior.Series.Toggle( {
-	graph: graph,
-	legend: legend
-} );
-
-var slider = new Rickshaw.Graph.RangeSlider( {
-    graph: graph,
-    element: $('#slider')
-} );
-
-setInterval( function() {
-    random.addData(seriesData);
-    graph.update();
-}, 3000 );
-/*
-var annotator = new Rickshaw.Graph.Annotate( {
-    graph: graph,
-    element: document.getElementById('timeline')
-} );
-
-function addAnnotation(force) {
-    if (messages.length > 0 && (force || Math.random() >= 0.95)) {
-    annotator.add(seriesData[2][seriesData[2].length-1].x, messages.shift());
-    }
+    } );
+    axes.render();
 }
 
-addAnnotation(true);
-setTimeout( function() { setInterval( addAnnotation, 6000 ) }, 6000 );
-*/
+var getLatestData = function(){
+    jQuery.ajax({
+    url: "http://50.19.108.27/arduino/garden/v1.1?num=60",
+    type: "GET",
+    /*data: {
+        campaign_id : <?= $campaignId; ?>,
+        most_recent : mostRecent
+    },*/
+    dataType: "json",
+    success: function(newData, textStatus, jqXHR){
+        var flowRate = newData.report.flow_rate_sensor.flowRate;
+        var time = new Date(newData.time).getTime()/1000.0;
+        console.log(flowRate);
+        flowData.unshift( { x: time, y: flowRate } );
+        graph.update();
+    }
+});
+};
 
-
-var axes = new Rickshaw.Graph.Axis.Time( {
-	graph: graph
-} );
-axes.render();
+setInterval( function() { getLatestData(); }, 60000 );
 
 </script>
 

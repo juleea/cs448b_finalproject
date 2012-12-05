@@ -13,6 +13,8 @@
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.15/jquery-ui.min.js"></script>
 
+    <script src="../datagarden.js"></script>
+
 	<script src="rickshaw.js"></script>
 	<script src="Rickshaw.Graph.RangeSlider.js"></script>
 </head>
@@ -32,6 +34,7 @@
 <script>
 
 var garden = getQueryParameters();
+var dataGarden = new DataGarden(garden, false);
 var categories = {
    "Flow Rate": ["report", "flow_rate_sensor", "flowRate"],
    "Temperature": ["report", "temperature_sensor", "temperature"],
@@ -91,21 +94,31 @@ function getQueryParameters() {
 }
 
 function getData(garden, numEntries, callback) {
-    var curTime = new Date().toJSON();
-    lastEndTime = curTime;
 
-    var queryUrl = "http://50.19.108.27/arduino/garden/" + garden + 
-         "?num="+numEntries;
+    var initData = dataGarden.getInitialData();
+    
+    textStatus = null;
+    jqXHR = null;
 
-    // "http://50.19.108.27/arduino/garden/ + garden + 
-    //     "?end_time="+curTime+"&num="+numEntries;
+    callback(initData, textStatus, jqXHR);
 
-    jQuery.ajax({
-        url: queryUrl,
-        type: "GET",
-        dataType: "json",
-        success: callback
-    });
+    // var curTime = new Date().toJSON();
+    // lastEndTime = curTime;
+
+
+
+    // var queryUrl = "http://50.19.108.27/arduino/garden/" + garden + 
+    //      "?num="+numEntries;
+
+    // // "http://50.19.108.27/arduino/garden/ + garden + 
+    // //     "?end_time="+curTime+"&num="+numEntries;
+
+    // jQuery.ajax({
+    //     url: queryUrl,
+    //     type: "GET",
+    //     dataType: "json",
+    //     success: callback
+    // });
 }
 
 function initGraphs(data, textStatus, jqXHR) {

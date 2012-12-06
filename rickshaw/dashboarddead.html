@@ -1,6 +1,9 @@
 
-<!doctype>
+<!DOCTYPE html>
 <head>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
 	<link type="text/css" rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css">
 	<link type="text/css" rel="stylesheet" href="css/graph.css">
 	<link type="text/css" rel="stylesheet" href="css/detail.css">
@@ -34,24 +37,39 @@
 <script>
 
 var garden = getQueryParameters();
-var dataGarden = new DataGarden(garden, false);
 var categories = {
    "Flow Rate": ["report", "flow_rate_sensor", "flowRate"],
    "Temperature": ["report", "temperature_sensor", "temperature"],
 }
+var dataGarden;
+
+var initData;
 //map (key is the same as in categories)
 var seriesData = initSeriesData(categories);
 var graphs = [];
 
-var refreshInterval = 5000; // 10 seconds
-var maxNumPointsPerInterval = 1;
+// var refreshInterval = 5000; // 10 seconds
+// var maxNumPointsPerInterval = 1;
 var lastEndTime;
 
-var numInitialPoints = 10;
-getData(garden, numInitialPoints, initGraphs);
+var ptsPerRefresh = 1;
+var dataInterval = 10000;
+var refreshInterval = ptsPerRefresh * dataInterval;
 
+var numInitialPoints = 10;
+
+createDataGarden();
+setTimeout(
+        function() {
+            getData(garden, numInitialPoints, initGraphs);
+        }, 500);
 
 // *** FUNCTIONS *** //
+
+function createDataGarden(callback) {
+    console.log("createDataGarden()");
+    dataGarden = new DataGarden(garden, false);
+}
 
 function getFieldValue(pathArray, object) {
     var found = object;
@@ -94,11 +112,8 @@ function getQueryParameters() {
 }
 
 function getData(garden, numEntries, callback) {
-    console.log("hi");
-
-    var initData = dataGarden.getInitialData();
-    console.log(initData);
-    
+    console.log("getData()");
+    initData = dataGarden.getInitialData();
     textStatus = null;
     jqXHR = null;
 
@@ -106,8 +121,6 @@ function getData(garden, numEntries, callback) {
 
     // var curTime = new Date().toJSON();
     // lastEndTime = curTime;
-
-
 
     // var queryUrl = "http://50.19.108.27/arduino/garden/" + garden + 
     //      "?num="+numEntries;
@@ -124,7 +137,6 @@ function getData(garden, numEntries, callback) {
 }
 
 function initGraphs(data, textStatus, jqXHR) {
-    console.log("initial data: " + data);
     $.each(data, function(i, item) {
         var time = new Date(item.time).getTime()/1000.0;
         $.each(categories, function(label, pathArray) {
@@ -188,7 +200,6 @@ function initGraph(htmlId, name, color, dataArr, yunits) {
         graph: graph,
         formatter: function(series, x, y) {
             var msg = series + " " + yunits;
-            console.log(msg);
             return msg;
 
         }
@@ -224,43 +235,77 @@ function initGraph(htmlId, name, color, dataArr, yunits) {
 }
 
 var getLatestData = function(){
+    console.log("dashboarddead.getLastestData()");
+    
+    var newData = dataGarden.getLastN(ptsPerRefresh);
 
-    var start = lastEndTime;
-    var end = (new Date()).toJSON();
-    lastEndTime = end;
-    var queryUrl = "http://50.19.108.27/arduino/garden/range/" + garden 
-        + "?start_time=" + start + "&end_time=" + end + "&num=" + maxNumPointsPerInterval;
-        console.log(queryUrl);
-    jQuery.ajax({
-        url: queryUrl,
-        type: "GET",
-        dataType: "json",
-        success: function(newData, textStatus, jqXHR){
-            console.log("New data received: " + newSeriesData);
-            var newSeriesData = initSeriesData(categories);
+    var newSeriesData = initSeriesData(categories);
 
-            $.each(newData, function(i, item) {
-                var time = new Date(item.time).getTime()/1000.0;
-                console.log("New data time: " + new Date(time * 1000));
-                $.each(categories, function(label, pathArray) {
-                    var val = getFieldValue(pathArray, item);
-                    newSeriesData[label].push({x: time, y: val});
-                });
-            });
-
-            if (newData.length > 0) {
-                $.each(categories, function(label, path) {
-                    newSeriesData[label] = newSeriesData[label].reverse();
-                    seriesData[label].push.apply(seriesData[label], newSeriesData[label]);
-                });
-
-                $.each(graphs, function(i, graph) {
-                    console.log("update " + graph.series[0].name)
-                    graph.update();
-                });
-            }
-        },
+    console.log("New data received: " + newData);
+    
+    $.each(newData, function(i, item) {
+        var time = new Date(item.time).getTime()/1000.0;
+        console.log("New data time: " + new Date(time * 1000));
+        $.each(categories, function(label, pathArray) {
+            var val = getFieldValue(pathArray, item);
+            newSeriesData[label].push({x: time, y: val});
+        });
     });
+
+    if (newData.length > 0) {
+        $.each(categories, function(label, path) {
+            newSeriesData[label] = newSeriesData[label].reverse();
+            seriesData[label].push.apply(seriesData[label], newSeriesData[label]);
+        });
+
+        $.each(graphs, function(i, graph) {
+            console.log("update " + graph.series[0].name)
+            graph.update();
+        });
+    }
+
+
+
+    // var start = lastEndTime;
+    // var end = (new Date()).toJSON();
+    // lastEndTime = end;
+
+    // var queryUrl = "http://50.19.108.27/arduino/garden/range/" + garden 
+    //     + "?start_time=" + start + "&end_time=" + end + "&num=" + ptsPerRefresh;
+    //     console.log(queryUrl);
+    
+    // jQuery.ajax({
+    //     url: queryUrl,
+    //     type: "GET",
+    //     dataType: "json",
+    //     success: function(newData, textStatus, jqXHR){
+    //         console.log("New data received: " + newSeriesData);
+            
+
+    //         // var newSeriesData = initSeriesData(categories);
+
+    //         $.each(newData, function(i, item) {
+    //             var time = new Date(item.time).getTime()/1000.0;
+    //             console.log("New data time: " + new Date(time * 1000));
+    //             $.each(categories, function(label, pathArray) {
+    //                 var val = getFieldValue(pathArray, item);
+    //                 newSeriesData[label].push({x: time, y: val});
+    //             });
+    //         });
+
+    //         if (newData.length > 0) {
+    //             $.each(categories, function(label, path) {
+    //                 newSeriesData[label] = newSeriesData[label].reverse();
+    //                 seriesData[label].push.apply(seriesData[label], newSeriesData[label]);
+    //             });
+
+    //             $.each(graphs, function(i, graph) {
+    //                 console.log("update " + graph.series[0].name)
+    //                 graph.update();
+    //             });
+    //         }
+    //     },
+    // });
 };
 
 

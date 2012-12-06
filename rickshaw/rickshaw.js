@@ -1598,8 +1598,6 @@ Rickshaw.Graph.HoverDetail = Rickshaw.Class.create({
 			approximateIndex += 1;
 		var dataIndex = Math.min(approximateIndex || 0, stackedData[0].length - 1);
 
-		console.log("index: " + dataIndex);
-
 		for (var i = approximateIndex; i < stackedData[0].length - 1;) {
 
 			if (!stackedData[0][i] || !stackedData[0][i + 1]) {

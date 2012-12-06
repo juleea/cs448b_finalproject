@@ -25,10 +25,34 @@ var startTimeInput, endTimeInput;
 var axis = d3.select("body").selectAll(".axis")
     .data(["top", "bottom"])
     .enter().append("div")
-    .attr("class", function(d) { return d + " axis"; });
+    .attr("class", function(d) { return d + " axis"; })
+    .each(function(d) { d3.select(this).call(context.axis().ticks(12).orient(d)); });
 
 var rule = d3.select("body").append("div")
     .attr("class", "rule");
+
+function loadData() {
+    horizon = d3.select("body").selectAll(".horizon")
+    .data(["Photocell (light intensity)", "Flow rate", "Growbed level", "Temperature", "Humidity", "pH", "Conductivity"].map(getData))
+    .enter().insert("div", ".bottom")
+    .attr("class", "horizon")
+    .call(context.horizon().height(50));
+
+horizon2 = d3.select("body").selectAll(".horizon2")
+    .data(["Tank full", "Fish feeder", "Fish tank pump", "Flow switch", "Grow lights", "Leak", "Backup reservoir", "Reservoir pump"].map(getData))
+    .enter().insert("div", ".bottom")
+    .attr("class", "horizon2")
+    .call(context.horizon().height(10));
+
+context.on("focus", function(i) {
+        //console.log("size " + context.size());
+        //console.log(i);
+  d3.selectAll(".value").style("right", i == null ? null : context.size() - i + "px");
+
+});
+}
+
+loadData();
 
 $('#start').change(function() {
     startTimeInput = $('#start').val();
@@ -52,11 +76,15 @@ $('#start').change(function() {
                .size(1440);
     }
     
-    axis.each(function(d) { d3.select(this).call(context.axis().ticks(12).orient(d)); });
-
     rule.call(context.rule());
 
-d3.select("body").selectAll(".horizon")
+    horizon.data(["Photocell (light intensity)", "Flow rate", "Growbed level", "Temperature", "Humidity", "pH", "Conductivity"].map(getData))
+    .enter().insert("div", ".bottom")
+    .attr("class", "horizon")
+    .call(context.horizon().height(50));
+
+    //loadData();
+/*d3.select("body").selectAll(".horizon")
     .data(["Photocell (light intensity)", "Flow rate", "Growbed level", "Temperature", "Humidity", "pH", "Conductivity"].map(getData))
     .enter().insert("div", ".bottom")
     .attr("class", "horizon")
@@ -73,7 +101,7 @@ context.on("focus", function(i) {
         //console.log(i);
   d3.selectAll(".value").style("right", i == null ? null : context.size() - i + "px");
 });
-
+  */
 
 });
 
@@ -96,7 +124,7 @@ function getData(variable) {
           var i= jsond.length-1;
           //var i= Math.max(numEntries,jsond.length) - 1;
           var actual=0, desired=0;
-          while (start < stop) {
+          while (i>0 && start < stop) {
             //console.log(i);
             start += 1e4;
             //start += step
@@ -153,9 +181,9 @@ function getData(variable) {
             if (1e4/step > 1) {
                 for (var j=0; j<1e4/step; j++) values.push(v);
             } else {
-                console.log("desired: "+desired+"actual: "+actual);
+                //console.log("desired: "+desired+" actual: "+actual);
                 console.log(desired - actual);
-                if (desired - actual < 10) {
+                if (desired - actual < 1e4) {
                     values.push(v);
                     desired += step;
                 }

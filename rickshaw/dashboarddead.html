@@ -13,7 +13,7 @@
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.15/jquery-ui.min.js"></script>
 
-    <script src="../datagarden.js"></script>
+    <script src="http://stanford.edu/~jsquared/cgi-bin/clone/datagarden.js"></script>
 
 	<script src="rickshaw.js"></script>
 	<script src="Rickshaw.Graph.RangeSlider.js"></script>
@@ -94,8 +94,10 @@ function getQueryParameters() {
 }
 
 function getData(garden, numEntries, callback) {
+    console.log("hi");
 
     var initData = dataGarden.getInitialData();
+    console.log(initData);
     
     textStatus = null;
     jqXHR = null;
@@ -146,7 +148,7 @@ function initGraphs(data, textStatus, jqXHR) {
         }
     );
 
-    setInterval( function() { getLatestData(); }, refreshInterval );
+//    setInterval( function() { getLatestData(); }, refreshInterval );
 
 } 
 

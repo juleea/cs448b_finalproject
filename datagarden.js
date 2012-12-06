@@ -20,12 +20,14 @@ function DataGarden(garden, useLive) {
 DataGarden.prototype.getLastN = function(n) {
 }
 
-DataGarden.prototype.getIntialData = function() {
+DataGarden.prototype.getInitialData = function() {
+    console.log("hi");
 	if (!this.useLive) {
+        console.log("hi");
 		var then = this.bigBang;
 		while (this.now > then) {
 			this.currentIndex++;
 		}
-	return this.data.slice(0, this.currentIndex);
+        return this.data.slice(0, this.currentIndex);
 	}
 }

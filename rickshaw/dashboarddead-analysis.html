@@ -33,21 +33,9 @@
 
     <div id="slider"></div>
     <div id="inputs">
-        <div align="center" class="float-left"><input type="text" id="start_input"></div>
-        <div align="center" class="float-left">
-    <div class="radiolist">
-    <p class="selected">
-        <input value="monitor" type="radio">
-        <a class="radio-select" href="#">Monitor mode</a>
-    </p>
-    <p>
-        <input value="analysis" type="radio">
-        <a class="radio-select" href="#">Analysis mode</a>
-    </p>
-    </div>
-
-        </div>
-        <div align="center" class="float-left"><input type="text" id="end_input"></div>
+        <input type="text" class="left" id="start_input">
+        <input type="text" class="right" id="end_input">
+        <div style="clear:both;"></div>
     </div>
 
 </div>
@@ -67,16 +55,6 @@ jQuery.fn.onEnter = function(callback)
     );
     return this;
 }
-
-$(".radiolist .radio-select").click(
-function(event) {
-event.preventDefault();
-var $boxes = $(this).parent().parent().children();
-$boxes.removeClass("selected");
-$(this).parent().addClass("selected");
-$(this).parent().find(":radio").attr("checked","checked");
-}
-);
 
 var garden = getQueryParameters();
 var categories = {
@@ -118,10 +96,12 @@ setTimeout(
         getData(garden, numInitialPoints, initGraphs);
     }, 500);
 
+/*
 setTimeout(
     function() {
         setInterval( function() { getLatestData(); }, refreshInterval );
     }, 5000);
+    */
     
 
 // *** FUNCTIONS *** //
@@ -132,7 +112,7 @@ function setEndpoint(value, isStart) {
     var value_mil = value_date.getTime()/1000.0;
     console.log(value_mil);
 
-    //var newData = ...;
+    var newData = ...;
 
     seriesData.length = 0;
 
@@ -160,7 +140,6 @@ function isValidDate(d) {
               return false;
         return !isNaN(d.getTime());
 }
-
 
 function createDataGarden(callback) {
     // console.log("createDataGarden()");

@@ -1583,41 +1583,33 @@ Rickshaw.Graph.HoverDetail = Rickshaw.Class.create({
 		var eventY = e.offsetY || e.layerY;
 
 		var domainX = graph.x.invert(eventX);
-		console.log(eventX + " -> " + domainX + " ~ " + new Date(domainX*1000));
 		var stackedData = graph.stackedData;
 
 		var topSeriesData = stackedData.slice(-1).shift();
 
-
-		console.log("slice: ");
-		console.log(topSeriesData.slice(-1).shift().x);
-
 		var domainIndexScale = d3.scale.linear()
 			.domain([topSeriesData[0].x, topSeriesData.slice(-1).shift().x])
 			.range([0, topSeriesData.length]);
-		//TODO(juleea): fix approximateIndexCalculation??
-		var scaleX = (topSeriesData.slice(-1).shift().x - topSeriesData[0].x) / (topSeriesData.length - 1);
-		// var exactIndex = 
-		var exactIndex = (domainX - topSeriesData[0].x) / scaleX;
-		domainIndexScale(domainX);
+
+		//TODO(juleea): fix apporximateIndexCalculation??
+		var exactIndex = domainIndexScale(domainX);
 		var approximateIndex = Math.floor(exactIndex);
 		if (exactIndex - approximateIndex > .5) 
 			approximateIndex += 1;
 		var dataIndex = Math.min(approximateIndex || 0, stackedData[0].length - 1);
-		console.log("exact index = "+exactIndex + " -> dataIndex " + dataIndex);
-		// for (var i = approximateIndex; i < stackedData[0].length - 1;) {
 
-		// 	if (!stackedData[0][i] || !stackedData[0][i + 1]) {
-				
-		// 		break;
-		// 	}
+		for (var i = approximateIndex; i < stackedData[0].length - 1;) {
 
-		// 	if (stackedData[0][i].x <= domainX && stackedData[0][i + 1].x > domainX) {
-		// 		dataIndex = i;
-		// 		break;
-		// 	}
-		// 	if (stackedData[0][i + 1] <= domainX) { i++ } else { i-- }
-		// }
+			if (!stackedData[0][i] || !stackedData[0][i + 1]) {
+				break;
+			}
+
+			if (stackedData[0][i].x <= domainX && stackedData[0][i + 1].x > domainX) {
+				dataIndex = i;
+				break;
+			}
+			if (stackedData[0][i + 1] <= domainX) { i++ } else { i-- }
+		}
 
 		var domainX = stackedData[0][dataIndex].x;
 		var formattedXValue = this.xFormatter(domainX);

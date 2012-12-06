@@ -5,7 +5,7 @@ import datetime
 
 def cleanData(filenamePrefix):
   rawFilename = filenamePrefix + ".raw"
-  cleanFilename = filenamePrefix + ".clean"
+  cleanFilename = filenamePrefix + ".clean.json"
 
   rawJson = open(rawFilename)
   jsonArr = json.load(rawJson)
@@ -21,6 +21,7 @@ def cleanData(filenamePrefix):
     timeStr = time.strftime("%Y-%m-%dT%H:%M:%S.000Z")
     # old = obj['time']
     obj['time'] = timeStr
+
   
   cleanData = open(cleanFilename, 'wb')
   cleanData.write(json.dumps(jsonArr))

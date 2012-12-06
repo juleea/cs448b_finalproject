@@ -153,7 +153,7 @@ function initGraphs(data, textStatus, jqXHR) {
     });
 
     $.each(categories, function(label, path) {
-        seriesData[label] = seriesData[label].reverse();
+        seriesData[label] = seriesData[label];
     });
 
     initGraph("temperature", "Temperature", "#c05020", seriesData["Temperature"], "C");
@@ -181,7 +181,7 @@ function initGraph(htmlId, name, color, dataArr, yunits) {
     {
 	    element: document.getElementById(htmlId),
 	    width: 960,
-	    height: 75,
+	    height: 175,
         min: -30,
         max: 30,
         padding:
@@ -189,7 +189,7 @@ function initGraph(htmlId, name, color, dataArr, yunits) {
             top: .1,
             bottom: .1
         },
-	    renderer: 'scatterplot', //line',
+	    // renderer: 'scatterplot', //line',
         //dataURL: "http://50.19.108.27/arduino/garden/v1.1/?num=100",
         //onData: function(d) { return d },
     	series: [{
@@ -221,15 +221,22 @@ function initGraph(htmlId, name, color, dataArr, yunits) {
     //     legend: legend
     // } );
 
+
+    var time = new Rickshaw.Fixtures.Time();
+    var minutes = time.unit('minute');
     var axes = new Rickshaw.Graph.Axis.Time( {
-	   graph: graph
+       graph: graph,
+       timeUnit: minutes
+
     } );
+   
+
     // console.log($("#" + yaxisId));
     var y_ticks = new Rickshaw.Graph.Axis.Y( {
         graph: graph,
     } );
 
-    // axes.render();
+    axes.render();
 
     graph.render(); 
 
@@ -260,7 +267,7 @@ var getLatestData = function(){
         // });
 
         $.each(graphs, function(i, graph) {
-            graph.render();
+            graph.update();
         });
     }
 

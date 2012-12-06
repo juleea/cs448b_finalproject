@@ -144,6 +144,7 @@ function getData(garden, numEntries, callback) {
 
 function initGraphs(data, textStatus, jqXHR) {
     $.each(data, function(i, item) {
+        //var time = new Date(item.time);
         var time = new Date(item.time).getTime()/1000.0;
         $.each(categories, function(label, pathArray) {
             var val = getFieldValue(pathArray, item);
@@ -152,7 +153,7 @@ function initGraphs(data, textStatus, jqXHR) {
     });
 
     $.each(categories, function(label, path) {
-        seriesData[label] = seriesData[label].reverse();
+        seriesData[label] = seriesData[label];
     });
 
     initGraph("temperature", "Temperature", "#c05020", seriesData["Temperature"], "C");
@@ -221,14 +222,14 @@ function initGraph(htmlId, name, color, dataArr, yunits) {
     // } );
 
     var axes = new Rickshaw.Graph.Axis.Time( {
-	   graph: graph
+	   graph: graph,
     } );
     // console.log($("#" + yaxisId));
     var y_ticks = new Rickshaw.Graph.Axis.Y( {
         graph: graph,
     } );
 
-    // axes.render();
+    axes.render();
 
     graph.render(); 
 
@@ -243,6 +244,7 @@ var getLatestData = function(){
     
     $.each(newData, function(i, item) {
         var time = new Date(item.time).getTime()/1000.0;
+        //var time = new Date(item.time);
         console.log("New data time: " + new Date(time * 1000));
 
         $.each(categories, function(label, pathArray) {

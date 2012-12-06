@@ -1,14 +1,14 @@
 #slider {
 	float: left;
 	width: 980px;
-	margin: 10px 0px;
+	/*margin: 10px 0px;*/
 }
 
 #charts {
-	margin: 0px 10px;
+	/*margin: 0px 10px;*/
 }
 
 .rsgraph {
-	margin-top: 20px;
-	margin-bottom: 20px;
+	border-top: 20px;
+	border-bottom: 20px;
 }

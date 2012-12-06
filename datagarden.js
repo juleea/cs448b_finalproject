@@ -72,8 +72,9 @@ DataGarden.prototype.getRange = function(start, end) {
 			return [];
 		}
 
-		var startIndex = Math.max(Math.floor((start - this.bigBang.getTime()) / this.dataInterval), 0);
-		var endIndex = Math.min(Math.floor((end - this.bigBang.getTime()) / this.dataInterval), this.data.length);
+        console.log((start - this.bigBang.getTime()) / this.dataInterval);
+		var startIndex = Math.min(Math.max(Math.floor((start - this.bigBang.getTime()) / this.dataInterval), 0), this.data.length);
+		var endIndex = Math.max(Math.min(Math.floor((end - this.bigBang.getTime()) / this.dataInterval), this.data.length), 0);
 		console.log("Effective index range queried: [" + startIndex  + ", " + endIndex + "]");
 		return this.data.slice(startIndex, endIndex);
 	}

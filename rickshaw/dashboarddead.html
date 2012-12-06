@@ -105,11 +105,11 @@ var end_input = $("#end_input");
 
 
 start_input.onEnter(function() {
-        setEndpoint(start_input.val(), true);
+        setEndpoint(start_input.val(), end_input.val());
     }
 );
 end_input.onEnter(function() {
-        setEndpoint(end_input.val(), false);
+        setEndpoint(start_input.val(), end_input.val());
     }
 )
 createDataGarden();
@@ -118,21 +118,29 @@ setTimeout(
         getData(garden, numInitialPoints, initGraphs);
     }, 500);
 
+/*
 setTimeout(
     function() {
         setInterval( function() { getLatestData(); }, refreshInterval );
     }, 5000);
+    */
     
 
 // *** FUNCTIONS *** //
 
-function setEndpoint(value, isStart) {
-    value_date = new Date(value);
-    if (!isValidDate(value_date)) return;
-    var value_mil = value_date.getTime()/1000.0;
-    console.log(value_mil);
+function setEndpoint(start, end) {
+    start_date = new Date(start);
+    if (!isValidDate(start_date)) return;
+    var start_mil = start_date.getTime();
+    end_date = new Date(end);
+    if (!isValidDate(end_date)) return;
+    var end_mil = end_date.getTime();
 
-    //var newData = ...;
+    console.log(start_mil);
+    console.log(end_mil);
+
+    var newData = dataGarden.getRange(start_mil, end_mil);
+    console.log("new data: " + newData);
 
     seriesData.length = 0;
 

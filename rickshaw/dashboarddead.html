@@ -60,14 +60,20 @@ var numInitialPoints = 10;
 
 createDataGarden();
 setTimeout(
-        function() {
-            getData(garden, numInitialPoints, initGraphs);
-        }, 500);
+    function() {
+        getData(garden, numInitialPoints, initGraphs);
+    }, 500);
+
+setTimeout(
+    function() {
+        setInterval( function() { getLatestData(); }, refreshInterval );
+    }, 5000);
+    
 
 // *** FUNCTIONS *** //
 
 function createDataGarden(callback) {
-    console.log("createDataGarden()");
+    // console.log("createDataGarden()");
     dataGarden = new DataGarden(garden, false);
 }
 
@@ -112,7 +118,7 @@ function getQueryParameters() {
 }
 
 function getData(garden, numEntries, callback) {
-    console.log("getData()");
+    // console.log("getData()");
     initData = dataGarden.getInitialData();
 
     textStatus = null;
@@ -161,8 +167,6 @@ function initGraphs(data, textStatus, jqXHR) {
         }
     );
 
-    setInterval( function() { getLatestData(); }, refreshInterval );
-
 } 
 
 function initGraph(htmlId, name, color, dataArr, yunits) {
@@ -199,18 +203,11 @@ function initGraph(htmlId, name, color, dataArr, yunits) {
 
     hoverDetail = new Rickshaw.Graph.HoverDetail( {
         graph: graph,
-        formatter: function(series, x, y) {
-            var msg = series + " " + yunits;
-            return msg;
-
-        }
-        // xFormatter: function(x) { return x + "seconds" },
-        // yFormatter: function(y) { console.log('hey'); return y + " " + yunits }
+        xFormatter: function(x) { return x + " seconds" },
+        yFormatter: function(y) { return y + " " + yunits }
     } );
 
     graphs.push(graph);
-
-    graph.render(); 
 
 
     // var legend = new Rickshaw.Graph.Legend( {
@@ -224,44 +221,46 @@ function initGraph(htmlId, name, color, dataArr, yunits) {
     //     legend: legend
     // } );
 
-    // var axes = new Rickshaw.Graph.Axis.Time( {
-	   // graph: graph
-    // } );
+    var axes = new Rickshaw.Graph.Axis.Time( {
+	   graph: graph
+    } );
     // console.log($("#" + yaxisId));
     var y_ticks = new Rickshaw.Graph.Axis.Y( {
         graph: graph,
     } );
 
     // axes.render();
+
+    graph.render(); 
+
 }
 
 var getLatestData = function(){
-    console.log("dashboarddead.getLastestData()");
+    // console.log("dashboarddead.getLastestData()");
     
     var newData = dataGarden.getLastN(ptsPerRefresh);
 
     var newSeriesData = initSeriesData(categories);
-
-    console.log("New data received: " + newData);
     
     $.each(newData, function(i, item) {
         var time = new Date(item.time).getTime()/1000.0;
         console.log("New data time: " + new Date(time * 1000));
+
         $.each(categories, function(label, pathArray) {
             var val = getFieldValue(pathArray, item);
-            newSeriesData[label].push({x: time, y: val});
+            seriesData[label].push({x: time, y: val});
         });
+        console.log(seriesData);
     });
 
-    if (newData.length > 0) {
-        $.each(categories, function(label, path) {
-            newSeriesData[label] = newSeriesData[label].reverse();
-            seriesData[label].push.apply(seriesData[label], newSeriesData[label]);
-        });
+    if (newData && newData.length > 0) {
+        // $.each(categories, function(label, path) {
+        //     newSeriesData[label] = newSeriesData[label].reverse();
+        //     seriesData[label].push.apply(seriesData[label], newSeriesData[label]);
+        // });
 
         $.each(graphs, function(i, graph) {
-            console.log("update " + graph.series[0].name)
-            graph.update();
+            graph.render();
         });
     }
 

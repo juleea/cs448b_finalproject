@@ -6,35 +6,36 @@ function DataGarden(garden, useLive) {
 	var that = this;
 
 	if (!useLive) {
-		this.now = new Date("2012-12-04T15:30:04.000Z");
-		this.bigBang = new Date("2012-12-04T15:25:14.000Z");
+		this.now = new Date("2012-12-05T16:08:56.000Z");
+		this.bigBang = new Date("2012-12-05T16:07:56.000Z");
 		this.apocalypse = new Date("2012-12-04T19:18:24.000Z");
 		this.nextIndex = 0;
 
 		$.getJSON("../data/v2.n1440.clean.json", function(response) {
-			that.data = response.reverse();
-			console.log("data retrieved: " + that.data.length + " points");
+			that.data = response;
 		});
 
 	}
 }
 
 DataGarden.prototype.getLastN = function(n) {
-	console.log("getLastN()");
+	// console.log("getLastN()");
 	if (!this.useLive) {
+		console.log(this.data.slice(0, 9));
 		var start = this.nextIndex;
 		this.nextIndex = start + n;
-		console.log(this.data[0].time + " ... " + this.data[1].time);
+		// console.log("n = " + n + "index range: [" + start + ", " + this.nextIndex + "]");
 		return this.data.slice(start, this.nextIndex);
+
 	}
 }
 
 DataGarden.prototype.getInitialData = function() {
-	console.log("get initial data()");
+	// console.log("get initial data()");
 	if (!this.useLive) {
-		console.log(this.now.getTime() - this.bigBang.getTime());
 		var numPoints = (this.now.getTime() - this.bigBang.getTime())/10.0/1000;
 		this.nextIndex = numPoints;
+		// console.log("intial display num points: " + this.nextIndex);
 		return this.data.slice(0, this.nextIndex);
 	}
 }

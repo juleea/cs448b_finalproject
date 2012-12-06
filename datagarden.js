@@ -21,7 +21,7 @@ function DataGarden(garden, useLive) {
 DataGarden.prototype.getLastN = function(n) {
 	// console.log("getLastN()");
 	if (!this.useLive) {
-		console.log(this.data.slice(0, 9));
+		// console.log(this.data.slice(0, 9));
 		var start = this.nextIndex;
 		this.nextIndex = start + n;
 		console.log("n = " + n + "index range: [" + start + ", " + this.nextIndex + "]");

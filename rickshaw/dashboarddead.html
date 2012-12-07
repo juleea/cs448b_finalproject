@@ -15,6 +15,7 @@
 
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.15/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="jquery.jqtransform.js"></script>
 
     <script src="http://stanford.edu/~jsquared/cgi-bin/clone/datagarden.js"></script>
 
@@ -33,21 +34,29 @@
 
     <div id="slider"></div>
     <div id="inputs">
-        <div align="center" class="float-left"><input type="text" id="start_input"></div>
+        <div style="display: none;" id="start_div" align="center" class="float-left"><input type="text" id="start_input"></div>
+        <div id="monitor_start_div" align="center" class="float-left">Hi</div>
         <div align="center" class="float-left">
+
+        <input checked id="monitor_input" name="mode" value="monitor" type="radio">Monitor
+        <input id="analysis_input" name="mode" value="analysis" type="radio">Analysis
+
+        <!--
     <div class="radiolist">
     <p class="selected">
-        <input value="monitor" type="radio">
+        <input id="monitor_input" name="mode" value="monitor" type="radio">
         <a class="radio-select" href="#">Monitor mode</a>
     </p>
     <p>
-        <input value="analysis" type="radio">
+        <input id="analysis_input" name="mode" value="analysis" type="radio">
         <a class="radio-select" href="#">Analysis mode</a>
     </p>
     </div>
+    -->
 
         </div>
-        <div align="center" class="float-left"><input type="text" id="end_input"></div>
+        <div style="display: none;" id="end_div" align="center" class="float-left"><input type="text" id="end_input"></div>
+        <div id="monitor_end_div" align="center" class="float-left">bye</div>
     </div>
 
 </div>
@@ -73,15 +82,28 @@ function(event) {
 event.preventDefault();
 var $boxes = $(this).parent().parent().children();
 $boxes.removeClass("selected");
+$(this).removeAttr("checked");
 $(this).parent().addClass("selected");
 $(this).parent().find(":radio").attr("checked","checked");
 }
 );
 
+<<<<<<< HEAD
 var paramPairs = getQueryParameters();
 var garden = paramPairs.garden;
 var visibleTimeRange = 20 * 1000; // time range (milliseconds) to display on graphs 
 
+=======
+
+$(".radiolist .radio-deselect").click(
+function(event) {
+event.preventDefault();
+$(this).parent().removeClass("selected");
+}
+);
+
+var garden = getQueryParameters();
+>>>>>>> 14b3d2e610b121008815e5dd8732f572276911f5
 var categories = {
    
    //continues variable measurements
@@ -123,12 +145,16 @@ var numInitialPoints = 10;
 var start_input = $("#start_input");
 var end_input = $("#end_input");
 
+var monitor_input = $("#monitor_input");
+var analysis_input = $("#analysis_input");
 
 start_input.onEnter(function() {
+        clearInterval(updateInterval);
         setEndpoint(start_input.val(), end_input.val());
     }
 );
 end_input.onEnter(function() {
+        clearInterval(updateInterval);
         setEndpoint(start_input.val(), end_input.val());
     }
 )
@@ -138,12 +164,37 @@ setTimeout(
         getData(garden, numInitialPoints, initGraphs);
     }, 500);
 
-/*
+var updateInterval;
 setTimeout(
     function() {
-        setInterval( function() { getLatestData(); }, refreshInterval );
+        updateInterval = setInterval( function() { getLatestData(); }, refreshInterval );
     }, 5000);
-    */
+
+$(function() {
+    $("#monitor_input").jqTransform();
+});
+
+$(document).ready(function() {
+$("input[name='mode']").change(function() {
+    if ($("input[name='mode']:checked").val() == 'analysis') {
+        console.log('analysis');
+        $("#monitor_start_div").hide();
+        $("#monitor_end_div").hide();
+        $("#start_div").show();
+        $("#end_div").show();
+        start_input.val($("#monitor_start_div").text());
+        end_input.val($("#monitor_end_div").text());
+        clearInterval(updateInterval);
+    } else { // Monitor
+        console.log('monitor');
+        $("#monitor_start_div").show();
+        $("#monitor_end_div").show();
+        $("#start_div").hide();
+        $("#end_div").hide();
+        updateInterval = setInterval( function() { getLatestData(); }, refreshInterval );
+    }
+});
+});
     
 
 // *** FUNCTIONS *** //
@@ -163,17 +214,13 @@ function setEndpoint(start, end) {
     console.log("new data: " + newData);
 
     seriesData.length = 0;
-
     $.each(newData, function(i, item) {
         var time = new Date(item.time).getTime()/1000.0;
-        //var time = new Date(item.time);
-        console.log("New data time: " + new Date(time * 1000));
 
         $.each(categories, function(label, pathArray) {
             var val = getFieldValue(pathArray, item);
             seriesData[label].push({x: time, y: val});
         });
-        console.log(seriesData);
     });
 
     if (newData && newData.length > 0) {
@@ -273,6 +320,12 @@ function initGraphs(data, textStatus, jqXHR) {
     $.each(categories, function(label, path) {
         seriesData[label] = seriesData[label];
     });
+    var startTime = new Date(data[0].time);
+    $("#monitor_start_div").text(startTime.getMonth()+1 + "-" + startTime.getDate() + "-" + startTime.getFullYear() + " " + startTime.getHours() + ":" + startTime.getMinutes() + ":" + startTime.getSeconds());
+
+
+    var latestTime = new Date(data[data.length-1].time);
+    $("#monitor_end_div").text(latestTime.getMonth()+1 + "-" + latestTime.getDate() + "-" + latestTime.getFullYear() + " " + latestTime.getHours() + ":" + latestTime.getMinutes() + ":" + latestTime.getSeconds());
 
     initGraph("temperature", "Temperature", "#c05020", "C", -30, 15);
     initGraph("flow_rate", "Flow rate", "#30c020", "gpm", -15, 15);
@@ -395,8 +448,12 @@ var getLatestData = function(){
             seriesData[label].push({x: time, y: val});
         });
 
+    var latestTime = new Date(newData[newData.length-1].time);
+    $("#monitor_end_div").text(latestTime.getMonth()+1 + "-" + latestTime.getDate() + "-" + latestTime.getFullYear() + " " + latestTime.getHours() + ":" + latestTime.getMinutes() + ":" + latestTime.getSeconds());
+
 
     });
+
 
     if (newData && newData.length > 0) {
         // $.each(categories, function(label, path) {

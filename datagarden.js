@@ -14,6 +14,7 @@ function DataGarden(garden, useLive) {
 
 		$.getJSON("../data/v2.n1440.clean.json", function(response) {
 			that.data = response;
+			console.log(response[0]);
 		});
 
 	}
@@ -32,13 +33,16 @@ DataGarden.prototype.getLastN = function(n) {
 }
 
 
-DataGarden.prototype.getInitialData = function(now, interval) {
+DataGarden.prototype.getInitialData = function(interval) {
 	// console.log("get initial data()");
 	if (!this.useLive) {
+		var start = this.bigBang.getTime();
+		if (interval) {
+			start = this.now.getTime() - interval;
 
-		var returnData = this.getRange(this.bigBang.getTime(), this.now.getTime() + 1); // add one to include now
-		console.log("Initial data: " + returnData);
-		this.nextIndex = returnData.length;
+		}
+		var returnData = this.getRange(start, this.now.getTime() + 1); // add one to include now
+		this.nextIndex = this.getRange(this.bigBang.getTime(), this.now.getTime()).length; // hack-city to set next index
 		// console.log("intial display num points: " + this.nextIndex);
 		return returnData;
 		// return this.data.slice(0, this.nextIndex);
@@ -51,8 +55,6 @@ DataGarden.prototype.getInitialData = function(now, interval) {
 		console.error("Error retrieving initial data. Returning empty array.");
 		return [];
 	}
-
-
 }
 
 // Get all data in the interval specified in epoch time (in milliseconds).

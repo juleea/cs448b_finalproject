@@ -36,10 +36,29 @@
 
 <script>
 
-var garden = getQueryParameters();
+var paramPairs = getQueryParameters();
+var garden = paramPairs.garden;
+var visibleTimeRange = 20 * 1000; // time range (milliseconds) to display on graphs 
+
 var categories = {
-   "Flow Rate": ["report", "flow_rate_sensor", "flowRate"],
-   "Temperature": ["report", "temperature_sensor", "temperature"],
+   
+   //continues variable measurements
+   "flow_rate": ["report", "flow_rate_sensor", "flowRate"],
+   "temperature": ["report", "temperature_sensor", "temperature"],
+   "light_level": ["report", "photocell_sensor", "lightLevel"],
+   "gb_level": ["report", "gb_level_sensor", "gbLevel"],
+   "humidity": ["report", "humidity_sensor", "humidity"],
+
+   //boolean variable measurements
+   // "tank_full": [""],
+   // "fish_feeder": [""],
+   // "fish_tank_pump": [""],
+   // "flow_switch": [""],
+   // "grow_lights": [""],
+   // "leak": [""],
+   // "backup_reservoir": [""],
+   // "reservoir_pump": [""],
+
 }
 var dataGarden;
 
@@ -54,6 +73,7 @@ var lastEndTime;
 
 var ptsPerRefresh = 1;
 var dataInterval = 10000;
+var averageDataInterval = 10000; // To estimate the index of old data to exclude
 var refreshInterval = ptsPerRefresh * dataInterval;
 
 var numInitialPoints = 10;
@@ -113,13 +133,12 @@ function getQueryParameters() {
         pairs[pair[0]] = pair[1];
     });
 
-    garden = pairs.garden;
-    return garden;
+    return pairs;
 }
 
 function getData(garden, numEntries, callback) {
     // console.log("getData()");
-    initData = dataGarden.getInitialData();
+    initData = dataGarden.getInitialData(visibleTimeRange);
 
     textStatus = null;
     jqXHR = null;
@@ -156,8 +175,11 @@ function initGraphs(data, textStatus, jqXHR) {
         seriesData[label] = seriesData[label];
     });
 
-    initGraph("temperature", "Temperature", "#c05020", seriesData["Temperature"], "C");
-    initGraph("flowrate", "Flow Rate", "#30c020", seriesData["Flow Rate"], " flowrateunits");
+    initGraph("temperature", "Temperature", "#c05020", "C", -30, 15);
+    initGraph("flow_rate", "Flow rate", "#30c020", "gpm", -15, 15);
+    initGraph("light_level", "Light level", "blue", "%", 0, 100);
+    initGraph("gb_level", "Growbed water level", "green", "%", 0, 100);
+    initGraph("humidity", "Humidity", "yellow", "", 0, 100); // TODO: check this
 
     //create slider
     var slider = new Rickshaw.Graph.RangeSlider(
@@ -169,32 +191,44 @@ function initGraphs(data, textStatus, jqXHR) {
 
 } 
 
-function initGraph(htmlId, name, color, dataArr, yunits) {
+function initGraph(htmlId, name, color, yunits, ymin, ymax) {
     // instantiate a graph!
     var yaxisId = htmlId + "_yaxis";
     var wrapperId = htmlId + "_wrapper";
-    $("#chart_container").append("<div id='" + wrapperId + "'></div>");
+    $("#chart_container").append("<div id='" + wrapperId + "' class='rsgraph_wrapper'></div>");
+    $("#" + wrapperId).append("<div id='" + htmlId + "'></div>");
     $("#" + wrapperId).append("<div id='" + yaxisId + "'></div>");
-    $("#" + wrapperId).append("<div id='" + htmlId + "' class='rsgraph'></div>");
+
+    // if (!ymin) {
+    //     ymin = -30;
+    // }
+
+    // if (!ymax) {
+    //     ymax = 30;
+    // }
+
+    // if (!yunits) {
+    //     yunits = '';
+    // }
 
     var graph = new Rickshaw.Graph(
     {
 	    element: document.getElementById(htmlId),
 	    width: 960,
 	    height: 175,
-        min: -30,
-        max: 30,
+        min: ymin,
+        max: ymax,
         padding:
         {
             top: .1,
             bottom: .1
         },
-	    // renderer: 'scatterplot', //line',
+	    renderer: 'scatterplot', //line',
         //dataURL: "http://50.19.108.27/arduino/garden/v1.1/?num=100",
         //onData: function(d) { return d },
     	series: [{
 			color: color,
-			data: dataArr,
+			data: seriesData[htmlId],
 			name: name,
 		}]
     });
@@ -224,7 +258,7 @@ function initGraph(htmlId, name, color, dataArr, yunits) {
 
     var time = new Rickshaw.Fixtures.Time();
     var minutes = time.unit('minute');
-    var axes = new Rickshaw.Graph.Axis.Time( {
+    var xAxis = new Rickshaw.Graph.Axis.Time( {
        graph: graph,
        timeUnit: minutes
 
@@ -232,11 +266,17 @@ function initGraph(htmlId, name, color, dataArr, yunits) {
    
 
     // console.log($("#" + yaxisId));
-    var y_ticks = new Rickshaw.Graph.Axis.Y( {
+    var yAxis = new Rickshaw.Graph.Axis.Y( {
         graph: graph,
+        orientation: 'right',
+        tickFormat: Rickshaw.Fixtures.Number.formatKMBT,
+        width: 50,
+        // element: document.getElementById($("#" + yaxisId)),
+        pixelsPerTick: 25,
     } );
 
-    axes.render();
+    xAxis.render();
+    yAxis.render();
 
     graph.render(); 
 
@@ -251,19 +291,36 @@ var getLatestData = function(){
     
     $.each(newData, function(i, item) {
         var time = new Date(item.time).getTime()/1000.0;
-        console.log("New data time: " + new Date(time * 1000));
 
         $.each(categories, function(label, pathArray) {
             var val = getFieldValue(pathArray, item);
             seriesData[label].push({x: time, y: val});
         });
-        console.log(seriesData);
+
+
     });
 
     if (newData && newData.length > 0) {
         // $.each(categories, function(label, path) {
         //     newSeriesData[label] = newSeriesData[label].reverse();
         //     seriesData[label].push.apply(seriesData[label], newSeriesData[label]);
+        // });
+
+        //TODO: in progress -- remove old data outside the visibleTimeRange
+        // $.each(seriesData, function(series, dataArr) {
+        //     console.log(series + " -> " + dataArr);
+        //     console.log(dataArr.slice(-1));
+
+        //     var earliestTimeToShow = dataArr.slice(-1)[0].x - visibleTimeRange;
+        //     console.log("earliest time to show: " + earliestTimeToShow);
+        //     var firstIndexToShow = 0;
+        //     console.log(firstIndexToShow + " -> "+ dataArr[firstIndexToShow]);
+        //     while (dataArr[firstIndexToShow].x < earliestTimeToShow) {
+        //         firstIndexToShow++;
+        //         console.log("first index to show: " + firstIndexToShow);
+        //     }
+        //     seriesData[series] = dataArr.slice(firstIndexToShow, dataArr.length);
+
         // });
 
         $.each(graphs, function(i, graph) {

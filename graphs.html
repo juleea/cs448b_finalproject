@@ -26,9 +26,11 @@ d3.select("body").append("div")
     .call(context.rule());
 
 d3.select("body").selectAll(".horizon")
+    //.data(["Photocell (light intensity)"].map(getData))
     .data(["Photocell (light intensity)", "Flow rate", "Growbed level", "Temperature", "Humidity", "pH", "Conductivity"].map(getData))
     .enter().insert("div", ".bottom")
     .attr("class", "horizon")
+    //.call(context.horizon().extent([93, 98]));
     .call(context.horizon().height(50));
     //.call(context.horizon().extent([0,100]));
 

@@ -26,7 +26,7 @@ DataGarden.prototype.getLastN = function(n) {
 		// console.log(this.data.slice(0, 9));
 		var start = this.nextIndex;
 		this.nextIndex = start + n;
-		// console.log("n = " + n + "index range: [" + start + ", " + this.nextIndex + "]");
+		console.log("n = " + n + "index range: [" + start + ", " + this.nextIndex + "]");
 		return this.data.slice(start, this.nextIndex);
 
 	}
@@ -34,6 +34,14 @@ DataGarden.prototype.getLastN = function(n) {
 
 
 DataGarden.prototype.getInitialData = function(interval) {
+/*DataGarden.prototype.getInitialData = function() {
+	if (!this.useLive) {
+		var numPoints = (this.now.getTime() - this.bigBang.getTime())/10.0/1000;
+		this.nextIndex = numPoints;
+		console.log("intial display num points: " + this.nextIndex);
+		return this.data.slice(0, this.nextIndex);
+        */
+
 	// console.log("get initial data()");
 	if (!this.useLive) {
 		var start = this.bigBang.getTime();
@@ -68,8 +76,9 @@ DataGarden.prototype.getRange = function(start, end) {
 			return [];
 		}
 
-		var startIndex = Math.max(Math.floor((start - this.bigBang.getTime()) / this.dataInterval), 0);
-		var endIndex = Math.min(Math.floor((end - this.bigBang.getTime()) / this.dataInterval), this.data.length);
+        console.log((start - this.bigBang.getTime()) / this.dataInterval);
+		var startIndex = Math.min(Math.max(Math.floor((start - this.bigBang.getTime()) / this.dataInterval), 0), this.data.length);
+		var endIndex = Math.max(Math.min(Math.floor((end - this.bigBang.getTime()) / this.dataInterval), this.data.length), 0);
 		console.log("Effective index range queried: [" + startIndex  + ", " + endIndex + "]");
 		return this.data.slice(startIndex, endIndex);
 	}

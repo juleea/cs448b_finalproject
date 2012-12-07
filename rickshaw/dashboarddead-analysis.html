@@ -33,21 +33,9 @@
 
     <div id="slider"></div>
     <div id="inputs">
-        <div align="center" class="float-left"><input type="text" id="start_input"></div>
-        <div align="center" class="float-left">
-    <div class="radiolist">
-    <p class="selected">
-        <input value="monitor" type="radio">
-        <a class="radio-select" href="#">Monitor mode</a>
-    </p>
-    <p>
-        <input value="analysis" type="radio">
-        <a class="radio-select" href="#">Analysis mode</a>
-    </p>
-    </div>
-
-        </div>
-        <div align="center" class="float-left"><input type="text" id="end_input"></div>
+        <input type="text" class="left" id="start_input">
+        <input type="text" class="right" id="end_input">
+        <div style="clear:both;"></div>
     </div>
 
 </div>
@@ -68,39 +56,10 @@ jQuery.fn.onEnter = function(callback)
     return this;
 }
 
-$(".radiolist .radio-select").click(
-function(event) {
-event.preventDefault();
-var $boxes = $(this).parent().parent().children();
-$boxes.removeClass("selected");
-$(this).parent().addClass("selected");
-$(this).parent().find(":radio").attr("checked","checked");
-}
-);
-
-var paramPairs = getQueryParameters();
-var garden = paramPairs.garden;
-var visibleTimeRange = 20 * 1000; // time range (milliseconds) to display on graphs 
-
+var garden = getQueryParameters();
 var categories = {
-   
-   //continues variable measurements
-   "flow_rate": ["report", "flow_rate_sensor", "flowRate"],
-   "temperature": ["report", "temperature_sensor", "temperature"],
-   "light_level": ["report", "photocell_sensor", "lightLevel"],
-   "gb_level": ["report", "gb_level_sensor", "gbLevel"],
-   "humidity": ["report", "humidity_sensor", "humidity"],
-
-   //boolean variable measurements
-   // "tank_full": [""],
-   // "fish_feeder": [""],
-   // "fish_tank_pump": [""],
-   // "flow_switch": [""],
-   // "grow_lights": [""],
-   // "leak": [""],
-   // "backup_reservoir": [""],
-   // "reservoir_pump": [""],
-
+   "Flow Rate": ["report", "flow_rate_sensor", "flowRate"],
+   "Temperature": ["report", "temperature_sensor", "temperature"],
 }
 var dataGarden;
 
@@ -115,7 +74,6 @@ var lastEndTime;
 
 var ptsPerRefresh = 1;
 var dataInterval = 10000;
-var averageDataInterval = 10000; // To estimate the index of old data to exclude
 var refreshInterval = ptsPerRefresh * dataInterval;
 
 var numInitialPoints = 10;
@@ -125,11 +83,11 @@ var end_input = $("#end_input");
 
 
 start_input.onEnter(function() {
-        setEndpoint(start_input.val(), end_input.val());
+        setEndpoint(start_input.val(), true);
     }
 );
 end_input.onEnter(function() {
-        setEndpoint(start_input.val(), end_input.val());
+        setEndpoint(end_input.val(), false);
     }
 )
 createDataGarden();
@@ -148,19 +106,13 @@ setTimeout(
 
 // *** FUNCTIONS *** //
 
-function setEndpoint(start, end) {
-    start_date = new Date(start);
-    if (!isValidDate(start_date)) return;
-    var start_mil = start_date.getTime();
-    end_date = new Date(end);
-    if (!isValidDate(end_date)) return;
-    var end_mil = end_date.getTime();
+function setEndpoint(value, isStart) {
+    value_date = new Date(value);
+    if (!isValidDate(value_date)) return;
+    var value_mil = value_date.getTime()/1000.0;
+    console.log(value_mil);
 
-    console.log(start_mil);
-    console.log(end_mil);
-
-    var newData = dataGarden.getRange(start_mil, end_mil);
-    console.log("new data: " + newData);
+    var newData = ...;
 
     seriesData.length = 0;
 
@@ -188,7 +140,6 @@ function isValidDate(d) {
               return false;
         return !isNaN(d.getTime());
 }
-
 
 function createDataGarden(callback) {
     // console.log("createDataGarden()");
@@ -231,13 +182,13 @@ function getQueryParameters() {
         pairs[pair[0]] = pair[1];
     });
 
-    return pairs;
+    garden = pairs.garden;
+    return garden;
 }
 
 function getData(garden, numEntries, callback) {
     // console.log("getData()");
-    initData = dataGarden.getInitialData(visibleTimeRange);
-
+    initData = dataGarden.getInitialData();
     textStatus = null;
     jqXHR = null;
 
@@ -274,11 +225,8 @@ function initGraphs(data, textStatus, jqXHR) {
         seriesData[label] = seriesData[label];
     });
 
-    initGraph("temperature", "Temperature", "#c05020", "C", -30, 15);
-    initGraph("flow_rate", "Flow rate", "#30c020", "gpm", -15, 15);
-    initGraph("light_level", "Light level", "blue", "%", 0, 100);
-    initGraph("gb_level", "Growbed water level", "green", "%", 0, 100);
-    initGraph("humidity", "Humidity", "yellow", "", 0, 100); // TODO: check this
+    initGraph("temperature", "Temperature", "#c05020", seriesData["Temperature"], "C");
+    initGraph("flowrate", "Flow Rate", "#30c020", seriesData["Flow Rate"], " flowrateunits");
 
     //create slider
     var slider = new Rickshaw.Graph.RangeSlider(
@@ -290,44 +238,32 @@ function initGraphs(data, textStatus, jqXHR) {
 
 } 
 
-function initGraph(htmlId, name, color, yunits, ymin, ymax) {
+function initGraph(htmlId, name, color, dataArr, yunits) {
     // instantiate a graph!
     var yaxisId = htmlId + "_yaxis";
     var wrapperId = htmlId + "_wrapper";
-    $("#chart_container").append("<div id='" + wrapperId + "' class='rsgraph_wrapper'></div>");
-    $("#" + wrapperId).append("<div id='" + htmlId + "'></div>");
+    $("#chart_container").append("<div id='" + wrapperId + "'></div>");
     $("#" + wrapperId).append("<div id='" + yaxisId + "'></div>");
-
-    // if (!ymin) {
-    //     ymin = -30;
-    // }
-
-    // if (!ymax) {
-    //     ymax = 30;
-    // }
-
-    // if (!yunits) {
-    //     yunits = '';
-    // }
+    $("#" + wrapperId).append("<div id='" + htmlId + "' class='rsgraph'></div>");
 
     var graph = new Rickshaw.Graph(
     {
 	    element: document.getElementById(htmlId),
 	    width: 960,
 	    height: 175,
-        min: ymin,
-        max: ymax,
+        min: -30,
+        max: 30,
         padding:
         {
             top: .1,
             bottom: .1
         },
-	    renderer: 'scatterplot', //line',
+	    // renderer: 'scatterplot', //line',
         //dataURL: "http://50.19.108.27/arduino/garden/v1.1/?num=100",
         //onData: function(d) { return d },
     	series: [{
 			color: color,
-			data: seriesData[htmlId],
+			data: dataArr,
 			name: name,
 		}]
     });
@@ -357,24 +293,18 @@ function initGraph(htmlId, name, color, yunits, ymin, ymax) {
 
     var time = new Rickshaw.Fixtures.Time();
     var minutes = time.unit('minute');
-    var xAxis = new Rickshaw.Graph.Axis.Time( {
+    var axes = new Rickshaw.Graph.Axis.Time( {
        graph: graph,
        timeUnit: minutes
     } );
    
 
     // console.log($("#" + yaxisId));
-    var yAxis = new Rickshaw.Graph.Axis.Y( {
+    var y_ticks = new Rickshaw.Graph.Axis.Y( {
         graph: graph,
-        orientation: 'right',
-        tickFormat: Rickshaw.Fixtures.Number.formatKMBT,
-        width: 50,
-        // element: document.getElementById($("#" + yaxisId)),
-        pixelsPerTick: 25,
     } );
 
-    xAxis.render();
-    yAxis.render();
+    axes.render();
 
     graph.render(); 
 
@@ -389,36 +319,20 @@ var getLatestData = function(){
     
     $.each(newData, function(i, item) {
         var time = new Date(item.time).getTime()/1000.0;
+        //var time = new Date(item.time);
+        console.log("New data time: " + new Date(time * 1000));
 
         $.each(categories, function(label, pathArray) {
             var val = getFieldValue(pathArray, item);
             seriesData[label].push({x: time, y: val});
         });
-
-
+        console.log(seriesData);
     });
 
     if (newData && newData.length > 0) {
         // $.each(categories, function(label, path) {
         //     newSeriesData[label] = newSeriesData[label].reverse();
         //     seriesData[label].push.apply(seriesData[label], newSeriesData[label]);
-        // });
-
-        //TODO: in progress -- remove old data outside the visibleTimeRange
-        // $.each(seriesData, function(series, dataArr) {
-        //     console.log(series + " -> " + dataArr);
-        //     console.log(dataArr.slice(-1));
-
-        //     var earliestTimeToShow = dataArr.slice(-1)[0].x - visibleTimeRange;
-        //     console.log("earliest time to show: " + earliestTimeToShow);
-        //     var firstIndexToShow = 0;
-        //     console.log(firstIndexToShow + " -> "+ dataArr[firstIndexToShow]);
-        //     while (dataArr[firstIndexToShow].x < earliestTimeToShow) {
-        //         firstIndexToShow++;
-        //         console.log("first index to show: " + firstIndexToShow);
-        //     }
-        //     seriesData[series] = dataArr.slice(firstIndexToShow, dataArr.length);
-
         // });
 
         $.each(graphs, function(i, graph) {

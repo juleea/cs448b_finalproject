@@ -1546,7 +1546,8 @@ Rickshaw.Graph.HoverDetail = Rickshaw.Class.create({
 		};
 
 		this.yFormatter = args.yFormatter || function(y) {
-			return y.toFixed(2);
+			return y;
+			//return y.toFixed(2);
 		};
 
 		var element = this.element = document.createElement('div');
@@ -1596,8 +1597,11 @@ Rickshaw.Graph.HoverDetail = Rickshaw.Class.create({
 		var approximateIndex = Math.floor(exactIndex);
 		if (exactIndex - approximateIndex > .5) 
 			approximateIndex += 1;
+        //console.log(exactIndex + ", " + approximateIndex);
 		var dataIndex = Math.min(approximateIndex || 0, stackedData[0].length - 1);
+        //console.log("dataIndex: " + dataIndex);
 
+        // TODO (jsquared): fix this block of code - was messing up dataIndex calculation
 		for (var i = approximateIndex; i < stackedData[0].length - 1;) {
 
 			if (!stackedData[0][i] || !stackedData[0][i + 1]) {
@@ -1605,6 +1609,7 @@ Rickshaw.Graph.HoverDetail = Rickshaw.Class.create({
 			}
 
 			if (stackedData[0][i].x <= domainX && stackedData[0][i + 1].x > domainX) {
+                console.log("changing data index to: " + dataIndex);
 				dataIndex = i;
 				break;
 			}
@@ -1636,6 +1641,8 @@ Rickshaw.Graph.HoverDetail = Rickshaw.Class.create({
 			d.graphX = graphX;
 			d.graphY = graph.y(d.value.y0 + d.value.y);
 
+            // EDIT (jsquared): set active to true - issue with non-positive values, since d.value.y <= 0
+            d.active = true;
 			if (domainMouseY > d.value.y0 && domainMouseY < d.value.y0 + d.value.y && !activeItem) {
 				activeItem = d;
 				d.active = true;

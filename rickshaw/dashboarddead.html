@@ -88,22 +88,10 @@ $(this).parent().find(":radio").attr("checked","checked");
 }
 );
 
-<<<<<<< HEAD
 var paramPairs = getQueryParameters();
 var garden = paramPairs.garden;
-var visibleTimeRange = 20 * 1000; // time range (milliseconds) to display on graphs 
+var visibleTimeRange = 60 * 1000; // time range (milliseconds) to display on graphs 
 
-=======
-
-$(".radiolist .radio-deselect").click(
-function(event) {
-event.preventDefault();
-$(this).parent().removeClass("selected");
-}
-);
-
-var garden = getQueryParameters();
->>>>>>> 14b3d2e610b121008815e5dd8732f572276911f5
 var categories = {
    
    //continues variable measurements
@@ -330,7 +318,7 @@ function initGraphs(data, textStatus, jqXHR) {
     initGraph("temperature", "Temperature", "#c05020", "C", -30, 15);
     initGraph("flow_rate", "Flow rate", "#30c020", "gpm", -15, 15);
     initGraph("light_level", "Light level", "blue", "%", 0, 100);
-    initGraph("gb_level", "Growbed water level", "green", "%", 0, 100);
+    initGraph("gb_level", "Growbed water level", "green", "%", 0, 150);
     initGraph("humidity", "Humidity", "yellow", "", 0, 100); // TODO: check this
 
     //create slider
@@ -363,11 +351,12 @@ function initGraph(htmlId, name, color, yunits, ymin, ymax) {
     //     yunits = '';
     // }
 
+        console.log(seriesData[htmlId]);
     var graph = new Rickshaw.Graph(
     {
 	    element: document.getElementById(htmlId),
 	    width: 960,
-	    height: 175,
+	    height: 100,
         min: ymin,
         max: ymax,
         padding:
@@ -387,11 +376,13 @@ function initGraph(htmlId, name, color, yunits, ymin, ymax) {
     
 
 
-    hoverDetail = new Rickshaw.Graph.HoverDetail( {
+    var hoverDetail = new Rickshaw.Graph.HoverDetail( {
         graph: graph,
-        xFormatter: function(x) { return x + " seconds" },
+        //xFormatter: function(x) { return x + " seconds" },
         yFormatter: function(y) { return y + " " + yunits }
     } );
+    //console.log("hover: ");
+    //console.log(hoverDetail);
 
     graphs.push(graph);
 
@@ -412,7 +403,7 @@ function initGraph(htmlId, name, color, yunits, ymin, ymax) {
     var minutes = time.unit('minute');
     var xAxis = new Rickshaw.Graph.Axis.Time( {
        graph: graph,
-       timeUnit: minutes
+    //   timeUnit: minutes,
     } );
    
 

@@ -189,7 +189,9 @@ $("input[name='mode']").change(function() {
 
 function setEndpoint(start, end) {
     start_date = new Date(start);
-    if (!isValidDate(start_date)) return;
+    if (!isValidDate(start_date)) {
+        return;
+    }
     var start_mil = start_date.getTime();
     end_date = new Date(end);
     if (!isValidDate(end_date)) return;
@@ -219,6 +221,11 @@ function setEndpoint(start, end) {
             graph.update();
         });
     }
+    var displayStartTime = new Date(seriesData['humidity'][0].x * 1000);
+    start_input.val(displayStartTime.getMonth()+1 + "-" + displayStartTime.getDate() + "-" + displayStartTime.getFullYear() + " " + displayStartTime.getHours() + ":" + displayStartTime.getMinutes() + ":" + displayStartTime.getSeconds());
+
+    var displayEndTime = new Date(seriesData['humidity'][seriesData['humidity'].length-1].x * 1000);
+    end_input.val(displayEndTime.getMonth()+1 + "-" + displayEndTime.getDate() + "-" + displayEndTime.getFullYear() + " " + displayEndTime.getHours() + ":" + displayEndTime.getMinutes() + ":" + displayEndTime.getSeconds());
 }
 
 function isValidDate(d) {
@@ -363,7 +370,7 @@ function initGraph(htmlId, name, color, yunits, ymin, ymax, height, graphType) {
     $("#" + wrapperId).append("<div id='" + htmlId + "'></div>");
     $("#" + wrapperId).append("<div id='" + yaxisId + "'></div>");
 
-        console.log(seriesData[htmlId]);
+    console.log(seriesData[htmlId]);
     var graph = new Rickshaw.Graph(
     {
 	    element: document.getElementById(htmlId),

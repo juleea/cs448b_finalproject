@@ -102,14 +102,14 @@ var categories = {
    "humidity": ["report", "humidity_sensor", "humidity"],
 
    //boolean variable measurements
-   // "tank_full": [""],
-   // "fish_feeder": [""],
-   // "fish_tank_pump": [""],
-   // "flow_switch": [""],
-   // "grow_lights": [""],
-   // "leak": [""],
-   // "backup_reservoir": [""],
-   // "reservoir_pump": [""],
+   "tank_full": ["report", "tank_level_sensor", "full"],
+   "fish_feeder": ["report", "fish_feeder", "on"],
+   "fish_tank_pump": ["report", "fish_tank_pump", "on"],
+   "flow_switch": ["report", "flow_switch_sensor", "flow"],
+   "grow_lights": ["report", "grow_lights", "on"],
+   "leak": ["report", "leak_detector_sensor", "leak"],
+   "backup_reservoir": ["report", "reservior_level_sensor", "full"],
+   "reservoir_pump": ["report", "reservior_pump", "on"],
 
 }
 var dataGarden;
@@ -324,6 +324,15 @@ function initGraphs(data, textStatus, jqXHR) {
     initGraph("gb_level", "Growbed water level", "green", "%", 0, 140);
     initGraph("humidity", "Humidity", "yellow", "", 0, 100); // TODO: check this
 
+
+    initBooleanGraph("tank_full", "Tank full", "blue");
+    initBooleanGraph("fish_feeder", "Fish feeder", "orange");
+    initBooleanGraph("flow_switch", "Flow switch", "green");
+    initBooleanGraph("grow_lights", "Grow lights", "purple");
+    initBooleanGraph("leak", "Water leak", "red");
+    initBooleanGraph("backup_reservoir", "Backup reservoir", "yellow");
+    initBooleanGraph("reservoir_pump", "Reservoir pump", "teal");
+
     //create slider
     var slider = new Rickshaw.Graph.RangeSlider(
         {
@@ -334,7 +343,19 @@ function initGraphs(data, textStatus, jqXHR) {
 
 } 
 
-function initGraph(htmlId, name, color, yunits, ymin, ymax) {
+function initBooleanGraph(htmlId, name, color) {
+    initGraph(htmlId, name, color, "", 0, 1, 30, "area");
+}
+
+function initGraph(htmlId, name, color, yunits, ymin, ymax, height, graphType) {
+    if (!height) {
+        height = 100;
+    }
+
+    if (!graphType) {
+        graphType = 'scatterplot'
+    }
+
     // instantiate a graph!
     var yaxisId = htmlId + "_yaxis";
     var wrapperId = htmlId + "_wrapper";
@@ -342,24 +363,12 @@ function initGraph(htmlId, name, color, yunits, ymin, ymax) {
     $("#" + wrapperId).append("<div id='" + htmlId + "'></div>");
     $("#" + wrapperId).append("<div id='" + yaxisId + "'></div>");
 
-    // if (!ymin) {
-    //     ymin = -30;
-    // }
-
-    // if (!ymax) {
-    //     ymax = 30;
-    // }
-
-    // if (!yunits) {
-    //     yunits = '';
-    // }
-
         console.log(seriesData[htmlId]);
     var graph = new Rickshaw.Graph(
     {
 	    element: document.getElementById(htmlId),
 	    width: 960,
-	    height: 100,
+	    height: height,
         min: ymin,
         max: ymax,
         padding:
@@ -367,7 +376,7 @@ function initGraph(htmlId, name, color, yunits, ymin, ymax) {
             top: .1,
             bottom: .1
         },
-	    renderer: 'scatterplot', //line',
+	    renderer: graphType, //'scatterplot', //line',
         //dataURL: "http://50.19.108.27/arduino/garden/v1.1/?num=100",
         //onData: function(d) { return d },
     	series: [{

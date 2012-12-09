@@ -400,10 +400,10 @@ function initGraph(htmlId, name, color, yunits, ymin, ymax) {
 
 
     var time = new Rickshaw.Fixtures.Time();
-    var minutes = time.unit('minute');
+    var minutes = time.unit('15 second');
     var xAxis = new Rickshaw.Graph.Axis.Time( {
        graph: graph,
-    //   timeUnit: minutes,
+       //timeUnit: minutes,
     } );
    
 

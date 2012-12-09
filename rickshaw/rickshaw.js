@@ -841,11 +841,16 @@ Rickshaw.Fixtures.Time = function() {
 		}, {
 			name: 'minute',
 			seconds: 60,
-			formatter: function(d) { return d.getUTCMinutes() }
+			formatter: function(d) { //return d.getUTCMinutes() }
+                  return d.toUTCString().match(/(\d+:\d+):\d+/)[1];
+            }
 		}, {
 			name: '15 second',
 			seconds: 15,
-			formatter: function(d) { return d.getUTCSeconds() + 's' }
+			formatter: function(d) { //return d.getUTCSeconds() + 's' }
+                  //return self.formatTime(d);
+                  return d.toUTCString().match(/(\d+:\d+:\d+)/)[1];
+            }
 		}, {
 			name: 'second',
 			seconds: 1,

@@ -1603,8 +1603,9 @@ Rickshaw.Graph.HoverDetail = Rickshaw.Class.create({
 		if (exactIndex - approximateIndex > .5) 
 			approximateIndex += 1;
         //console.log(exactIndex + ", " + approximateIndex);
+        console.log(stackedData[0].length);
 		var dataIndex = Math.min(approximateIndex || 0, stackedData[0].length - 1);
-        //console.log("dataIndex: " + dataIndex);
+        console.log("initial dataIndex: " + dataIndex);
 
         // TODO (jsquared): fix this block of code - was messing up dataIndex calculation
 		for (var i = approximateIndex; i < stackedData[0].length - 1;) {
@@ -1614,12 +1615,14 @@ Rickshaw.Graph.HoverDetail = Rickshaw.Class.create({
 			}
 
 			if (stackedData[0][i].x <= domainX && stackedData[0][i + 1].x > domainX) {
-                console.log("changing data index to: " + dataIndex);
 				dataIndex = i;
+                console.log("\tchanging data index to: " + dataIndex);
 				break;
 			}
 			if (stackedData[0][i + 1] <= domainX) { i++ } else { i-- }
 		}
+        console.log("final data index: " + dataIndex);
+        console.log("-----\n");
 
 		var domainX = stackedData[0][dataIndex].x;
 		var formattedXValue = this.xFormatter(domainX);

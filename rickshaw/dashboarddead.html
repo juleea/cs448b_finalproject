@@ -201,7 +201,10 @@ function setEndpoint(start, end) {
     var newData = dataGarden.getRange(start_mil, end_mil);
     console.log("new data: " + newData);
 
-    seriesData.length = 0;
+    $.each(seriesData, function(i, d) {
+            seriesData[i].length = 0;
+    });
+    //console.log(seriesData);
     $.each(newData, function(i, item) {
         var time = new Date(item.time).getTime()/1000.0;
 

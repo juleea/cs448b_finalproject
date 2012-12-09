@@ -66,7 +66,7 @@ jQuery.fn.onEnter = function(callback)
 {
     this.keyup(function(e)
     {
-    if(e.keyCode == 13)
+        if(e.keyCode == 13)
     {
     e.preventDefault();
     if (typeof callback == 'function')
@@ -88,22 +88,10 @@ $(this).parent().find(":radio").attr("checked","checked");
 }
 );
 
-<<<<<<< HEAD
 var paramPairs = getQueryParameters();
 var garden = paramPairs.garden;
 var visibleTimeRange = 20 * 1000; // time range (milliseconds) to display on graphs 
 
-=======
-
-$(".radiolist .radio-deselect").click(
-function(event) {
-event.preventDefault();
-$(this).parent().removeClass("selected");
-}
-);
-
-var garden = getQueryParameters();
->>>>>>> 14b3d2e610b121008815e5dd8732f572276911f5
 var categories = {
    
    //continues variable measurements
@@ -330,7 +318,7 @@ function initGraphs(data, textStatus, jqXHR) {
     initGraph("temperature", "Temperature", "#c05020", "C", -30, 15);
     initGraph("flow_rate", "Flow rate", "#30c020", "gpm", -15, 15);
     initGraph("light_level", "Light level", "blue", "%", 0, 100);
-    initGraph("gb_level", "Growbed water level", "green", "%", 0, 100);
+    initGraph("gb_level", "Growbed water level", "green", "%", 0, 140);
     initGraph("humidity", "Humidity", "yellow", "", 0, 100); // TODO: check this
 
     //create slider

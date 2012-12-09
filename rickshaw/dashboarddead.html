@@ -35,7 +35,7 @@
     <div id="slider"></div>
     <div id="inputs">
         <div style="display: none;" id="start_div" align="center" class="float-left"><input type="text" id="start_input"></div>
-        <div id="monitor_start_div" align="center" class="float-left">Hi</div>
+        <div id="monitor_start_div" align="center" class="float-left"></div>
         <div align="center" class="float-left">
 
         <input checked id="monitor_input" name="mode" value="monitor" type="radio">Monitor
@@ -56,7 +56,7 @@
 
         </div>
         <div style="display: none;" id="end_div" align="center" class="float-left"><input type="text" id="end_input"></div>
-        <div id="monitor_end_div" align="center" class="float-left">bye</div>
+        <div id="monitor_end_div" align="center" class="float-left"></div>
     </div>
 
 </div>
@@ -349,7 +349,7 @@ function initBooleanGraph(htmlId, name, color) {
 
 function initGraph(htmlId, name, color, yunits, ymin, ymax, height, graphType) {
     if (!height) {
-        height = 100;
+        height = 80;
     }
 
     if (!graphType) {
@@ -377,6 +377,7 @@ function initGraph(htmlId, name, color, yunits, ymin, ymax, height, graphType) {
             bottom: .1
         },
 	    renderer: graphType, //'scatterplot', //line',
+	    renderer: 'scatterplot', //line',
         //dataURL: "http://50.19.108.27/arduino/garden/v1.1/?num=100",
         //onData: function(d) { return d },
     	series: [{

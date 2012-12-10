@@ -1226,16 +1226,17 @@ Rickshaw.Graph.Axis.Time = function(args) {
 			element.classList.add('x_tick');
 			element.classList.add(self.ticksTreatment);
 
-        if (self.graph.element.id=="reservoir_pump") {
-			var title = document.createElement('div');
-			title.classList.add('title');
-			title.innerHTML = o.unit.formatter(new Date(o.value * 1000));
-			element.appendChild(title);
-        }
+	        if (self.graph.element.id=="reservoir_pump") {
+				var title = document.createElement('div');
+				title.classList.add('title');
+				title.innerHTML = o.unit.formatter(new Date(o.value * 1000));
+				element.appendChild(title);
+	        }
 
 			self.graph.element.appendChild(element);
 			self.elements.push(element);
-
+			//$("#xaxis").append(element);
+		
 		} );
 	};
 

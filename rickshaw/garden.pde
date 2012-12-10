@@ -41,7 +41,6 @@ void setup() {
 
 void draw() {
   image(img,0,0,img.width/1.5,img.height/1.5);
-  //garden.updateMediaBed();
 }
 
 void drawButtons() {
@@ -73,13 +72,14 @@ float drawGrowbedLevel(float percentFull) {
   return waterLevel;
 }
 
-// DRAWS FISH TANK WATER LEVEL - PARAM: PERCENTAGE FILLED (eg. 70% = 0.70)
+// Draws either full or half full depending on ftFull boolean
 // BASE EMPTY: rect(350, 402, 350, 300);
 // BASE FULL: rect(350, 285, 350, 300);
-float drawFishTankLevel(float percentFull) {
+float drawFishTankLevel(boolean ftFull) {
   int fishTankFull = 285;
   int fishTankEmpty = 402;
-  float waterLevel = fishTankEmpty - (fishTankEmpty-fishTankFull) * (percentFull/100.0);
+  float percentFill = ftFull ? 1 : 0.50;
+  float waterLevel = fishTankEmpty - (fishTankEmpty-fishTankFull) * (percentFill);
   stroke(water);
   fill(water);
   rect(350, waterLevel, 350, 300); 
@@ -87,12 +87,12 @@ float drawFishTankLevel(float percentFull) {
 }  
 
 // Same as above, but w/o drawing rectangle itself
-float calculateFishTankAbsLevel(float percentFull) {
-  int fishTankFull = 285;
-  int fishTankEmpty = 402;
-  float waterLevel = fishTankEmpty - (fishTankEmpty-fishTankFull) * (percentFull/100.0);
-  return waterLevel;
-}
+//float calculateFishTankAbsLevel(float percentFull) {
+//  int fishTankFull = 285;
+//  int fishTankEmpty = 402;
+//  float waterLevel = fishTankEmpty - (fishTankEmpty-fishTankFull) * (percentFull/100.0);
+//  return waterLevel;
+//}
 
 void drawGrowLight(boolean on) {
   if(on) {
@@ -154,7 +154,7 @@ void  drawFlowRate(float rate) {
     fill(165,42,42,flowAlphaVal);
     label += "0 gpm";
   }
-  text(label, pipeRight-flowCycle, 35, 60, 20);
+  text(label, pipeRight-flowCycle, 40, 60, 20);
   flowCycle++;
 }
 
@@ -220,20 +220,22 @@ void mousePressed() {
   
 }
 
-void drawDetails(float gbLevel, float ftLevel, float lightLevel, boolean lightOn, 
+void drawDetails(float gbLevel, boolean ftFull, float lightLevel, boolean lightOn, 
 		 float flowRate, boolean feederOn, boolean growbedDraining,
                  boolean pumpOn, boolean leakage) {
-  fill(0);
-  text("Growbed Level: "+ gbLevel +"%", 80, 180, 80, 30); 
-  text("Fish Tank Level: "+ ftLevel + "%", 400, 370, 80, 30);
+  fill(238,232,170);
+  string ftStatus = ftFull ? "Full" : "Not Full";
+  text("Growbed Water Level: "+ gbLevel +"%", 80, 180, 100, 80); 
+  text("Fish Tank Level: "+ftStatus, 400, 370, 80, 30);
   text("Light Level: " + lightLevel + "%  " + composeBoolStatus("Grow Lights",lightOn), 50, 5, 120, 30);
   text("Flow Rate: " + flowRate + " gpm", 400, 20, 150, 30);
-  
+  fill(0);
   boolean irrig = flowRate >= 0.5 ?  true : false;
   text(composeBoolStatus("Fish Feeder", feederOn), 400, 290, 120, 30);
   text(composeBoolStatus("Irrigation", irrig), 80, 120, 80, 30); 
-  text(composeBoolStatus("Growbed Draining",growbedDraining), 365, 130, 80, 30); 
   text(composeBoolStatus("Pump",pumpOn), 540, 405, 120, 30);
+  fill(238,232,170);
+  text(composeBoolStatus("Growbed Draining",growbedDraining), 365, 130, 80, 30); 
   text(composeBoolStatus("Leakage",leakage), 50, 405, 80, 30);
 }
 
@@ -268,7 +270,7 @@ void setWhiteTransparent(PImage img) {
 
 class MediaBed {
   float gbLevel;
-  float ftLevel;
+  boolean ftFull;
   float lightLevel;
   float flowRate;
   float numFish;
@@ -279,11 +281,17 @@ class MediaBed {
   boolean leakage;
   boolean isFlowing;
   
-  MediaBed(float gbLevel, float ftLevel, float lightLevel, float flowRate, int numFish,
+  MediaBed() { 
+    img = loadImage(baseImg);
+    imgLabeled = loadImage(baseImgLabeled);
+    setWhiteTransparent(img);
+    setWhiteTransparent(imgLabeled);
+  }
+  MediaBed(float gbLevel, boolean ftFull, float lightLevel, float flowRate, int numFish,
            boolean feederOn, boolean lightOn, boolean growbedDraining, boolean pumpOn, 
            boolean leakage, boolean isFlowing) {
     this.gbLevel = gbLevel;
-    this.ftLevel = ftLevel;
+    this.ftFull = ftFull;
     this.lightLevel = lightLevel;
     this.flowRate = flowRate;
     this.numFish = numFish;
@@ -297,23 +305,53 @@ class MediaBed {
     imgLabeled = loadImage(baseImgLabeled);
     setWhiteTransparent(img);
     setWhiteTransparent(imgLabeled);
-    float absoluteFTLevel = calculateFishTankAbsLevel(ftLevel);
+    float absoluteFTLevel = ftFull ? 285 : 344; // don't hardcode later
     fishies = makeFish(numFish, absoluteFTLevel);
   }
   
-  void updateMediaBed() {
-    console.log('updating media bed!');
+   // just a repeat of MediaBed constructor. Should really unify code later
+   void updateMediaBed(float gbLevel, boolean ftFull, float lightLevel, float flowRate, int numFish,
+           boolean feederOn, boolean lightOn, boolean growbedDraining, boolean pumpOn, 
+           boolean leakage, boolean isFlowing) {
+    this.gbLevel = gbLevel;
+    this.ftFull = ftFull;
+    this.lightLevel = lightLevel;
+    this.flowRate = flowRate;
+    this.numFish = numFish;
+    this.feederOn = feederOn;
+    this.lightOn = lightOn;
+    this.growbedDraining = growbedDraining;
+    this.pumpOn = pumpOn;
+    this.leakage = leakage;
+    this.isFlowing = isFlowing;
+    //img = loadImage(baseImg);
+    //imgLabeled = loadImage(baseImgLabeled);
+    //setWhiteTransparent(img);
+    //setWhiteTransparent(imgLabeled);
+    float absoluteFTLevel = ftFull ? 285 : 344; // don't hardcode later
+    fishies = makeFish(numFish, absoluteFTLevel);
+    //animateMediaBed();	
+  }
+
+  void animateMediaBed() {
+    console.log('animating media bed!');
+    
+    if (showLabels) { // done separately to reduce flash/lag of masking image
+      image(imgLabeled,0,0,imgLabeled.width/1.5,imgLabeled.height/1.5);
+      setWhiteTransparent(imgLabeled);
+    } else {
+      image(imgLabeled,0,0,img.width/1.5,img.height/1.5);
+      setWhiteTransparent(img);
+    }
     background(255);
-    float absoluteFTLevel = drawFishTankLevel(ftLevel);
+    float absoluteFTLevel = drawFishTankLevel(ftFull);
     drawIrrigationPipe(isFlowing);
     float absoluteGBLevel = drawGrowbedLevel(gbLevel);
     drawDrainagePipe(growbedDraining);
    //tint(0, 153, 204);
     if (showLabels) {
-      setWhiteTransparent(imgLabeled);
       image(imgLabeled,0,0,imgLabeled.width/1.5,imgLabeled.height/1.5);
     } else {
-      setWhiteTransparent(img);
       image(img,0,0,img.width/1.5,img.height/1.5);
     }
   //noTint();
@@ -324,7 +362,7 @@ class MediaBed {
     drawDroplets(flowRate); 
     animateFish(fishies);
   
-    if ( showDetails ) drawDetails(gbLevel,ftLevel,lightLevel, lightOn,flowRate,feederOn, growbedDraining, pumpOn, leakage);
+    if ( showDetails ) drawDetails(gbLevel,ftFull,lightLevel, lightOn,flowRate,feederOn, growbedDraining, pumpOn, leakage);
     if ( showLabels ) drawLabels();
   
     overTank = (mouseX > fishTankWidth && mouseY > fishTankStartY) ? true : false;

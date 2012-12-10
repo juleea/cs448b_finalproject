@@ -1549,8 +1549,11 @@ Rickshaw.Graph.HoverDetail = Rickshaw.Class.create({
 			return new Date( x * 1000 ).toUTCString();
 		};
 
-		this.yFormatter = function(y, units) {
-			return y + " " + units;
+		this.yFormatter = function(y, units, id) {
+            if (["temperature", "flow_rate", "light_level", "gb_level", "humidity"].indexOf(id) != -1)
+                return y + " " + units;
+            else
+                return y == 0 ? "Yes" : "No";
 		};
         this.yUnits = args.yFormatter;
         /*
@@ -1665,7 +1668,7 @@ Rickshaw.Graph.HoverDetail = Rickshaw.Class.create({
 
                 d.formattedYValue = (this.yFormatter.constructor == Array) ?
                     this.yFormatter([detail.indexOf(d)](d.value.y), this.yUnits[graph.element.id]) :
-                    this.yFormatter(d.value.y, this.yUnits[graph.element.id]);
+                    this.yFormatter(d.value.y, this.yUnits[graph.element.id], graph.element.id);
 
                 d.graphX = graphX;
                 //console.log(d.value.y0 + " " + d.value.y);

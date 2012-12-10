@@ -4,6 +4,7 @@ void setJavaScript(JavaScript js) { javascript = js; }
 PImage img;
 PImage imgLabeled;
 Fish [] fishies;
+string timestamp = "";
 MediaBed garden;
 boolean overTank = false;
 boolean overDetailButton = false;
@@ -243,9 +244,13 @@ string composeBoolStatus(string varType, bool on) {
   return on ? varType+": On" : varType+": Off";	
 }
 
-void drawLabels() {
-
+void drawDateTime() {
+  if (timestamp == "") return;
+  fill(0); 
+  text(timestamp, 495, 440, 200, 30);
 }
+
+void drawLabels() { }
 
 
 void setWhiteTransparent(PImage img) {
@@ -312,7 +317,7 @@ class MediaBed {
    // just a repeat of MediaBed constructor. Should really unify code later
    void updateMediaBed(float gbLevel, boolean ftFull, float lightLevel, float flowRate, int numFish,
            boolean feederOn, boolean lightOn, boolean growbedDraining, boolean pumpOn, 
-           boolean leakage, boolean isFlowing) {
+           boolean leakage, boolean isFlowing, string time) {
     this.gbLevel = gbLevel;
     this.ftFull = ftFull;
     this.lightLevel = lightLevel;
@@ -330,6 +335,7 @@ class MediaBed {
     //setWhiteTransparent(imgLabeled);
     float absoluteFTLevel = ftFull ? 285 : 344; // don't hardcode later
     fishies = makeFish(numFish, absoluteFTLevel);
+    timestamp = time;
     //animateMediaBed();	
   }
 
@@ -355,6 +361,7 @@ class MediaBed {
       image(img,0,0,img.width/1.5,img.height/1.5);
     }
   //noTint();
+    drawDateTime();
     drawButtons();
     drawGrowLight(lightOn);
     drawLeakage(leakage);

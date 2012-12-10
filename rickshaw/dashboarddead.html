@@ -131,6 +131,7 @@ var initData;
 //map (key is the same as in categories)
 var seriesData = initSeriesData(categories);
 var graphs = [];
+var hoverGraphs = [];
 
 // var refreshInterval = 5000; // 10 seconds
 // var maxNumPointsPerInterval = 1;
@@ -368,6 +369,7 @@ function initGraphs(data, textStatus, jqXHR) {
     var hoverDetail = new Rickshaw.Graph.HoverDetail( {
         graphs: graphs,//data[0],
         //xFormatter: function(x) { return x + " seconds" },
+        yFormatter: hoverGraphs
         //yFormatter: function(y) { return y + " " + yunits }
     } );
     //create slider
@@ -400,7 +402,7 @@ function initGraph(htmlId, name, color, yunits, ymin, ymax, height, graphType) {
     $("#" + wrapperId).append("<div id='" + htmlId + "'></div>");
     $("#" + wrapperId).append("<div id='" + yaxisId + "'></div>");
 
-    console.log(seriesData[htmlId]);
+    //console.log(seriesData[htmlId]);
     var graph = new Rickshaw.Graph(
     {
 	    element: document.getElementById(htmlId),
@@ -437,6 +439,7 @@ function initGraph(htmlId, name, color, yunits, ymin, ymax, height, graphType) {
     //console.log(hoverDetail);
 
     graphs.push(graph);
+    hoverGraphs[graph.element.id] = yunits;
 
 
     // var legend = new Rickshaw.Graph.Legend( {

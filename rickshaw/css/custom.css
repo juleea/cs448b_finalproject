@@ -1,3 +1,8 @@
+body {
+        background-image:url('../img/graytexture.png');
+        background-repeat:repeat;
+   // background-color: #B9DCF0;
+}
 #slider {
 /*	float: left;*/
 	width: 670px;
@@ -12,13 +17,14 @@
 
 #animation {
 	display:inline-block;
+    background-color: #ffffff;
 }
 
 .rsgraph_wrapper {
 	/*margin-top: 20px;
 	margin-bottom: 20px;*/
 
-    width: 670px;
+/*    width: 670px;*/
     /*width: 980px;*/
 	/*margin: 20px;*/
 	border-bottom: 1px solid grey;
@@ -59,6 +65,7 @@ legend { font-size: 17px; font-weight: bold; }
 
 .float-left {
 	float: left;
+width: 33%;
 	/*width: 240px;*/
 }
 

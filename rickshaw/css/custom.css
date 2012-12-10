@@ -44,8 +44,7 @@ body {
 .label{
 	position: absolute;
 	right: 1px;
-	/*float: right;*/
-	padding-top: 60px;
+	padding-top: 70px;
 	padding-right: 3px;
 	z-index: 1;
 }
@@ -54,10 +53,12 @@ body {
 	position: absolute;
 	right: 1px;
 	float: right;
-	padding-top: 10px;
+	padding-top: 2px;
 	padding-right: 3px;
 	z-index: 1;
 }
+
+/*u*/
 
 fieldset { border: 0; margin-bottom: 20px; }
 legend { font-size: 17px; font-weight: bold; }

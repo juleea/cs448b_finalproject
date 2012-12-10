@@ -37,6 +37,8 @@
         <div id="legend"></div>
     </div>
 
+    <div id="xaxis"></div>
+
     <div id="slider"></div>
     <div id="inputs">
         <div style="display: none;" id="start_div" align="center" class="float-left"><input type="text" id="start_input"></div>
@@ -381,8 +383,8 @@ function initGraphs(data, textStatus, jqXHR) {
     var latestTime = new Date(data[data.length-1].time);
     $("#monitor_end_div").text(latestTime.getMonth()+1 + "-" + latestTime.getDate() + "-" + latestTime.getFullYear() + " " + latestTime.getHours() + ":" + latestTime.getMinutes() + ":" + latestTime.getSeconds());
 
-    initGraph("temperature", "Temperature", "#c05020", "C", -30, 15);
-    initGraph("flow_rate", "Flow rate", "#30c020", "gpm", -15, 15);
+    initGraph("temperature", "Temperature", "#c05020", "C", 15, 30);
+    initGraph("flow_rate", "Flow rate", "#30c020", "gpm", 0, 100);
     initGraph("light_level", "Light level", "blue", "%", 0, 100);
     initGraph("gb_level", "Growbed water level", "green", "%", 0, 140);
     initGraph("humidity", "Humidity", "yellow", "", 0, 100); // TODO: check this
@@ -417,8 +419,9 @@ function initBooleanGraph(htmlId, name, color, isBooleanGraph) {
 }
 
 function initGraph(htmlId, name, color, yunits, ymin, ymax, isBooleanGraph) {
-    var height = 80;
-    var graphType = 'scatterplot';
+    var height = 90;
+    var graphType = "area";
+    var gapSize = "0";
 
     var yaxisId = htmlId + "_yaxis";
     var wrapperId = htmlId + "_wrapper";
@@ -426,8 +429,9 @@ function initGraph(htmlId, name, color, yunits, ymin, ymax, isBooleanGraph) {
     var labelClass = "label";
 
     if(isBooleanGraph) {
-        height = 30;
-        graphType = "area";
+        height = 20;
+        graphType = "bar";
+        gapSize = 0;
         labelClass = "label_boolean"
     } 
 
@@ -451,7 +455,8 @@ function initGraph(htmlId, name, color, yunits, ymin, ymax, isBooleanGraph) {
             top: .1,
             bottom: .1
         },
-	    renderer: graphType, //'scatterplot', //line',
+	    renderer: graphType,
+        gapSize: gapSize,
         //dataURL: "http://50.19.108.27/arduino/garden/v1.1/?num=100",
         //onData: function(d) { return d },
     	series: [{
@@ -494,6 +499,7 @@ function initGraph(htmlId, name, color, yunits, ymin, ymax, isBooleanGraph) {
     //if (graph.element.id == "reservoir_pump") {
         var xAxis = new Rickshaw.Graph.Axis.Time( {
            graph: graph,
+           
            //timeUnit: minutes,
         } );
         xAxis.render();

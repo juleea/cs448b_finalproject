@@ -1,8 +1,6 @@
 body {
-	background-image:url('../img/graytexture.png');
-	background-repeat:repeat;
+    background-color: #B9DCF0;
 }
-
 #slider {
 /*	float: left;*/
 	width: 670px;
@@ -11,13 +9,13 @@ body {
 }
 
 #charts {
-	background-color:#fff;
 	/*margin: 0px 10px;*/
 	display:inline-block;
 }
 
 #animation {
 	display:inline-block;
+    background-color: #ffffff;
 }
 
 .rsgraph_wrapper {
@@ -38,7 +36,6 @@ body {
 .left { float:left; }
 .right{
     float:right;
-    margin: 0;
     /*margin-right: 450px;*/
 }
 

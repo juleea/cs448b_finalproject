@@ -1552,8 +1552,12 @@ Rickshaw.Graph.HoverDetail = Rickshaw.Class.create({
 		this.yFormatter = function(y, units, id) {
             if (["temperature", "flow_rate", "light_level", "gb_level", "humidity"].indexOf(id) != -1)
                 return y + " " + units;
-            else
-                return y == 0 ? "Yes" : "No";
+            else if (["tank_full", "leak"].indexOf(id) != -1) {
+                return y == 1 ? "Yes" : "No";
+            } else {
+                return y == 1 ? "On" : "Off";
+            }
+
 		};
         this.yUnits = args.yFormatter;
         /*

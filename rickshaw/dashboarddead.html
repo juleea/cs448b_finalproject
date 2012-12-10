@@ -173,7 +173,6 @@ setTimeout(
     function() {
         getData(garden, numInitialPoints, initGraphs);
     }, 5000);
-
 var updateInterval;
 setTimeout(
     function() {
@@ -184,6 +183,7 @@ $(function() {
     $("#monitor_input").jqTransform();
 });
 
+var chartStartWidth = $('#charts').width();
 $(document).ready(function() {
 $("input[name='mode']").change(function() {
     if ($("input[name='mode']:checked").val() == 'analysis') { // Analysis
@@ -195,16 +195,25 @@ $("input[name='mode']").change(function() {
         start_input.val($("#monitor_start_div").text());
         end_input.val($("#monitor_end_div").text());
         clearInterval(updateInterval);
-   	$("#animation").hide();
-	animationOn = 0;
-	clearInterval(animationTimer); 
-    /*
-        $('div svg').animate({
-            width: "90%"}, 1000
-        );$('#charts').animate({
-            width: "90%"}, 1000
-        );
-        */
+        $("#animation").fadeOut('slow');
+        animationOn = 0;
+        clearInterval(animationTimer); 
+        //$('div svg').animate({
+            //width: "95%"}, 1000
+        //);
+        setTimeout(function() {
+            $('#charts').animate({
+                width: "87%"}, 2000
+            );
+            $('#slider').animate({
+                width: "100%"}, 2000
+            );
+            graphs.map(function(graph) {
+                console.log(graph);
+                graph.configure({width: 1236});
+                graph.render();
+            });
+        }, 500);
    } else { // Monitor
         console.log('monitor');
         $("#monitor_start_div").show();
@@ -212,8 +221,23 @@ $("input[name='mode']").change(function() {
         $("#start_div").hide();
         $("#end_div").hide();
         updateInterval = setInterval( function() { getLatestData(); }, refreshInterval );
-   	$("#animation").show(); 
-	animationOn = 1;
+        setTimeout(function() {
+            $("#animation").fadeIn('slow');
+        }, 2000);
+        animationOn = 1;
+        //$('div svg').animate({
+            //width: "50%"}, 1000
+        //);
+        $('#charts').animate({
+            width: chartStartWidth}, 2000
+        );
+        setTimeout(function() {
+            graphs.map(function(graph) {
+                console.log(graph);
+                graph.configure({width: 670});
+                graph.render();
+            });
+        }, 1500);
     }
 });
 });

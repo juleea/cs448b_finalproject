@@ -18,6 +18,8 @@
 	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.15/jquery-ui.min.js"></script>
     <script type="text/javascript" src="jquery.jqtransform.js"></script>
     <script type="text/javascript" src="../datagarden.js"></script>
+    <link rel="stylesheet" media="all" type="text/css" href="css/jquery-ui-timepicker-addon.css" />
+    <script type="text/javascript" src="js/jquery-ui-timepicker-addon.js"></script>
 
     <!-- // <script src="http://stanford.edu/~jsquared/cgi-bin/clone/datagarden.js"></script> -->
 
@@ -159,6 +161,8 @@ var gardenAnim;
 var animationTimer; // to set and stop setInterval
 var garden;
 var animationOn = 1;
+start_input.datetimepicker({showSecond: true, timeFormat: 'HH:mm:ss'});
+end_input.datetimepicker({showSecond: true, timeFormat: 'HH:mm:ss'});
 
 start_input.onEnter(function() {
         clearInterval(updateInterval);
@@ -212,7 +216,6 @@ $("input[name='mode']").change(function() {
                 width: "100%"}, 2000
             );
             graphs.map(function(graph) {
-                console.log(graph);
                 graph.configure({width: 1236});
                 graph.render();
             });
@@ -241,6 +244,13 @@ $("input[name='mode']").change(function() {
                 graph.render();
             });
         }, 1500);
+
+        /*
+        $.each(seriesData, function(i, d) {
+                seriesData[i].length = 0;
+        });
+        */
+
     }
 });
 });
@@ -283,10 +293,10 @@ function setEndpoint(start, end) {
         });
     }
     var displayStartTime = new Date(seriesData['humidity'][0].x * 1000);
-    start_input.val(displayStartTime.getMonth()+1 + "-" + displayStartTime.getDate() + "-" + displayStartTime.getFullYear() + " " + displayStartTime.getHours() + ":" + displayStartTime.getMinutes() + ":" + displayStartTime.getSeconds());
+    start_input.val(displayStartTime.getMonth()+1 + "/" + displayStartTime.getDate() + "/" + displayStartTime.getFullYear() + " " + displayStartTime.getHours() + ":" + displayStartTime.getMinutes() + ":" + displayStartTime.getSeconds());
 
     var displayEndTime = new Date(seriesData['humidity'][seriesData['humidity'].length-1].x * 1000);
-    end_input.val(displayEndTime.getMonth()+1 + "-" + displayEndTime.getDate() + "-" + displayEndTime.getFullYear() + " " + displayEndTime.getHours() + ":" + displayEndTime.getMinutes() + ":" + displayEndTime.getSeconds());
+    end_input.val(displayEndTime.getMonth()+1 + "/" + displayEndTime.getDate() + "/" + displayEndTime.getFullYear() + " " + displayEndTime.getHours() + ":" + displayEndTime.getMinutes() + ":" + displayEndTime.getSeconds());
 }
 
 function isValidDate(d) {
@@ -380,11 +390,11 @@ function initGraphs(data, textStatus, jqXHR) {
         seriesData[label] = seriesData[label];
     });
     var startTime = new Date(data[0].time);
-    $("#monitor_start_div").text(startTime.getMonth()+1 + "-" + startTime.getDate() + "-" + startTime.getFullYear() + " " + startTime.getHours() + ":" + startTime.getMinutes() + ":" + startTime.getSeconds());
+    $("#monitor_start_div").text(startTime.getMonth()+1 + "/" + startTime.getDate() + "/" + startTime.getFullYear() + " " + startTime.getHours() + ":" + startTime.getMinutes() + ":" + startTime.getSeconds());
 
 
     var latestTime = new Date(data[data.length-1].time);
-    $("#monitor_end_div").text(latestTime.getMonth()+1 + "-" + latestTime.getDate() + "-" + latestTime.getFullYear() + " " + latestTime.getHours() + ":" + latestTime.getMinutes() + ":" + latestTime.getSeconds());
+    $("#monitor_end_div").text(latestTime.getMonth()+1 + "/" + latestTime.getDate() + "/" + latestTime.getFullYear() + " " + latestTime.getHours() + ":" + latestTime.getMinutes() + ":" + latestTime.getSeconds());
 
     initGraph("temperature", "Temperature", "#c05020", "C", 15, 30);
     initGraph("flow_rate", "Flow rate", "#30c020", "gpm", 0, 100);

@@ -281,7 +281,12 @@ class MediaBed {
   boolean leakage;
   boolean isFlowing;
   
-  MediaBed() { }
+  MediaBed() { 
+    img = loadImage(baseImg);
+    imgLabeled = loadImage(baseImgLabeled);
+    setWhiteTransparent(img);
+    setWhiteTransparent(imgLabeled);
+  }
   MediaBed(float gbLevel, boolean ftFull, float lightLevel, float flowRate, int numFish,
            boolean feederOn, boolean lightOn, boolean growbedDraining, boolean pumpOn, 
            boolean leakage, boolean isFlowing) {
@@ -319,12 +324,13 @@ class MediaBed {
     this.pumpOn = pumpOn;
     this.leakage = leakage;
     this.isFlowing = isFlowing;
-    img = loadImage(baseImg);
-    imgLabeled = loadImage(baseImgLabeled);
-    setWhiteTransparent(img);
-    setWhiteTransparent(imgLabeled);
+    //img = loadImage(baseImg);
+    //imgLabeled = loadImage(baseImgLabeled);
+    //setWhiteTransparent(img);
+    //setWhiteTransparent(imgLabeled);
     float absoluteFTLevel = ftFull ? 285 : 344; // don't hardcode later
     fishies = makeFish(numFish, absoluteFTLevel);
+    //animateMediaBed();	
   }
 
   void animateMediaBed() {

@@ -552,7 +552,8 @@ var getLatestData = function(){
 	//gardenAnim =  new processingInstance.MediaBed(70,50,95,1.23,4,1,1,1,1,0,1);
 	processingInstance.draw();
         
-    } else if (animationOn) {
+    } 
+    if (animationOn) {
 	//var p = new processingInstance.MediaBed(gbLevel, ftLevel, lightLevel, flowRate, numFish, feederOn, lightOn, waterIsFlowing, pumpOn, leakage, isFlowing);
         var currentState = newData[0]['report'];
     	var gbLevel = currentState['gb_level_sensor'].gbLevel;

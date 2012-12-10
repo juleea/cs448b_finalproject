@@ -4,16 +4,14 @@ import json
 import datetime
 
 def cleanData(filenamePrefix):
-  rawFilename = filenamePrefix + ".raw"
+  rawFilename = filenamePrefix + ".raw.json"
   cleanFilename = filenamePrefix + ".clean.json"
 
   rawJson = open(rawFilename)
   jsonArr = json.load(rawJson)
   rawJson.close()
 
-
-  dataHours = 4
-  start = datetime.datetime.now() - datetime.timedelta(hours = dataHours)
+  start = datetime.datetime.fromtimestamp(1354723736)
 
   for (i, obj) in enumerate(jsonArr):
 

@@ -10,6 +10,7 @@
 	<link type="text/css" rel="stylesheet" href="css/legend.css">
 	<link type="text/css" rel="stylesheet" href="css/lines.css">
     <link type="text/css" rel="stylesheet" href="css/custom.css">
+    <link href="http://fonts.googleapis.com/css?family=Calibri" rel="stylesheet" type="text/css">
 	
     <script src="../d3.v2.js"></script>
 
@@ -90,14 +91,14 @@ jQuery.fn.onEnter = function(callback)
 }
 
 $(".radiolist .radio-select").click(
-function(event) {
-event.preventDefault();
-var $boxes = $(this).parent().parent().children();
-$boxes.removeClass("selected");
-$(this).removeAttr("checked");
-$(this).parent().addClass("selected");
-$(this).parent().find(":radio").attr("checked","checked");
-}
+    function(event) {
+        event.preventDefault();
+        var $boxes = $(this).parent().parent().children();
+        $boxes.removeClass("selected");
+        $(this).removeAttr("checked");
+        $(this).parent().addClass("selected");
+        $(this).parent().find(":radio").attr("checked","checked");
+    }
 );
 
 var paramPairs = getQueryParameters();
@@ -304,7 +305,6 @@ function getQueryParameters() {
 }
 
 function getData(garden, numEntries, callback) {
-    // console.log("getData()");
     initData = dataGarden.getInitialData(visibleTimeRange);
 
     textStatus = null;
@@ -499,10 +499,26 @@ var getLatestData = function(){
     if(animationOn) { 
 	processingInstance= Processing.getInstanceById('sketch');
     	console.log("Init processingInstance");
-	gardenAnim =  new processingInstance.MediaBed(70,50,95,1.23,4,1,1,1,1,0,1);
-	var frameInterval = 100;
+        var currentState = newData[0]['report'];
+	var gbLevel = currentState['gb_level_sensor'].gbLevel;
+	var ftLevel = currentState['tank_level_sensor'].full == 1 ? 100 : 50;
+	var lightLevel = currentState['photocell_sensor'].lightLevel;
+	var flowRate = currentState['flow_rate_sensor'].flowRate;
+	var numFish = 5;
+	var feederOn = currentState['fish_feeder'].on;
+	var lightOn = currentState['grow_lights'].on;
+	var waterIsFlowing = currentState['flow_switch_sensor'].flow;
+	var pumpOn = currentState['fish_tank_pump'].on;
+	var leakage = currentState['leak_detector_sensor'].leak;
+	var isFlowing = flowRate >= 0.5 ? 1 : 0; // IS THIS RIGHT? ASK MAUNDU LATER?
+	//gardenAnim =  new processingInstance.MediaBed(70,50,95,1.23,4,1,1,1,1,0,1);
+	gardenAnim = new processingInstance.MediaBed(gbLevel, ftLevel, lightLevel, flowRate, numFish, feederOn, lightOn, waterIsFlowing, pumpOn, leakage, isFlowing);
+	processingInstance.draw();
+        var frameInterval = 100;
     	animationTimer = setInterval(function() { gardenAnim.updateMediaBed(); }, frameInterval);
 	//var p = new processingInstance.MediaBed(gbLevel, ftLevel, lightLevel, flowRate, numFish, feederOn, lightOn, waterIsFlowing, pumpOn, leakage, isFlowing);
+    } else {
+	clearInterval(animationTimer);
     }
 
     });

@@ -69,9 +69,7 @@
 </div>
 
 
-	<div id="animation" class="right"  style="border:1px solid black">
-		<h1>Dashboard</h1>
-		
+	<div id="animation" class="right"  style="">
 	<canvas id="sketch" data-processing-sources="garden.pde" tabindex="0" width="1150" height="600" style="image-rendering: -webkit-optimize-contrast !important;"></canvas> 
 	</div>
 
@@ -552,7 +550,7 @@ var getLatestData = function(){
 
         var currentState = newData[0]['report'];
     	var gbLevel = currentState['gb_level_sensor'].gbLevel;
-    	var ftLevel = currentState['tank_level_sensor'].full == 1 ? 100 : 50;
+    	var ftLevel = currentState['tank_level_sensor'].full == 1;
     	var lightLevel = currentState['photocell_sensor'].lightLevel;
     	var flowRate = currentState['flow_rate_sensor'].flowRate;
     	var numFish = 5;

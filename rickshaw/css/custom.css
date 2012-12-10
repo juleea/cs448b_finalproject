@@ -1,5 +1,7 @@
 body {
-    background-color: #B9DCF0;
+        background-image:url('../img/graytexture.png');
+        background-repeat:repeat;
+   // background-color: #B9DCF0;
 }
 #slider {
 /*	float: left;*/

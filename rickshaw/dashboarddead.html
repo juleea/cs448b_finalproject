@@ -545,15 +545,15 @@ var getLatestData = function(){
 
     // FOR ANIMATION 
 
-    if(animationOn) { 
+    if(!gardenAnim) { 
 	    processingInstance= Processing.getInstanceById('sketch');
     	console.log("Init processingInstance");
-
-	    gardenAnim =  new processingInstance.MediaBed(70,50,95,1.23,4,1,1,1,1,0,1);
-	    var frameInterval = 100;
-    	animationTimer = setInterval(function() { gardenAnim.updateMediaBed(); }, frameInterval);
-    	//var p = new processingInstance.MediaBed(gbLevel, ftLevel, lightLevel, flowRate, numFish, feederOn, lightOn, waterIsFlowing, pumpOn, leakage, isFlowing);
-
+	gardenAnim = new processingInstance.MediaBed();
+	//gardenAnim =  new processingInstance.MediaBed(70,50,95,1.23,4,1,1,1,1,0,1);
+	processingInstance.draw();
+        
+    } else if (animationOn) {
+	//var p = new processingInstance.MediaBed(gbLevel, ftLevel, lightLevel, flowRate, numFish, feederOn, lightOn, waterIsFlowing, pumpOn, leakage, isFlowing);
         var currentState = newData[0]['report'];
     	var gbLevel = currentState['gb_level_sensor'].gbLevel;
     	var ftLevel = currentState['tank_level_sensor'].full == 1;
@@ -566,15 +566,14 @@ var getLatestData = function(){
     	var pumpOn = currentState['fish_tank_pump'].on;
     	var leakage = currentState['leak_detector_sensor'].leak;
     	var isFlowing = flowRate >= 0.5 ? 1 : 0; // IS THIS RIGHT? ASK MAUNDU LATER?
-    	//gardenAnim =  new processingInstance.MediaBed(70,50,95,1.23,4,1,1,1,1,0,1);
-    	gardenAnim = new processingInstance.MediaBed(gbLevel, ftLevel, lightLevel, flowRate, numFish, feederOn, lightOn, waterIsFlowing, pumpOn, leakage, isFlowing);
-    	processingInstance.draw();
-        var frameInterval = 100;
-    	animationTimer = setInterval(function() { gardenAnim.updateMediaBed(); }, frameInterval);
-	//var p = new processingInstance.MediaBed(gbLevel, ftLevel, lightLevel, flowRate, numFish, feederOn, lightOn, waterIsFlowing, pumpOn, leakage, isFlowing);
-        } else {
-	        clearInterval(animationTimer);
-        }
+    	gardenAnim.updateMediaBed(gbLevel, ftLevel, lightLevel, flowRate, numFish, feederOn, lightOn, waterIsFlowing, pumpOn, leakage, isFlowing);
+	var frameInterval = 100;
+    	animationTimer = setInterval(function() { gardenAnim.animateMediaBed(); }, frameInterval);
+	//gardenAnim = new processingInstance.MediaBed(gbLevel, ftLevel, lightLevel, flowRate, numFish, feederOn, lightOn, waterIsFlowing, pumpOn, leakage, isFlowing);
+     } else {
+	clearInterval(animationTimer);
+     }
+
     });
 
 

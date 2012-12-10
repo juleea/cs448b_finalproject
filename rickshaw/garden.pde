@@ -41,7 +41,6 @@ void setup() {
 
 void draw() {
   image(img,0,0,img.width/1.5,img.height/1.5);
-  //garden.updateMediaBed();
 }
 
 void drawButtons() {
@@ -234,9 +233,9 @@ void drawDetails(float gbLevel, boolean ftFull, float lightLevel, boolean lightO
   boolean irrig = flowRate >= 0.5 ?  true : false;
   text(composeBoolStatus("Fish Feeder", feederOn), 400, 290, 120, 30);
   text(composeBoolStatus("Irrigation", irrig), 80, 120, 80, 30); 
+  text(composeBoolStatus("Pump",pumpOn), 540, 405, 120, 30);
   fill(238,232,170);
   text(composeBoolStatus("Growbed Draining",growbedDraining), 365, 130, 80, 30); 
-  text(composeBoolStatus("Pump",pumpOn), 540, 405, 120, 30);
   text(composeBoolStatus("Leakage",leakage), 50, 405, 80, 30);
 }
 
@@ -282,6 +281,7 @@ class MediaBed {
   boolean leakage;
   boolean isFlowing;
   
+  MediaBed() { }
   MediaBed(float gbLevel, boolean ftFull, float lightLevel, float flowRate, int numFish,
            boolean feederOn, boolean lightOn, boolean growbedDraining, boolean pumpOn, 
            boolean leakage, boolean isFlowing) {
@@ -304,8 +304,31 @@ class MediaBed {
     fishies = makeFish(numFish, absoluteFTLevel);
   }
   
-  void updateMediaBed() {
-    console.log('updating media bed!');
+   // just a repeat of MediaBed constructor. Should really unify code later
+   void updateMediaBed(float gbLevel, boolean ftFull, float lightLevel, float flowRate, int numFish,
+           boolean feederOn, boolean lightOn, boolean growbedDraining, boolean pumpOn, 
+           boolean leakage, boolean isFlowing) {
+    this.gbLevel = gbLevel;
+    this.ftFull = ftFull;
+    this.lightLevel = lightLevel;
+    this.flowRate = flowRate;
+    this.numFish = numFish;
+    this.feederOn = feederOn;
+    this.lightOn = lightOn;
+    this.growbedDraining = growbedDraining;
+    this.pumpOn = pumpOn;
+    this.leakage = leakage;
+    this.isFlowing = isFlowing;
+    img = loadImage(baseImg);
+    imgLabeled = loadImage(baseImgLabeled);
+    setWhiteTransparent(img);
+    setWhiteTransparent(imgLabeled);
+    float absoluteFTLevel = ftFull ? 285 : 344; // don't hardcode later
+    fishies = makeFish(numFish, absoluteFTLevel);
+  }
+
+  void animateMediaBed() {
+    console.log('animating media bed!');
     
     if (showLabels) { // done separately to reduce flash/lag of masking image
       image(imgLabeled,0,0,imgLabeled.width/1.5,imgLabeled.height/1.5);

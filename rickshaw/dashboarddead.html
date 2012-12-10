@@ -159,8 +159,8 @@ var gardenAnim;
 var animationTimer; // to set and stop setInterval
 var garden;
 var animationOn = 1;
-start_input.datetimepicker({showSecond: true, timeFormat: 'HH:mm:ss'});
-end_input.datetimepicker({showSecond: true, timeFormat: 'HH:mm:ss'});
+start_input.datetimepicker({showSecond: true, timeFormat: 'HH:mm:ss', hourGrid: 4, minuteGrid: 10});
+end_input.datetimepicker({showSecond: true, timeFormat: 'HH:mm:ss', hourGrid: 4, minuteGrid: 10});
 
 start_input.onEnter(function() {
         clearInterval(updateInterval);
@@ -551,7 +551,7 @@ var getLatestData = function(){
         });
 
     var latestTime = new Date(newData[newData.length-1].time);
-    $("#monitor_end_div").text(latestTime.getMonth()+1 + "-" + latestTime.getDate() + "-" + latestTime.getFullYear() + " " + latestTime.getHours() + ":" + latestTime.getMinutes() + ":" + latestTime.getSeconds());
+    $("#monitor_end_div").text(latestTime.getMonth()+1 + "/" + latestTime.getDate() + "/" + latestTime.getFullYear() + " " + latestTime.getHours() + ":" + latestTime.getMinutes() + ":" + latestTime.getSeconds());
 
     // FOR ANIMATION 
 

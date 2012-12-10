@@ -1209,6 +1209,7 @@ Rickshaw.Graph.Axis.Time = function(args) {
 	};
 
 	this.render = function() {
+        var self = this;
 
 		this.elements.forEach( function(e) {
 			e.parentNode.removeChild(e);
@@ -1219,18 +1220,18 @@ Rickshaw.Graph.Axis.Time = function(args) {
 		var offsets = this.tickOffsets();
 
 		offsets.forEach( function(o) {
-			
 			if (self.graph.x(o.value) > self.graph.x.range()[1]) return;
-	
 			var element = document.createElement('div');
 			element.style.left = self.graph.x(o.value) + 'px';
 			element.classList.add('x_tick');
 			element.classList.add(self.ticksTreatment);
 
+        if (self.graph.element.id=="reservoir_pump") {
 			var title = document.createElement('div');
 			title.classList.add('title');
 			title.innerHTML = o.unit.formatter(new Date(o.value * 1000));
 			element.appendChild(title);
+        }
 
 			self.graph.element.appendChild(element);
 			self.elements.push(element);

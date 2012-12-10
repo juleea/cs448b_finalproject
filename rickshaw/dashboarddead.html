@@ -456,13 +456,13 @@ function initGraph(htmlId, name, color, yunits, ymin, ymax, height, graphType) {
 
     var time = new Rickshaw.Fixtures.Time();
     //var minutes = time.unit('15 second');
-    if (graph.element.id == "reservoir_pump") {
+    //if (graph.element.id == "reservoir_pump") {
         var xAxis = new Rickshaw.Graph.Axis.Time( {
            graph: graph,
            //timeUnit: minutes,
         } );
         xAxis.render();
-    }
+    //}
    
 
     // console.log($("#" + yaxisId));

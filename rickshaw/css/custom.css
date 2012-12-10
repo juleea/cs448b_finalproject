@@ -35,7 +35,7 @@
     /*margin-right: 450px;*/
 }
 
-.label {
+.label{
 	position: absolute;
 	right: 1px;
 	/*float: right;*/
@@ -47,7 +47,7 @@
 .label_boolean {
 	position: absolute;
 	right: 1px;
-	/*float: right;*/
+	float: right;
 	padding-top: 10px;
 	padding-right: 3px;
 	z-index: 1;

@@ -70,6 +70,8 @@
 
 
 	<div id="animation" class="right"  style="border:1px solid black">
+		<h1>Dashboard</h1>
+		
 	<canvas id="sketch" data-processing-sources="garden.pde" tabindex="0" width="1150" height="600" style="image-rendering: -webkit-optimize-contrast !important;"></canvas> 
 	</div>
 
@@ -171,7 +173,6 @@ setTimeout(
     function() {
         getData(garden, numInitialPoints, initGraphs);
     }, 5000);
-
 var updateInterval;
 setTimeout(
     function() {
@@ -182,6 +183,7 @@ $(function() {
     $("#monitor_input").jqTransform();
 });
 
+var chartStartWidth = $('#charts').width();
 $(document).ready(function() {
 $("input[name='mode']").change(function() {
     if ($("input[name='mode']:checked").val() == 'analysis') { // Analysis
@@ -193,16 +195,25 @@ $("input[name='mode']").change(function() {
         start_input.val($("#monitor_start_div").text());
         end_input.val($("#monitor_end_div").text());
         clearInterval(updateInterval);
-	clearInterval(animationTimer); 
-   	$("#animation").hide();
-	animationOn = 0;
-    /*
-        $('div svg').animate({
-            width: "90%"}, 1000
-        );$('#charts').animate({
-            width: "90%"}, 1000
-        );
-        */
+        $("#animation").fadeOut('slow');
+        animationOn = 0;
+        clearInterval(animationTimer); 
+        //$('div svg').animate({
+            //width: "95%"}, 1000
+        //);
+        setTimeout(function() {
+            $('#charts').animate({
+                width: "87%"}, 2000
+            );
+            $('#slider').animate({
+                width: "100%"}, 2000
+            );
+            graphs.map(function(graph) {
+                console.log(graph);
+                graph.configure({width: 1236});
+                graph.render();
+            });
+        }, 500);
    } else { // Monitor
         console.log('monitor');
         $("#monitor_start_div").show();
@@ -210,8 +221,23 @@ $("input[name='mode']").change(function() {
         $("#start_div").hide();
         $("#end_div").hide();
         updateInterval = setInterval( function() { getLatestData(); }, refreshInterval );
-   	$("#animation").show(); 
-	animationOn = 1;
+        setTimeout(function() {
+            $("#animation").fadeIn('slow');
+        }, 2000);
+        animationOn = 1;
+        //$('div svg').animate({
+            //width: "50%"}, 1000
+        //);
+        $('#charts').animate({
+            width: chartStartWidth}, 2000
+        );
+        setTimeout(function() {
+            graphs.map(function(graph) {
+                console.log(graph);
+                graph.configure({width: 670});
+                graph.render();
+            });
+        }, 1500);
     }
 });
 });
@@ -526,7 +552,7 @@ var getLatestData = function(){
 
         var currentState = newData[0]['report'];
     	var gbLevel = currentState['gb_level_sensor'].gbLevel;
-    	var ftLevel = currentState['tank_level_sensor'].full;
+    	var ftLevel = currentState['tank_level_sensor'].full == 1 ? 100 : 50;
     	var lightLevel = currentState['photocell_sensor'].lightLevel;
     	var flowRate = currentState['flow_rate_sensor'].flowRate;
     	var numFish = 5;
@@ -539,8 +565,7 @@ var getLatestData = function(){
     	//gardenAnim =  new processingInstance.MediaBed(70,50,95,1.23,4,1,1,1,1,0,1);
     	gardenAnim = new processingInstance.MediaBed(gbLevel, ftLevel, lightLevel, flowRate, numFish, feederOn, lightOn, waterIsFlowing, pumpOn, leakage, isFlowing);
     	processingInstance.draw();
-        clearInterval(animationTimer);
-	var frameInterval = 100;
+        var frameInterval = 100;
     	animationTimer = setInterval(function() { gardenAnim.updateMediaBed(); }, frameInterval);
 	//var p = new processingInstance.MediaBed(gbLevel, ftLevel, lightLevel, flowRate, numFish, feederOn, lightOn, waterIsFlowing, pumpOn, leakage, isFlowing);
         } else {

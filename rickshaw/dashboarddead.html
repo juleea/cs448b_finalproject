@@ -30,6 +30,8 @@
 <body>
 
 <div id="charts">
+   
+    <div id="preloader"></div>
     <div id="chart_container"></div>
 
     <div id="legend_container">
@@ -185,6 +187,7 @@ $(function() {
 
 var chartStartWidth = $('#charts').width();
 $(document).ready(function() {
+
 $("input[name='mode']").change(function() {
     if ($("input[name='mode']:checked").val() == 'analysis') { // Analysis
         console.log('analysis');
@@ -567,7 +570,8 @@ var getLatestData = function(){
     	var pumpOn = currentState['fish_tank_pump'].on;
     	var leakage = currentState['leak_detector_sensor'].leak;
     	var isFlowing = flowRate >= 0.5 ? 1 : 0; // IS THIS RIGHT? ASK MAUNDU LATER?
-    	gardenAnim.updateMediaBed(gbLevel, ftLevel, lightLevel, flowRate, numFish, feederOn, lightOn, waterIsFlowing, pumpOn, leakage, isFlowing);
+        var timestamp = new Date(time * 1000);
+    	gardenAnim.updateMediaBed(gbLevel, ftLevel, lightLevel, flowRate, numFish, feederOn, lightOn, waterIsFlowing, pumpOn, leakage, isFlowing, timestamp);
 	var frameInterval = 100;
     	animationTimer = setInterval(function() { gardenAnim.animateMediaBed(); }, frameInterval);
 	//gardenAnim = new processingInstance.MediaBed(gbLevel, ftLevel, lightLevel, flowRate, numFish, feederOn, lightOn, waterIsFlowing, pumpOn, leakage, isFlowing);

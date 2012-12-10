@@ -3,6 +3,14 @@ body {
         background-repeat:repeat;
    // background-color: #B9DCF0;
 }
+
+#preloader {
+	width: 670px;
+	height: 600px;
+	display: inline-block;
+	background:url("../img/preloader.gif") no-repeat center center;
+}
+
 #slider {
 /*	float: left;*/
 	width: 670px;

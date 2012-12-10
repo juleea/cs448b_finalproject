@@ -77,7 +77,7 @@ DataGarden.prototype.getRange = function(start, end) {
 			//TODO: change return condition?
 			return [];
 		}
-
+        $("#preloader").hide(); // this is probably awkwardly not in the right place :(
         console.log((start - this.bigBang.getTime()) / this.dataInterval);
 		var startIndex = Math.min(Math.max(Math.floor((start - this.bigBang.getTime()) / this.dataInterval), 0), this.data.length);
 		var endIndex = Math.max(Math.min(Math.floor((end - this.bigBang.getTime()) / this.dataInterval), this.data.length), 0);

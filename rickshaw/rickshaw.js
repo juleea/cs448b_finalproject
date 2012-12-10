@@ -1516,13 +1516,11 @@ Rickshaw.Graph.Behavior.Series.Toggle = function(args) {
 	this._addBehavior = function() {
 
 		this.graph.series.forEach( function(s) {
-			
 			s.disable = function() {
 
 				if (self.graph.series.length <= 1) {
 					throw('only one series left');
 				}
-				
 				s.disabled = true;
 				self.graph.update();
 			};
@@ -1544,7 +1542,8 @@ Rickshaw.Graph.HoverDetail = Rickshaw.Class.create({
 
 	initialize: function(args) {
 
-		var graph = this.graph = args.graph;
+		var graphs = this.graphs = args.graphs;
+		//var graph = this.graph = args.graph;
 
 		this.xFormatter = args.xFormatter || function(x) {
 			return new Date( x * 1000 ).toUTCString();
@@ -1555,11 +1554,22 @@ Rickshaw.Graph.HoverDetail = Rickshaw.Class.create({
 			//return y.toFixed(2);
 		};
 
-		var element = this.element = document.createElement('div');
-		element.className = 'detail';
+        var elements = this.elements = [];
+        graphs.map(function(graph) {
+		//var element = this.element = document.createElement('div');
+            var element = document.createElement('div');
+            element.className = 'detail';
+            elements.push(element);
+        });
 
 		this.visible = true;
-		graph.element.appendChild(element);
+		//graph.element.appendChild(element);
+        var i = 0;
+        console.log(elements);
+        graphs.map(function(graph) {
+            graph.element.appendChild(elements[i]);
+            i++;
+        });
 
 		this.lastEvent = null;
 		this._addListeners();
@@ -1583,100 +1593,114 @@ Rickshaw.Graph.HoverDetail = Rickshaw.Class.create({
 
 		if (!e.target.nodeName.match(/^(path|svg|rect)$/)) return;
 
-		var graph = this.graph;
+		var graphs = this.graphs;
+		//var graph = this.graph;
 
 		var eventX = e.offsetX || e.layerX;
 		var eventY = e.offsetY || e.layerY;
 
-		var domainX = graph.x.invert(eventX);
-		var stackedData = graph.stackedData;
+        var i = 0;
+        var details = [];
+        graphs.map(function(graph) {
+            var domainX = graph.x.invert(eventX);
+            var stackedData = graph.stackedData;
 
-		var topSeriesData = stackedData.slice(-1).shift();
+            var topSeriesData = stackedData.slice(-1).shift();
 
-		var domainIndexScale = d3.scale.linear()
-			.domain([topSeriesData[0].x, topSeriesData.slice(-1).shift().x])
-			.range([0, topSeriesData.length]);
+            var domainIndexScale = d3.scale.linear()
+                .domain([topSeriesData[0].x, topSeriesData.slice(-1).shift().x])
+                .range([0, topSeriesData.length]);
 
-		//TODO(juleea): fix apporximateIndexCalculation??
-		var exactIndex = domainIndexScale(domainX);
-		var approximateIndex = Math.floor(exactIndex);
-		//if (exactIndex - approximateIndex > .5) 
-			//approximateIndex += 1;
-        //console.log(exactIndex + ", " + approximateIndex);
-		var dataIndex = Math.min(approximateIndex || 0, stackedData[0].length - 1);
-        //console.log("initial dataIndex: " + dataIndex);
+            //TODO(juleea): fix apporximateIndexCalculation??
+            var exactIndex = domainIndexScale(domainX);
+            var approximateIndex = Math.floor(exactIndex);
+            //if (exactIndex - approximateIndex > .5) 
+                //approximateIndex += 1;
+            //console.log(exactIndex + ", " + approximateIndex);
+            var dataIndex = Math.min(approximateIndex || 0, stackedData[0].length - 1);
+            //console.log("initial dataIndex: " + dataIndex);
 
-        // TODO (jsquared): fix this block of code - was messing up dataIndex calculation
-        /*
-		for (var i = approximateIndex; i < stackedData[0].length - 1;) {
+            // TODO (jsquared): fix this block of code - was messing up dataIndex calculation
+            /*
+            for (var i = approximateIndex; i < stackedData[0].length - 1;) {
+                if (!stackedData[0][i] || !stackedData[0][i + 1]) {
+                    break;
+                }
+                //console.log("domainX: " + domainX + "\t" + stackedData[0][i].x + "\t" + stackedData[0][i+1].x);
+                if (stackedData[0][i].x <= domainX && stackedData[0][i + 1].x > domainX) {
+                    dataIndex = i;
+                    //console.log("\tchanging data index to: " + dataIndex);
+                    break;
+                }
+                if (stackedData[0][i + 1] <= domainX) { i++ } else { i-- }
+            }
+            */
+            //console.log("final data index: " + dataIndex);
+            //console.log("-----\n");
 
-			if (!stackedData[0][i] || !stackedData[0][i + 1]) {
-				break;
-			}
+            var domainX = stackedData[0][dataIndex].x;
+            var formattedXValue = this.xFormatter(domainX);
+            var graphX = graph.x(domainX);
+            var order = 0;
 
-            //console.log("domainX: " + domainX + "\t" + stackedData[0][i].x + "\t" + stackedData[0][i+1].x);
-			if (stackedData[0][i].x <= domainX && stackedData[0][i + 1].x > domainX) {
-				dataIndex = i;
-                //console.log("\tchanging data index to: " + dataIndex);
-				break;
-			}
-			if (stackedData[0][i + 1] <= domainX) { i++ } else { i-- }
-		}
-        */
-        //console.log("final data index: " + dataIndex);
-        //console.log("-----\n");
+            var detail = graph.series.active()
+                .map( function(s) { return { order: order++, series: s, name: s.name, value: s.stack[dataIndex] } } );
+            details.push(detail);
 
-		var domainX = stackedData[0][dataIndex].x;
-		var formattedXValue = this.xFormatter(domainX);
-		var graphX = graph.x(domainX);
-		var order = 0;
+            var activeItem;
 
-		var detail = graph.series.active()
-			.map( function(s) { return { order: order++, series: s, name: s.name, value: s.stack[dataIndex] } } );
+            var sortFn = function(a, b) {
+                return (a.value.y0 + a.value.y) - (b.value.y0 + b.value.y);
+            };
 
-		var activeItem;
+            var domainMouseY = graph.y.magnitude.invert(graph.element.offsetHeight - eventY);
 
-		var sortFn = function(a, b) {
-			return (a.value.y0 + a.value.y) - (b.value.y0 + b.value.y);
-		};
+            detail.sort(sortFn).forEach( function(d) {
 
-		var domainMouseY = graph.y.magnitude.invert(graph.element.offsetHeight - eventY);
+                d.formattedYValue = (this.yFormatter.constructor == Array) ?
+                    this.yFormatter[detail.indexOf(d)](d.value.y) :
+                    this.yFormatter(d.value.y);
 
-		detail.sort(sortFn).forEach( function(d) {
+                d.graphX = graphX;
+                //console.log(d.value.y0 + " " + d.value.y);
+                d.graphY = graph.y(d.value.y0 + d.value.y);
 
-			d.formattedYValue = (this.yFormatter.constructor == Array) ?
-				this.yFormatter[detail.indexOf(d)](d.value.y) :
-				this.yFormatter(d.value.y);
+                // EDIT (jsquared): set active to true - issue with non-positive values, since d.value.y <= 0
+                d.active = true;
+                if (domainMouseY > d.value.y0 && domainMouseY < d.value.y0 + d.value.y && !activeItem) {
+                    activeItem = d;
+                    d.active = true;
+                }
 
-			d.graphX = graphX;
-			d.graphY = graph.y(d.value.y0 + d.value.y);
+                this.elements[i].innerHTML = '';
+                this.elements[i].style.left = graph.x(domainX) + 'px';
+                i++;
 
-            // EDIT (jsquared): set active to true - issue with non-positive values, since d.value.y <= 0
-            d.active = true;
-			if (domainMouseY > d.value.y0 && domainMouseY < d.value.y0 + d.value.y && !activeItem) {
-				activeItem = d;
-				d.active = true;
-			}
+            }, this );
 
-		}, this );
+            //this.element.innerHTML = '';
+            //this.element.style.left = graph.x(domainX) + 'px';
 
-		this.element.innerHTML = '';
-		this.element.style.left = graph.x(domainX) + 'px';
-
-		if (this.visible) {
-			this.render( {
-				detail: detail,
-				domainX: domainX,
-				formattedXValue: formattedXValue,
-				mouseX: eventX,
-				mouseY: eventY
-			} );
-		}
+            //console.log(detail);
+            if (this.visible) {
+                this.render( {
+                    detail: detail,
+                    domainX: domainX,
+                    formattedXValue: formattedXValue,
+                    mouseX: eventX,
+                    mouseY: eventY,
+                    index: i
+                } );
+            }
+        }.bind(this));
 	},
 
 	hide: function() {
 		this.visible = false;
-		this.element.classList.add('inactive');
+        this.elements.map(function(element) {
+            element.classList.add('inactive');
+        });
+		//this.element.classList.add('inactive');
 
 		if (typeof this.onHide == 'function') {
 			this.onHide();
@@ -1685,7 +1709,10 @@ Rickshaw.Graph.HoverDetail = Rickshaw.Class.create({
 
 	show: function() {
 		this.visible = true;
-		this.element.classList.remove('inactive');
+        this.elements.map(function(element) {
+            element.classList.remove('inactive');
+        });
+		//this.element.classList.remove('inactive');
 
 		if (typeof this.onShow == 'function') {
 			this.onShow();
@@ -1701,32 +1728,45 @@ Rickshaw.Graph.HoverDetail = Rickshaw.Class.create({
 		var mouseY = args.mouseY;
 
 		var formattedXValue = args.formattedXValue;
+        var index = args.index;
 
 		var xLabel = document.createElement('div');
 		xLabel.className = 'x_label';
 		xLabel.innerHTML = formattedXValue;
-		this.element.appendChild(xLabel);
+        this.elements.map(function(element) {
+            element.appendChild(xLabel);
+        });
+		//this.element.appendChild(xLabel);
 
+        var i = 0;
 		detail.forEach( function(d) {
 
-			var item = document.createElement('div');
-			item.className = 'item';
-			item.innerHTML = this.formatter(d.series, domainX, d.value.y, formattedXValue, d.formattedYValue, d);
-			item.style.top = this.graph.y(d.value.y0 + d.value.y) + 'px';
+            var graph = graphs[index-1];
+            //graphs.map(function(graph) {
+            var item = document.createElement('div');
+            item.className = 'item';
+            item.innerHTML = this.formatter(d.series, domainX, d.value.y, formattedXValue, d.formattedYValue, d);
+            //item.style.top = this.graph.y(d.value.y0 + d.value.y) + 'px';
+            //item.style.top = graph.y(130) + 'px';
+            item.style.top = graph.y(d.value.y0 + d.value.y) + 'px';
 
-			this.element.appendChild(item);
+            this.elements[index-1].appendChild(item);
+            //this.element.appendChild(item);
 
-			var dot = document.createElement('div');
-			dot.className = 'dot';
-			dot.style.top = item.style.top;
-			dot.style.borderColor = d.series.color;
+            var dot = document.createElement('div');
+            dot.className = 'dot';
+            dot.style.top = item.style.top;
+            dot.style.borderColor = d.series.color;
 
-			this.element.appendChild(dot);
+            this.elements[index-1].appendChild(dot);
+            //this.element.appendChild(dot);
 
-			if (d.active) {
-				item.className = 'item active';
-				dot.className = 'dot active';
-			}
+            if (d.active) {
+                item.className = 'item active';
+                dot.className = 'dot active';
+            }
+            i++;
+            //}.bind(this));
 
 		}, this );
 
@@ -1739,7 +1779,9 @@ Rickshaw.Graph.HoverDetail = Rickshaw.Class.create({
 
 	_addListeners: function() {
 
-		this.graph.element.addEventListener(
+       this.graphs.map(function(graph) {
+		//this.graph.element.addEventListener(
+		graph.element.addEventListener(
 			'mousemove',
 			function(e) {
 				this.visible = true;
@@ -1748,17 +1790,21 @@ Rickshaw.Graph.HoverDetail = Rickshaw.Class.create({
 			false
 		);
 
-		this.graph.onUpdate( function() { this.update() }.bind(this) );
+		//this.graph.onUpdate( function() { this.update() }.bind(this) );
+		graph.onUpdate( function() { this.update() }.bind(this) );
 
-		this.graph.element.addEventListener(
+		//this.graph.element.addEventListener(
+		graph.element.addEventListener(
 			'mouseout',
 			function(e) {
-				if (e.relatedTarget && !(e.relatedTarget.compareDocumentPosition(this.graph.element) & Node.DOCUMENT_POSITION_CONTAINS)) {
+				if (e.relatedTarget && !(e.relatedTarget.compareDocumentPosition(graph.element) & Node.DOCUMENT_POSITION_CONTAINS)) {
+				//if (e.relatedTarget && !(e.relatedTarget.compareDocumentPosition(this.graph.element) & Node.DOCUMENT_POSITION_CONTAINS)) {
 					this.hide();
 				}
 			 }.bind(this),
 			false
 		);
+   }.bind(this));
 	}
 });
 

@@ -40,7 +40,7 @@ void setup() {
 }
 
 void draw() {
-  
+  image(img,0,0,img.width/1.5,img.height/1.5);
   //garden.updateMediaBed();
 }
 
@@ -85,6 +85,14 @@ float drawFishTankLevel(float percentFull) {
   rect(350, waterLevel, 350, 300); 
   return waterLevel;
 }  
+
+// Same as above, but w/o drawing rectangle itself
+float calculateFishTankAbsLevel(float percentFull) {
+  int fishTankFull = 285;
+  int fishTankEmpty = 402;
+  float waterLevel = fishTankEmpty - (fishTankEmpty-fishTankFull) * (percentFull/100.0);
+  return waterLevel;
+}
 
 void drawGrowLight(boolean on) {
   if(on) {
@@ -212,19 +220,25 @@ void mousePressed() {
   
 }
 
-void drawDetails(float gbLevel, float ftLevel, float lightLevel, float flowRate, 
-                 boolean feederOn, boolean growbedDraining,
+void drawDetails(float gbLevel, float ftLevel, float lightLevel, boolean lightOn, 
+		 float flowRate, boolean feederOn, boolean growbedDraining,
                  boolean pumpOn, boolean leakage) {
   fill(0);
   text("Growbed Level: "+ gbLevel +"%", 80, 180, 80, 30); 
   text("Fish Tank Level: "+ ftLevel + "%", 400, 370, 80, 30);
-  text("Light Level: " + lightLevel + "%  Grow Light: On", 50, 5, 120, 30);
+  text("Light Level: " + lightLevel + "%  " + composeBoolStatus("Grow Lights",lightOn), 50, 5, 120, 30);
   text("Flow Rate: " + flowRate + " gpm", 400, 20, 150, 30);
-  text("Fish Feeder: On", 400, 290, 120, 30);
-  text("Irrigation: On", 80, 120, 80, 30); 
-  text("Growbed Draining: On", 365, 130, 80, 30); 
-  text("Pump: Off", 540, 405, 120, 30);
-  text("Leakage: Yes", 50, 405, 80, 30);
+  
+  boolean irrig = flowRate >= 0.5 ?  true : false;
+  text(composeBoolStatus("Fish Feeder", feederOn), 400, 290, 120, 30);
+  text(composeBoolStatus("Irrigation", irrig), 80, 120, 80, 30); 
+  text(composeBoolStatus("Growbed Draining",growbedDraining), 365, 130, 80, 30); 
+  text(composeBoolStatus("Pump",pumpOn), 540, 405, 120, 30);
+  text(composeBoolStatus("Leakage",leakage), 50, 405, 80, 30);
+}
+
+string composeBoolStatus(string varType, bool on) {
+  return on ? varType+": On" : varType+": Off";	
 }
 
 void drawLabels() {
@@ -283,7 +297,7 @@ class MediaBed {
     imgLabeled = loadImage(baseImgLabeled);
     setWhiteTransparent(img);
     setWhiteTransparent(imgLabeled);
-    float absoluteFTLevel = drawFishTankLevel(ftLevel);
+    float absoluteFTLevel = calculateFishTankAbsLevel(ftLevel);
     fishies = makeFish(numFish, absoluteFTLevel);
   }
   
@@ -295,10 +309,11 @@ class MediaBed {
     float absoluteGBLevel = drawGrowbedLevel(gbLevel);
     drawDrainagePipe(growbedDraining);
    //tint(0, 153, 204);
-    setWhiteTransparent(img);
     if (showLabels) {
+      setWhiteTransparent(imgLabeled);
       image(imgLabeled,0,0,imgLabeled.width/1.5,imgLabeled.height/1.5);
     } else {
+      setWhiteTransparent(img);
       image(img,0,0,img.width/1.5,img.height/1.5);
     }
   //noTint();
@@ -309,7 +324,7 @@ class MediaBed {
     drawDroplets(flowRate); 
     animateFish(fishies);
   
-    if ( showDetails ) drawDetails(gbLevel,ftLevel,lightLevel,flowRate,feederOn, growbedDraining, pumpOn, leakage);
+    if ( showDetails ) drawDetails(gbLevel,ftLevel,lightLevel, lightOn,flowRate,feederOn, growbedDraining, pumpOn, leakage);
     if ( showLabels ) drawLabels();
   
     overTank = (mouseX > fishTankWidth && mouseY > fishTankStartY) ? true : false;

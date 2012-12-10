@@ -1,6 +1,7 @@
 #slider {
 /*	float: left;*/
-	width: 980px;
+	width: 670px;
+	/*width: 980px;*/
 	margin: 10px 0px;
 }
 
@@ -16,9 +17,16 @@
 .rsgraph_wrapper {
 	/*margin-top: 20px;
 	margin-bottom: 20px;*/
-    width: 980px;
-	margin: 0px;
-	border: 1px solid grey;
+
+    width: 670px;
+    /*width: 980px;*/
+	/*margin: 20px;*/
+	border-bottom: 1px solid grey;
+	border-right: 1px solid grey;
+    border-left: 1px solid grey;
+}
+.rsgraph_wrapper:first-child {
+    border-top: 1px solid grey;
 }
 
 .left { float:left; }
@@ -28,9 +36,21 @@
 }
 
 .label {
-	display: absolute;
+	position: absolute;
+	right: 1px;
 	/*float: right;*/
-	padding: 5px;
+	padding-top: 60px;
+	padding-right: 3px;
+	z-index: 1;
+}
+
+.label_boolean {
+	position: absolute;
+	right: 1px;
+	/*float: right;*/
+	padding-top: 10px;
+	padding-right: 3px;
+	z-index: 1;
 }
 
 fieldset { border: 0; margin-bottom: 20px; }
@@ -38,7 +58,7 @@ legend { font-size: 17px; font-weight: bold; }
 
 .float-left {
 	float: left;
-	width: 350px;
+	/*width: 240px;*/
 }
 
 .radiolist {

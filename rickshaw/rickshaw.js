@@ -1209,6 +1209,7 @@ Rickshaw.Graph.Axis.Time = function(args) {
 	};
 
 	this.render = function() {
+        var self = this;
 
 		this.elements.forEach( function(e) {
 			e.parentNode.removeChild(e);
@@ -1219,18 +1220,18 @@ Rickshaw.Graph.Axis.Time = function(args) {
 		var offsets = this.tickOffsets();
 
 		offsets.forEach( function(o) {
-			
 			if (self.graph.x(o.value) > self.graph.x.range()[1]) return;
-	
 			var element = document.createElement('div');
 			element.style.left = self.graph.x(o.value) + 'px';
 			element.classList.add('x_tick');
 			element.classList.add(self.ticksTreatment);
 
+        if (self.graph.element.id=="reservoir_pump") {
 			var title = document.createElement('div');
 			title.classList.add('title');
 			title.innerHTML = o.unit.formatter(new Date(o.value * 1000));
 			element.appendChild(title);
+        }
 
 			self.graph.element.appendChild(element);
 			self.elements.push(element);
@@ -1549,10 +1550,23 @@ Rickshaw.Graph.HoverDetail = Rickshaw.Class.create({
 			return new Date( x * 1000 ).toUTCString();
 		};
 
+		this.yFormatter = function(y, units, id) {
+            if (["temperature", "flow_rate", "light_level", "gb_level", "humidity"].indexOf(id) != -1)
+                return y + " " + units;
+            else if (["tank_full", "leak"].indexOf(id) != -1) {
+                return y == 1 ? "Yes" : "No";
+            } else {
+                return y == 1 ? "On" : "Off";
+            }
+
+		};
+        this.yUnits = args.yFormatter;
+        /*
 		this.yFormatter = args.yFormatter || function(y) {
 			return y;
 			//return y.toFixed(2);
 		};
+        */
 
         var elements = this.elements = [];
         graphs.map(function(graph) {
@@ -1565,7 +1579,7 @@ Rickshaw.Graph.HoverDetail = Rickshaw.Class.create({
 		this.visible = true;
 		//graph.element.appendChild(element);
         var i = 0;
-        console.log(elements);
+        //console.log(elements);
         graphs.map(function(graph) {
             graph.element.appendChild(elements[i]);
             i++;
@@ -1658,8 +1672,8 @@ Rickshaw.Graph.HoverDetail = Rickshaw.Class.create({
             detail.sort(sortFn).forEach( function(d) {
 
                 d.formattedYValue = (this.yFormatter.constructor == Array) ?
-                    this.yFormatter[detail.indexOf(d)](d.value.y) :
-                    this.yFormatter(d.value.y);
+                    this.yFormatter([detail.indexOf(d)](d.value.y), this.yUnits[graph.element.id]) :
+                    this.yFormatter(d.value.y, this.yUnits[graph.element.id], graph.element.id);
 
                 d.graphX = graphX;
                 //console.log(d.value.y0 + " " + d.value.y);

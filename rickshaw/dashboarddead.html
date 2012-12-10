@@ -329,6 +329,7 @@ function getData(garden, numEntries, callback) {
     // });
 }
 
+
 function initGraphs(data, textStatus, jqXHR) {
     $.each(data, function(i, item) {
         //var time = new Date(item.time);
@@ -364,6 +365,11 @@ function initGraphs(data, textStatus, jqXHR) {
     initBooleanGraph("backup_reservoir", "Backup reservoir", "yellow");
     initBooleanGraph("reservoir_pump", "Reservoir pump", "teal");
 
+    var hoverDetail = new Rickshaw.Graph.HoverDetail( {
+        graphs: graphs,//data[0],
+        //xFormatter: function(x) { return x + " seconds" },
+        //yFormatter: function(y) { return y + " " + yunits }
+    } );
     //create slider
     var slider = new Rickshaw.Graph.RangeSlider(
         {
@@ -419,11 +425,13 @@ function initGraph(htmlId, name, color, yunits, ymin, ymax, height, graphType) {
     
 
 
+    /*
     var hoverDetail = new Rickshaw.Graph.HoverDetail( {
         graph: graph,
         //xFormatter: function(x) { return x + " seconds" },
         yFormatter: function(y) { return y + " " + yunits }
     } );
+    */
     //console.log("hover: ");
     //console.log(hoverDetail);
 

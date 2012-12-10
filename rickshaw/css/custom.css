@@ -1,3 +1,8 @@
+body {
+	background-image:url('../img/graytexture.png');
+	background-repeat:repeat;
+}
+
 #slider {
 /*	float: left;*/
 	width: 670px;
@@ -6,6 +11,7 @@
 }
 
 #charts {
+	background-color:#fff;
 	/*margin: 0px 10px;*/
 	display:inline-block;
 }
@@ -32,6 +38,7 @@
 .left { float:left; }
 .right{
     float:right;
+    margin: 0;
     /*margin-right: 450px;*/
 }
 

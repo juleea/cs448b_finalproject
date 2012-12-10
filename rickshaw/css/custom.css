@@ -1,5 +1,5 @@
 body {
-        background-image:url('../img/graytexture.png');
+      //  background-image:url('../img/graytexture.png');
         background-repeat:repeat;
    // background-color: #B9DCF0;
 }
@@ -45,7 +45,9 @@ body {
 
 .left { float:left; }
 .right{
-    float:right;
+    /*float:right;*/
+    position:absolute;
+    margin-left:10px;
     /*margin-right: 450px;*/
 }
 

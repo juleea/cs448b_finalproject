@@ -17,8 +17,9 @@
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.15/jquery-ui.min.js"></script>
     <script type="text/javascript" src="jquery.jqtransform.js"></script>
+    <script type="text/javascript" src="../datagarden.js"></script>
 
-    <script src="http://stanford.edu/~jsquared/cgi-bin/clone/datagarden.js"></script>
+    <!-- // <script src="http://stanford.edu/~jsquared/cgi-bin/clone/datagarden.js"></script> -->
 
 	<script src="rickshaw.js"></script>
 	<script src="Rickshaw.Graph.RangeSlider.js"></script>
@@ -280,7 +281,7 @@ function getFieldValue(pathArray, object) {
             found = found[field];
         } else {
             console.error("getFieldValue(): " + field + " not found.");
-            return null;
+            return 0;
         }
     });
     return found;

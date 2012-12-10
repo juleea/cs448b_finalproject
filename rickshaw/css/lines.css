@@ -18,4 +18,5 @@ div, span, p, td {
 #chart_container {
 /*	float: left;*/
 	position: relative;
+    background-color: #ffffff;
 }

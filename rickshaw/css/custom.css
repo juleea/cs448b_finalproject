@@ -1,3 +1,6 @@
+body {
+    background-color: #B9DCF0;
+}
 #slider {
 /*	float: left;*/
 	width: 670px;
@@ -12,6 +15,7 @@
 
 #animation {
 	display:inline-block;
+    background-color: #ffffff;
 }
 
 .rsgraph_wrapper {

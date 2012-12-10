@@ -1,6 +1,7 @@
 #slider {
 /*	float: left;*/
-	width: 980px;
+	width: 670px;
+	/*width: 980px;*/
 	margin: 10px 0px;
 }
 
@@ -16,7 +17,8 @@
 .rsgraph_wrapper {
 	/*margin-top: 20px;
 	margin-bottom: 20px;*/
-    width: 980px;
+    width: 670px;
+    /*width: 980px;*/
 	margin: 20px;
 	border: 1px solid grey;
 }
@@ -33,7 +35,7 @@ legend { font-size: 17px; font-weight: bold; }
 
 .float-left {
 float: left;
-width: 350px;
+width: 250px;
 }
 
 .radiolist {

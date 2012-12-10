@@ -6,6 +6,11 @@
 
 #charts {
 	/*margin: 0px 10px;*/
+	display:inline-block;
+}
+
+#animation {
+	display:inline-block;
 }
 
 .rsgraph_wrapper {
@@ -19,7 +24,7 @@
 .left { float:left; }
 .right{
     float:right;
-    margin-right: 450px;
+    /*margin-right: 450px;*/
 }
 
 

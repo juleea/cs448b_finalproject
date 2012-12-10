@@ -170,7 +170,7 @@ createDataGarden();
 setTimeout(
     function() {
         getData(garden, numInitialPoints, initGraphs);
-    }, 500);
+    }, 5000);
 
 var updateInterval;
 setTimeout(
@@ -385,6 +385,7 @@ function initBooleanGraph(htmlId, name, color) {
 }
 
 function initGraph(htmlId, name, color, yunits, ymin, ymax, height, graphType) {
+
     if (!height) {
         height = 80;
     }
@@ -393,12 +394,16 @@ function initGraph(htmlId, name, color, yunits, ymin, ymax, height, graphType) {
         graphType = 'scatterplot'
     }
 
-    // instantiate a graph!
+    // create a new graph!
     var yaxisId = htmlId + "_yaxis";
     var wrapperId = htmlId + "_wrapper";
+    var labelId = htmlId + "_label";
     $("#chart_container").append("<div id='" + wrapperId + "' class='rsgraph_wrapper'></div>");
+    $("#" + wrapperId).append("<div id='" + labelId + "' class='label'>" + name + "</div>");
     $("#" + wrapperId).append("<div id='" + htmlId + "'></div>");
     $("#" + wrapperId).append("<div id='" + yaxisId + "'></div>");
+
+
 
     console.log(seriesData[htmlId]);
     var graph = new Rickshaw.Graph(
@@ -496,15 +501,15 @@ var getLatestData = function(){
     // FOR ANIMATION 
 
     if(animationOn) { 
-	processingInstance= Processing.getInstanceById('sketch');
+	    processingInstance= Processing.getInstanceById('sketch');
     	console.log("Init processingInstance");
-	gardenAnim =  new processingInstance.MediaBed(70,50,95,1.23,4,1,1,1,1,0,1);
-	var frameInterval = 100;
+	    gardenAnim =  new processingInstance.MediaBed(70,50,95,1.23,4,1,1,1,1,0,1);
+	    var frameInterval = 100;
     	animationTimer = setInterval(function() { gardenAnim.updateMediaBed(); }, frameInterval);
-	//var p = new processingInstance.MediaBed(gbLevel, ftLevel, lightLevel, flowRate, numFish, feederOn, lightOn, waterIsFlowing, pumpOn, leakage, isFlowing);
+    	//var p = new processingInstance.MediaBed(gbLevel, ftLevel, lightLevel, flowRate, numFish, feederOn, lightOn, waterIsFlowing, pumpOn, leakage, isFlowing);
     }
 
-    });
+});
 
 
     if (newData && newData.length > 0) {

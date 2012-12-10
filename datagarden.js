@@ -11,7 +11,7 @@ function DataGarden(garden, useLive) {
 		this.nextIndex = 0;
 		this.dataInterval = 10000; // time (in milliseconds) between 2 data points
 
-		$.getJSON("../data/v2.n1440.clean.json", function(response) {
+		$.getJSON("../data/v1.1355084387971.n1440.clean.json", function(response) {
 			that.data = response;
 			console.log(response[0]);
 		});

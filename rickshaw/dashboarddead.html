@@ -171,7 +171,7 @@ createDataGarden();
 setTimeout(
     function() {
         getData(garden, numInitialPoints, initGraphs);
-    }, 500);
+    }, 5000);
 
 var updateInterval;
 setTimeout(
@@ -389,23 +389,28 @@ function initGraphs(data, textStatus, jqXHR) {
 
 } 
 
-function initBooleanGraph(htmlId, name, color) {
-    initGraph(htmlId, name, color, "", 0, 1, 30, "area");
+function initBooleanGraph(htmlId, name, color, isBooleanGraph) {
+    initGraph(htmlId, name, color, "", 0, 1, true);
 }
 
-function initGraph(htmlId, name, color, yunits, ymin, ymax, height, graphType) {
-    if (!height) {
-        height = 80;
-    }
+function initGraph(htmlId, name, color, yunits, ymin, ymax, isBooleanGraph) {
+    var height = 80;
+    var graphType = 'scatterplot';
 
-    if (!graphType) {
-        graphType = 'scatterplot'
-    }
-
-    // instantiate a graph!
     var yaxisId = htmlId + "_yaxis";
     var wrapperId = htmlId + "_wrapper";
+    var labelId = htmlId + "_label";
+    var labelClass = "label";
+
+    if(isBooleanGraph) {
+        height = 30;
+        graphType = "area";
+        labelClass = "label_boolean"
+    } 
+
+    // create a new graph!
     $("#chart_container").append("<div id='" + wrapperId + "' class='rsgraph_wrapper'></div>");
+    $("#" + wrapperId).append("<div id='" + labelId + "' class='" + labelClass + "'>" + name + "</div>");
     $("#" + wrapperId).append("<div id='" + htmlId + "'></div>");
     $("#" + wrapperId).append("<div id='" + yaxisId + "'></div>");
 
@@ -512,30 +517,35 @@ var getLatestData = function(){
     // FOR ANIMATION 
 
     if(animationOn) { 
-	processingInstance= Processing.getInstanceById('sketch');
+	    processingInstance= Processing.getInstanceById('sketch');
     	console.log("Init processingInstance");
+
+	    gardenAnim =  new processingInstance.MediaBed(70,50,95,1.23,4,1,1,1,1,0,1);
+	    var frameInterval = 100;
+    	animationTimer = setInterval(function() { gardenAnim.updateMediaBed(); }, frameInterval);
+    	//var p = new processingInstance.MediaBed(gbLevel, ftLevel, lightLevel, flowRate, numFish, feederOn, lightOn, waterIsFlowing, pumpOn, leakage, isFlowing);
+
         var currentState = newData[0]['report'];
-	var gbLevel = currentState['gb_level_sensor'].gbLevel;
-	var ftLevel = currentState['tank_level_sensor'].full == 1 ? 100 : 50;
-	var lightLevel = currentState['photocell_sensor'].lightLevel;
-	var flowRate = currentState['flow_rate_sensor'].flowRate;
-	var numFish = 5;
-	var feederOn = currentState['fish_feeder'].on;
-	var lightOn = currentState['grow_lights'].on;
-	var waterIsFlowing = currentState['flow_switch_sensor'].flow;
-	var pumpOn = currentState['fish_tank_pump'].on;
-	var leakage = currentState['leak_detector_sensor'].leak;
-	var isFlowing = flowRate >= 0.5 ? 1 : 0; // IS THIS RIGHT? ASK MAUNDU LATER?
-	//gardenAnim =  new processingInstance.MediaBed(70,50,95,1.23,4,1,1,1,1,0,1);
-	gardenAnim = new processingInstance.MediaBed(gbLevel, ftLevel, lightLevel, flowRate, numFish, feederOn, lightOn, waterIsFlowing, pumpOn, leakage, isFlowing);
-	processingInstance.draw();
+    	var gbLevel = currentState['gb_level_sensor'].gbLevel;
+    	var ftLevel = currentState['tank_level_sensor'].full == 1 ? 100 : 50;
+    	var lightLevel = currentState['photocell_sensor'].lightLevel;
+    	var flowRate = currentState['flow_rate_sensor'].flowRate;
+    	var numFish = 5;
+    	var feederOn = currentState['fish_feeder'].on;
+    	var lightOn = currentState['grow_lights'].on;
+    	var waterIsFlowing = currentState['flow_switch_sensor'].flow;
+    	var pumpOn = currentState['fish_tank_pump'].on;
+    	var leakage = currentState['leak_detector_sensor'].leak;
+    	var isFlowing = flowRate >= 0.5 ? 1 : 0; // IS THIS RIGHT? ASK MAUNDU LATER?
+    	//gardenAnim =  new processingInstance.MediaBed(70,50,95,1.23,4,1,1,1,1,0,1);
+    	gardenAnim = new processingInstance.MediaBed(gbLevel, ftLevel, lightLevel, flowRate, numFish, feederOn, lightOn, waterIsFlowing, pumpOn, leakage, isFlowing);
+    	processingInstance.draw();
         var frameInterval = 100;
     	animationTimer = setInterval(function() { gardenAnim.updateMediaBed(); }, frameInterval);
 	//var p = new processingInstance.MediaBed(gbLevel, ftLevel, lightLevel, flowRate, numFish, feederOn, lightOn, waterIsFlowing, pumpOn, leakage, isFlowing);
-    } else {
-	clearInterval(animationTimer);
-    }
-
+        } else {
+	        clearInterval(animationTimer);
+        }
     });
 
 

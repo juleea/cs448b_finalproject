@@ -455,25 +455,30 @@ function initGraph(htmlId, name, color, yunits, ymin, ymax, height, graphType) {
 
 
     var time = new Rickshaw.Fixtures.Time();
-    var minutes = time.unit('15 second');
-    var xAxis = new Rickshaw.Graph.Axis.Time( {
-       graph: graph,
-       //timeUnit: minutes,
-    } );
+    //var minutes = time.unit('15 second');
+    if (graph.element.id == "reservoir_pump") {
+        var xAxis = new Rickshaw.Graph.Axis.Time( {
+           graph: graph,
+           //timeUnit: minutes,
+        } );
+        xAxis.render();
+    }
    
 
     // console.log($("#" + yaxisId));
-    var yAxis = new Rickshaw.Graph.Axis.Y( {
-        graph: graph,
-        orientation: 'right',
-        tickFormat: Rickshaw.Fixtures.Number.formatKMBT,
-        width: 50,
-        // element: document.getElementById($("#" + yaxisId)),
-        pixelsPerTick: 25,
-    } );
 
-    xAxis.render();
-    yAxis.render();
+    if (["temperature", "flow_rate", "light_level", "gb_level", "humidity"].indexOf(graph.element.id) != -1) {
+        var yAxis = new Rickshaw.Graph.Axis.Y( {
+            graph: graph,
+            orientation: 'right',
+            tickFormat: Rickshaw.Fixtures.Number.formatKMBT,
+            width: 50,
+            // element: document.getElementById($("#" + yaxisId)),
+            pixelsPerTick: 25,
+        } );
+
+        yAxis.render();
+    }
 
     graph.render(); 
 

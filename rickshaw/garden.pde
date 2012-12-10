@@ -155,7 +155,7 @@ void  drawFlowRate(float rate) {
     fill(165,42,42,flowAlphaVal);
     label += "0 gpm";
   }
-  text(label, pipeRight-flowCycle, 39, 60, 20);
+  text(label, pipeRight-flowCycle, 40, 60, 20);
   flowCycle++;
 }
 

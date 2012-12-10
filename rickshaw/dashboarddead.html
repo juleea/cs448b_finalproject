@@ -21,6 +21,9 @@
 
 	<script src="rickshaw.js"></script>
 	<script src="Rickshaw.Graph.RangeSlider.js"></script>
+	
+	<!-- FOR ANIMATION -->
+	<script type="text/javascript" src="processing.js"></script>
 </head>
 <body>
 
@@ -57,9 +60,18 @@
         </div>
         <div style="display: none;" id="end_div" align="center" class="float-left"><input type="text" id="end_input"></div>
         <div id="monitor_end_div" align="center" class="float-left"></div>
-    </div>
+    
+   </div>
+
 
 </div>
+
+
+	<div id="animation" class="right"  style="border:1px solid black">
+		<h1>Dashboard</h1>
+		
+	<canvas id="sketch" data-processing-sources="garden.pde" tabindex="0" width="1150" height="600" style="image-rendering: -webkit-optimize-contrast !important;"></canvas> 
+	</div>
 
 <script>
 jQuery.fn.onEnter = function(callback)
@@ -136,6 +148,13 @@ var end_input = $("#end_input");
 var monitor_input = $("#monitor_input");
 var analysis_input = $("#analysis_input");
 
+// variables for animation portion
+var processingInstance;
+var gardenAnim;
+var animationTimer; // to set and stop setInterval
+var garden;
+var animationOn = 1;
+
 start_input.onEnter(function() {
         clearInterval(updateInterval);
         setEndpoint(start_input.val(), end_input.val());
@@ -173,13 +192,18 @@ $("input[name='mode']").change(function() {
         start_input.val($("#monitor_start_div").text());
         end_input.val($("#monitor_end_div").text());
         clearInterval(updateInterval);
-    } else { // Monitor
+   	$("#animation").hide();
+	animationOn = 0;
+	clearInterval(animationTimer); 
+   } else { // Monitor
         console.log('monitor');
         $("#monitor_start_div").show();
         $("#monitor_end_div").show();
         $("#start_div").hide();
         $("#end_div").hide();
         updateInterval = setInterval( function() { getLatestData(); }, refreshInterval );
+   	$("#animation").show(); 
+	animationOn = 1;
     }
 });
 });
@@ -469,6 +493,16 @@ var getLatestData = function(){
     var latestTime = new Date(newData[newData.length-1].time);
     $("#monitor_end_div").text(latestTime.getMonth()+1 + "-" + latestTime.getDate() + "-" + latestTime.getFullYear() + " " + latestTime.getHours() + ":" + latestTime.getMinutes() + ":" + latestTime.getSeconds());
 
+    // FOR ANIMATION 
+
+    if(animationOn) { 
+	processingInstance= Processing.getInstanceById('sketch');
+    	console.log("Init processingInstance");
+	gardenAnim =  new processingInstance.MediaBed(70,50,95,1.23,4,1,1,1,1,0,1);
+	var frameInterval = 100;
+    	animationTimer = setInterval(function() { gardenAnim.updateMediaBed(); }, frameInterval);
+	//var p = new processingInstance.MediaBed(gbLevel, ftLevel, lightLevel, flowRate, numFish, feederOn, lightOn, waterIsFlowing, pumpOn, leakage, isFlowing);
+    }
 
     });
 
@@ -545,8 +579,9 @@ var getLatestData = function(){
     // });
 };
 
+    // FUNCTIONS FOR ANIMATION PART
+    
 
 </script>
-
 </body>
 

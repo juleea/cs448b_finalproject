@@ -185,7 +185,7 @@ $(function() {
 
 $(document).ready(function() {
 $("input[name='mode']").change(function() {
-    if ($("input[name='mode']:checked").val() == 'analysis') {
+    if ($("input[name='mode']:checked").val() == 'analysis') { // Analysis
         console.log('analysis');
         $("#monitor_start_div").hide();
         $("#monitor_end_div").hide();
@@ -197,6 +197,13 @@ $("input[name='mode']").change(function() {
    	$("#animation").hide();
 	animationOn = 0;
 	clearInterval(animationTimer); 
+    /*
+        $('div svg').animate({
+            width: "90%"}, 1000
+        );$('#charts').animate({
+            width: "90%"}, 1000
+        );
+        */
    } else { // Monitor
         console.log('monitor');
         $("#monitor_start_div").show();

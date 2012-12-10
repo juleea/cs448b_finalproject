@@ -155,7 +155,7 @@ void  drawFlowRate(float rate) {
     fill(165,42,42,flowAlphaVal);
     label += "0 gpm";
   }
-  text(label, pipeRight-flowCycle, 35, 60, 20);
+  text(label, pipeRight-flowCycle, 39, 60, 20);
   flowCycle++;
 }
 
@@ -226,7 +226,7 @@ void drawDetails(float gbLevel, boolean ftFull, float lightLevel, boolean lightO
                  boolean pumpOn, boolean leakage) {
   fill(238,232,170);
   string ftStatus = ftFull ? "Full" : "Not Full";
-  text("Growbed Level: "+ gbLevel +"%", 80, 180, 150, 30); 
+  text("Growbed Water Level: "+ gbLevel +"%", 80, 180, 100, 80); 
   text("Fish Tank Level: "+ftStatus, 400, 370, 80, 30);
   text("Light Level: " + lightLevel + "%  " + composeBoolStatus("Grow Lights",lightOn), 50, 5, 120, 30);
   text("Flow Rate: " + flowRate + " gpm", 400, 20, 150, 30);

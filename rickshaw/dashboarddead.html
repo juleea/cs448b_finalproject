@@ -162,6 +162,8 @@ var end_input = $("#end_input");
 var monitor_input = $("#monitor_input");
 var analysis_input = $("#analysis_input");
 
+var monitorSeriesData = [];
+
 // variables for animation portion
 var processingInstance;
 var gardenAnim;
@@ -222,6 +224,12 @@ $(document).ready(function() {
 $("input[name='mode']").change(function() {
     if ($("input[name='mode']:checked").val() == 'analysis') { // Analysis
         console.log('analysis');
+        graphs.map(function(graph) {
+            var valId = graph.element.id + "_val";
+            $('#'+valId).fadeOut();
+            monitorSeriesData[graph.element.id] = [].concat(graph.series[0].data);
+        });
+
         $("#monitor_start_div").hide();
         $("#monitor_end_div").hide();
         $("#start_div").show();
@@ -251,6 +259,29 @@ $("input[name='mode']").change(function() {
         }, 500);
    } else { // Monitor
         console.log('monitor');
+        graphs.map(function(graph) {
+            var valId = graph.element.id + "_val";
+            $('#'+valId).fadeIn();
+            graph.series[0].data.length = 0;
+            graph.series[0].data = [].concat(monitorSeriesData[graph.element.id]);
+            graph.update();
+        });
+        /*
+        $.each(categories, function(label, pathArray) {
+            seriesData[label] = [].concat(monitorSeriesData[label]);
+        });
+$.each(graphs, function(i, graph) {
+            graph.update();
+        });
+*/
+
+        /*
+    $.each(seriesData, function(i, d) {
+            seriesData[i].length = 0;
+    });
+    */
+
+
         $("#monitor_start_div").show();
         $("#monitor_end_div").show();
         $("#start_div").hide();
@@ -269,7 +300,6 @@ $("input[name='mode']").change(function() {
         );
         setTimeout(function() {
             graphs.map(function(graph) {
-                console.log(graph);
                 graph.configure({width: 670});
                 graph.render();
             });
@@ -324,7 +354,7 @@ function setEndpoint(start, end) {
     }
     var displayStartTime = new Date(seriesData['humidity'][0].x * 1000);
     displayStartTime.setHours(displayStartTime.getHours() + 8);
-    start_input.val(displayStartTime.getMonth()+1 + "/" + displayStartTime.getDate() + "/" + displayStartTime.getFullYear() + " " + displayStartTime.getHours() + ":" + ('0'+displayStartTime.getMinutes()).slice(-2) + ":" + ('0'+displayStartTime.getSeconds().slice(-2)));
+    start_input.val(displayStartTime.getMonth()+1 + "/" + displayStartTime.getDate() + "/" + displayStartTime.getFullYear() + " " + displayStartTime.getHours() + ":" + ('0'+displayStartTime.getMinutes()).slice(-2) + ":" + ('0'+displayStartTime.getSeconds()).slice(-2));
 
     var displayEndTime = new Date(seriesData['humidity'][seriesData['humidity'].length-1].x * 1000);
     displayEndTime.setHours(displayEndTime.getHours() + 8);
@@ -597,11 +627,18 @@ var getLatestData = function(){
     $.each(newData, function(i, item) {
         var time = new Date(item.time).getTime()/1000.0;
 
+        /*
         $.each(categories, function(label, pathArray) {
             var val = getFieldValue(pathArray, item);
+            console.log(pathArray);
             seriesData[label].push({x: time, y: val});
         });
-
+        */
+         graphs.map(function(graph) {
+            var val = getFieldValue(categories[graph.element.id], item);
+            graph.series[0].data.push({x: time, y: val});
+            graph.update();
+        });
     var latestTime = new Date(newData[newData.length-1].time);
     latestTime.setHours(latestTime.getHours() + 8);
     $("#monitor_end_div").text(latestTime.getMonth()+1 + "/" + latestTime.getDate() + "/" + latestTime.getFullYear() + " " + latestTime.getHours() + ":" + ('0' + latestTime.getMinutes()).slice(-2) + ":" + ('0'+latestTime.getSeconds()).slice(-2));
@@ -616,6 +653,7 @@ var getLatestData = function(){
         $('#'+valId).fadeOut(function() {
             $(this).text(value).fadeIn();
         });
+        graph.update();
     });
 
     // FOR ANIMATION 

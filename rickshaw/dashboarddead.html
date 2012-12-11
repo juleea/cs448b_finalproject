@@ -228,7 +228,7 @@ $("input[name='mode']").change(function() {
         $("#end_div").hide();
         updateInterval = setInterval( function() { getLatestData(); }, refreshInterval );
         setTimeout(function() {
-            $("#animation").fadeIn('slow');
+            $("#animation").fadeIn('slow').css("display","inline-block");
         }, 2000);
         animationOn = 1;
         //$('div svg').animate({

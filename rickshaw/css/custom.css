@@ -3,6 +3,25 @@ body {
         background-repeat:repeat;
    // background-color: #B9DCF0;
 }
+
+#tag {
+        position: absolute;
+        margin: 100px 30px 10px 0px;
+        font-size: 12px;
+        font-color: #222;
+}
+
+#inputs {
+    display: none;
+}
+
+#preloader {
+	width: 670px;
+	height: 600px;
+	display: inline-block;
+	background:url("../img/preloader.gif") no-repeat center center;
+}
+
 #slider {
 /*	float: left;*/
 	width: 670px;
@@ -16,10 +35,44 @@ body {
 }
 
 #animation {
-	display:inline-block;
+    position: absolute;
+    float: right;
+    margin-left: 15px;	
+    display:inline-block;
     background-color: #ffffff;
 }
 
+.prettytitle {
+    width: 100%;
+    text-align: right;
+    font-size: 75px;
+    font-family: "Nevis";
+    color: transparent;
+    background-color: rgba(82,96,117,0.3);
+    -webkit-background-clip: text;
+    text-shadow: rgba(255,255,255,0.2) 0 4px 6px, rgba(255,255,255,0.2)
+    1px 3px 3px;
+}
+
+#title {
+	display:inline-block;
+	position: absolute;
+    	margin: 430px 10px 0px 30px;
+}
+
+#subtitle {
+	font-size: 40px;
+	margin-top: -50px;
+	margin-right: 50px;
+}
+
+=======
+#info {
+	position: absolute;
+	width:650px;
+	margin-top: -200px;
+	margin-left: 720px;
+}
 .rsgraph_wrapper {
 	/*margin-top: 20px;
 	margin-bottom: 20px;*/
@@ -37,9 +90,13 @@ body {
 
 .left { float:left; }
 .right{
-    float:right;
+    /*float:right;*/
+    position:absolute;
+    margin-left:10px;
     /*margin-right: 450px;*/
 }
+
+
 
 .label{
 	position: absolute;

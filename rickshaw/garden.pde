@@ -310,7 +310,7 @@ class MediaBed {
     imgLabeled = loadImage(baseImgLabeled);
     setWhiteTransparent(img);
     setWhiteTransparent(imgLabeled);
-    float absoluteFTLevel = ftFull ? 285 : 344; // don't hardcode later
+    float absoluteFTLevel = ftFull ? 344 : 285; // don't hardcode later
     fishies = makeFish(numFish, absoluteFTLevel);
   }
   
@@ -334,9 +334,9 @@ class MediaBed {
     //setWhiteTransparent(img);
     //setWhiteTransparent(imgLabeled);
     float absoluteFTLevel = ftFull ? 285 : 344; // don't hardcode later
-    fishies = makeFish(numFish, absoluteFTLevel);
+    //fishies = makeFish(numFish, absoluteFTLevel);
     timestamp = time;
-    //animateMediaBed();	
+    animateMediaBed();	
   }
 
   void animateMediaBed() {

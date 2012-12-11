@@ -600,7 +600,7 @@ var getLatestData = function(){
         var timestamp = new Date(time * 1000);
     	gardenAnim.updateMediaBed(gbLevel, ftLevel, lightLevel, flowRate, numFish, feederOn, lightOn, waterIsFlowing, pumpOn, leakage, isFlowing, timestamp);
 	var frameInterval = 100;
-    	animationTimer = setInterval(function() { gardenAnim.animateMediaBed(); }, frameInterval);
+    	animationTimer = setInterval(function() { if(animationOn) { gardenAnim.animateMediaBed(); } }, frameInterval);
 	//gardenAnim = new processingInstance.MediaBed(gbLevel, ftLevel, lightLevel, flowRate, numFish, feederOn, lightOn, waterIsFlowing, pumpOn, leakage, isFlowing);
      } else {
 	clearInterval(animationTimer);

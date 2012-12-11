@@ -383,10 +383,10 @@ function initGraphs(data, textStatus, jqXHR) {
     var latestTime = new Date(data[data.length-1].time);
     $("#monitor_end_div").text(latestTime.getMonth()+1 + "-" + latestTime.getDate() + "-" + latestTime.getFullYear() + " " + latestTime.getHours() + ":" + latestTime.getMinutes() + ":" + latestTime.getSeconds());
 
-    initGraph("temperature", "Temperature", "#c05020", "C", 15, 30);
-    initGraph("flow_rate", "Flow rate", "#30c020", "gpm", 0, 100);
+    initGraph("temperature", "Temperature", "#c05020", "C", 15, 25);
+    initGraph("flow_rate", "Flow rate", "#30c020", "gpm", 1, 2.4);
     initGraph("light_level", "Light level", "blue", "%", 0, 100);
-    initGraph("gb_level", "Growbed water level", "green", "%", 0, 140);
+    initGraph("gb_level", "Growbed water level", "green", "%", 0, 110);
     initGraph("humidity", "Humidity", "yellow", "", 0, 100); // TODO: check this
 
 

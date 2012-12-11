@@ -247,16 +247,19 @@ $("input[name='mode']").change(function() {
         //);
         setTimeout(function() {
             $('#charts').animate({
-                width: "87%"}, 2000
+                width: "1200px"}, 2000
             );
-            var newWidth = ($('#charts').width()*1.82);
             $('#slider').animate({
                 width: "100%"}, 2000
             );
-            graphs.map(function(graph) {
-                graph.configure({width: newWidth, gapSize:0});
-                graph.render();
-            });
+            setTimeout(function() {
+                var newWidth = ($('#charts').width());//*1.84);
+                
+                graphs.map(function(graph) {
+                    graph.configure({width: newWidth, gapSize:0});
+                    graph.render();
+                });
+                }, 2000);
         }, 500);
    } else { // Monitor
         console.log('monitor');

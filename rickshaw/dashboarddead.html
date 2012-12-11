@@ -75,9 +75,18 @@
 </div>
 
 
-	<div id="animation" class="right"  style="">
+	<div id="animation"  style="">
 	<canvas id="sketch" data-processing-sources="garden.pde" tabindex="0" width="1150" height="600" style="image-rendering: -webkit-optimize-contrast !important;"></canvas> 
 	</div>
+	<div id="title" style=""><h1 class="prettytitle">Garden Dashboard</h1>
+		<p class="prettytitle" id="subtitle">Kijani Grows Aquaponics</p>
+	</div>
+
+    <div id="info">
+        <p style="font-size: 28px;">Kijani Grows: Visualizing an Urban Aquaponic Garden</p>
+        <p>Cindy Chang, Emily Cheng, Julia Lee, JJ Liu &nbsp;&nbsp; CS448B Fall 2012</p>
+        <p>Learn about <a href="http://www.youtube.com/watch?v=3IryIOyPfTE">Eric Maundu</a> and his mission to reduce disparities through <a href="http://en.wikipedia.org/wiki/Aquaponics">aquaponics</a> through his organization <a href="http://www.kijanigrows.com/">Kijani Grows</a></p>
+    </div>
 
 <script>
 jQuery.fn.onEnter = function(callback)
@@ -400,10 +409,10 @@ function initGraphs(data, textStatus, jqXHR) {
     latestTime.setHours(latestTime.getHours() + 8);
     $("#monitor_end_div").text(latestTime.getMonth()+1 + "/" + latestTime.getDate() + "/" + latestTime.getFullYear() + " " + latestTime.getHours() + ":" + latestTime.getMinutes() + ":" + latestTime.getSeconds());
 
-    initGraph("temperature", "Temperature", "#c05020", "C", 15, 30);
-    initGraph("flow_rate", "Flow rate", "#30c020", "gpm", 0, 100);
+    initGraph("temperature", "Temperature", "#c05020", "C", 15, 25);
+    initGraph("flow_rate", "Flow rate", "#30c020", "gpm", 1, 2.4);
     initGraph("light_level", "Light level", "blue", "%", 0, 100);
-    initGraph("gb_level", "Growbed water level", "green", "%", 0, 140);
+    initGraph("gb_level", "Growbed water level", "green", "%", 0, 110);
     initGraph("humidity", "Humidity", "yellow", "", 0, 100); // TODO: check this
 
 
@@ -674,4 +683,7 @@ var getLatestData = function(){
 
 </script>
 </body>
-
+<footer id="tag">
+<div style='color:#aaa'>Visualization by Cindy Chang, Emily Cheng, Julia Lee, JJ Liu</div>
+<div style='color:#aaa'>For Kiani Grows: Urban Garden Systems (www.kijanigrows.com)</div>
+</footer>

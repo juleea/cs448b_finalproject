@@ -170,8 +170,26 @@ var gardenAnim;
 var animationTimer; // to set and stop setInterval
 var garden;
 var animationOn = 1;
-start_input.datetimepicker({showSecond: true, timeFormat: 'HH:mm:ss', hourGrid: 4, minuteGrid: 10});
-end_input.datetimepicker({showSecond: true, timeFormat: 'HH:mm:ss', hourGrid: 4, minuteGrid: 10});
+start_input.datetimepicker({
+    showSecond: true,
+    timeFormat: 'H:mm:ss',
+    hourGrid: 4, 
+    minuteGrid: 10,
+    onClose: function(dateText, inst) {
+        clearInterval(updateInterval);
+        setEndpoint(dateText, end_input.val());
+    }
+});
+end_input.datetimepicker({
+    showSecond: true,
+    timeFormat: 'H:mm:ss',
+    hourGrid: 4, 
+    minuteGrid: 10,
+    onClose: function(dateText, inst) {
+        clearInterval(updateInterval);
+        setEndpoint(start_input.val(), dateText); 
+    }
+});
 
 start_input.onEnter(function() {
         clearInterval(updateInterval);
@@ -182,7 +200,9 @@ end_input.onEnter(function() {
         clearInterval(updateInterval);
         setEndpoint(start_input.val(), end_input.val());
     }
-)
+);
+
+
 createDataGarden();
 setTimeout(
     function() {
@@ -410,7 +430,7 @@ function initGraphs(data, textStatus, jqXHR) {
 
     var latestTime = new Date(data[data.length-1].time);
     latestTime.setHours(latestTime.getHours() + 8);
-    $("#monitor_end_div").text(latestTime.getMonth()+1 + "/" + latestTime.getDate() + "/" + latestTime.getFullYear() + " " + latestTime.getHours() + ":" + ('0' + startTime.getMinutes()).slice(-2) + ":" + ('0'+latestTime.getSeconds()).slice(-2));
+    $("#monitor_end_div").text(latestTime.getMonth()+1 + "/" + latestTime.getDate() + "/" + latestTime.getFullYear() + " " + latestTime.getHours() + ":" + ('0' + latestTime.getMinutes()).slice(-2) + ":" + ('0'+latestTime.getSeconds()).slice(-2));
 
     initGraph("temperature", "Temperature", "#DA503F", "C", 15, 25);
     initGraph("flow_rate", "Flow rate", "#00ADEE", "gpm", 1, 2.4);

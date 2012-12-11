@@ -469,6 +469,8 @@
 				
 				// inject timepicker into datepicker
 				var $buttonPanel = $dp.find('.ui-datepicker-buttonpane');
+                $buttonPanel[0].firstChild.nextSibling.setAttribute("id", "doneButton");
+                console.log($buttonPanel[0].firstChild.nextSibling);
 				if ($buttonPanel.length) {
 					$buttonPanel.before($tp);
 				} else {

@@ -62,13 +62,13 @@ def editData(filenamePrefix):
 
 def setTemperature(obj, secsFromStart):
   prevTemp = obj["report"]["temperature_sensor"]["temperature"]
-  obj["report"]["temperature_sensor"]["temperature"] = prevTemp * (-1) - 5
+  obj["report"]["temperature_sensor"]["temperature"] = round(prevTemp * (-1) - 5, 2)
 
 def setFlowRate(obj, objToCopy):
   #TODO change
   rate = 0
   if "flow_rate_sensor" in objToCopy["report"]:
-    rate = objToCopy["report"]["flow_rate_sensor"]["flowRate"]
+    rate = round(objToCopy["report"]["flow_rate_sensor"]["flowRate"] - 1.0, 2)
   obj["report"]["flow_rate_sensor"]["flowRate"] = rate
 
 def setLightLevel(obj, secsFromStart):

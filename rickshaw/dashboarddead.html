@@ -339,6 +339,12 @@ function setEndpoint(start, end) {
             seriesData[i].length = 0;
     });
     //console.log(seriesData);
+
+    /*
+    graphs.map(function(graph) {
+        graph.series[0].data.length = 0;
+    });
+    */
     $.each(newData, function(i, item) {
         var time = new Date(item.time).getTime()/1000.0;
 
@@ -346,19 +352,31 @@ function setEndpoint(start, end) {
             var val = getFieldValue(pathArray, item);
             seriesData[label].push({x: time, y: val});
         });
+
+        /*
+        graphs.map(function(graph) {
+            var val = getFieldValue(categories[graph.element.id], item);
+            graph.series[0].data.push({x: time, y: val});
+            graph.update();
+        });
+        */
+
     });
 
     if (newData && newData.length > 0) {
         $.each(graphs, function(i, graph) {
             graph.update();
         });
-        var displayStartTime = new Date(seriesData['humidity'][0].x * 1000);
+        /*
+        var displayStartTime = new Date(graphs[0].series[0].data[0].x * 1000);
         displayStartTime.setHours(displayStartTime.getHours() + 8);
-        start_input.val(displayStartTime.getMonth()+1 + "/" + displayStartTime.getDate() + "/" + displayStartTime.getFullYear() + " " + displayStartTime.getHours() + ":" + ('0'+displayStartTime.getMinutes()).slice(-2) + ":" + ('0'+displayStartTime.getSeconds()).slice(-2));
+        //start_input.val(displayStartTime.getMonth()+1 + "/" + displayStartTime.getDate() + "/" + displayStartTime.getFullYear() + " " + displayStartTime.getHours() + ":" + ('0'+displayStartTime.getMinutes()).slice(-2) + ":" + ('0'+displayStartTime.getSeconds()).slice(-2));
 
-        var displayEndTime = new Date(seriesData['humidity'][seriesData['humidity'].length-1].x * 1000);
+        console.log(seriesData);
+        var displayEndTime = new Date(graphs[0].series[0].data[graphs[0].series[0].data.length-1].x * 1000);
         displayEndTime.setHours(displayEndTime.getHours() + 8);
-        end_input.val(displayEndTime.getMonth()+1 + "/" + displayEndTime.getDate() + "/" + displayEndTime.getFullYear() + " " + displayEndTime.getHours() + ":" + ('0'+displayEndTime.getMinutes()).slice(-2) + ":" + ('0'+displayEndTime.getSeconds()).slice(-2));
+        //end_input.val(displayEndTime.getMonth()+1 + "/" + displayEndTime.getDate() + "/" + displayEndTime.getFullYear() + " " + displayEndTime.getHours() + ":" + ('0'+displayEndTime.getMinutes()).slice(-2) + ":" + ('0'+displayEndTime.getSeconds()).slice(-2));
+        */
     } else {
         TINY.box.show({html:'Please enter a valid time range',animate:false,close:false,boxid:'error',top:100})
     }
@@ -654,7 +672,7 @@ var getLatestData = function(){
         var value = graph.series[0].data[graph.series[0].data.length-1].y;
         if (valId == "temperature_val") value += " C";
         if (valId == "flow_rate_val") value += " gpm";
-        if (valId == "gb_level_val") value += " %";
+        if (valId == "gb_level_val" || valId == "light_level_val") value += " %";
         $('#'+valId).fadeOut(function() {
             $(this).text(value).fadeIn();
         });

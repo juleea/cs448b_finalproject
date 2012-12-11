@@ -221,11 +221,12 @@ $("input[name='mode']").change(function() {
             $('#charts').animate({
                 width: "87%"}, 2000
             );
+            var newWidth = ($('#charts').width()*1.82);
             $('#slider').animate({
                 width: "100%"}, 2000
             );
             graphs.map(function(graph) {
-                graph.configure({width: 1236});
+                graph.configure({width: newWidth});
                 graph.render();
             });
         }, 500);

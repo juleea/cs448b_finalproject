@@ -99,11 +99,16 @@ body {
 
 
 
+.value {
+    position: absolute;
+    right: 1px;
+    padding-top: 70px;
+}
 .label{
 	position: absolute;
 	right: 1px;
 	padding-top: 70px;
-	padding-right: 3px;
+	padding-right: 45px;
 /*	z-index: 1;*/
 }
 

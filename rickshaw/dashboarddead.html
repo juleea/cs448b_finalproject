@@ -21,8 +21,6 @@
     <link rel="stylesheet" media="all" type="text/css" href="css/jquery-ui-timepicker-addon.css" />
     <script type="text/javascript" src="js/jquery-ui-timepicker-addon.js"></script>
 
-    <!-- // <script src="http://stanford.edu/~jsquared/cgi-bin/clone/datagarden.js"></script> -->
-
 	<script src="rickshaw.js"></script>
 	<script src="Rickshaw.Graph.RangeSlider.js"></script>
 	
@@ -423,6 +421,7 @@ function initGraphs(data, textStatus, jqXHR) {
     $.each(categories, function(label, path) {
         seriesData[label] = seriesData[label];
     });
+
     var startTime = new Date(data[0].time);
     startTime.setHours(startTime.getHours() + 8);
     $("#monitor_start_div").text(startTime.getMonth()+1 + "/" + startTime.getDate() + "/" + startTime.getFullYear() + " " + startTime.getHours() + ":" + ('0' + startTime.getMinutes()).slice(-2) + ":" + ('0'+startTime.getSeconds()).slice(-2));
@@ -446,6 +445,12 @@ function initGraphs(data, textStatus, jqXHR) {
     initBooleanGraph("leak", "Water leak", "#EAA4C9");
     initBooleanGraph("backup_reservoir", "Backup reservoir", "#3A96D2");
     initBooleanGraph("reservoir_pump", "Reservoir pump", "#7AB79D");
+
+    graphs.map(function(graph) {
+        var valId = graph.element.id + "_val";
+        var value = graph.series[0].data[graph.series[0].data.length-1].y;
+        $('#'+valId).text(value);
+    });
 
     var hoverDetail = new Rickshaw.Graph.HoverDetail( {
         graphs: graphs,//data[0],
@@ -487,6 +492,9 @@ function initGraph(htmlId, name, color, yunits, ymin, ymax, isBooleanGraph) {
     // create a new graph!
     $("#chart_container").append("<div id='" + wrapperId + "' class='rsgraph_wrapper'></div>");
     $("#" + wrapperId).append("<div id='" + labelId + "' class='" + labelClass + "'>" + name + "</div>");
+    if (!isBooleanGraph) {
+        $("#" + wrapperId).append("<div id='" + htmlId + "_val' class='value'></div>");
+    } 
     $("#" + wrapperId).append("<div id='" + htmlId + "'></div>");
     $("#" + wrapperId).append("<div id='" + yaxisId + "'></div>");
 
@@ -592,6 +600,13 @@ var getLatestData = function(){
     var latestTime = new Date(newData[newData.length-1].time);
     latestTime.setHours(latestTime.getHours() + 8);
     $("#monitor_end_div").text(latestTime.getMonth()+1 + "/" + latestTime.getDate() + "/" + latestTime.getFullYear() + " " + latestTime.getHours() + ":" + ('0' + latestTime.getMinutes()).slice(-2) + ":" + ('0'+latestTime.getSeconds()).slice(-2));
+
+
+    graphs.map(function(graph) {
+        var valId = graph.element.id + "_val";
+        var value = graph.series[0].data[graph.series[0].data.length-1].y;
+        $('#'+valId).text(value);
+    });
 
     // FOR ANIMATION 
 

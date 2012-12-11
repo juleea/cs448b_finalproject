@@ -11,7 +11,7 @@ function DataGarden(garden, useLive) {
 		this.apocalypse = new Date("2012-12-05T20:01:06.000Z");
 		this.nextIndex = 0;
 		this.dataInterval = 10000; // time (in milliseconds) between 2 data points
-		$.getJSON("../data/demodata_.json", function(response) {
+		$.getJSON("../data/demodata.clean_.json", function(response) {
 			that.data = response;
 			console.log(response[0]);
 		});
@@ -67,9 +67,7 @@ DataGarden.prototype.getInitialData = function(interval) {
 // Get all data in the interval specified in epoch time (in milliseconds).
 // start time is inclusive, end time is exclusive
 DataGarden.prototype.getRange = function(start, end) {
-	while (!this.data) {
-		set
-	}
+
 	if (!this.useLive) {
 		if (end < start) {
 			console.error("Invalid query: end is before start. Returning empty array.");

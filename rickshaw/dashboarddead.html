@@ -27,11 +27,11 @@
 	
 	<!-- FOR ANIMATION -->
 	<script type="text/javascript" src="processing.js"></script>
+    <title>Kijani Grows</title>
 </head>
 <body>
 
 <div id="charts">
-   
     <div id="preloader"></div>
     <div id="chart_container"></div>
 
@@ -67,7 +67,6 @@
         </div>
         <div style="display: none;" id="end_div" align="center" class="float-left"><input type="text" id="end_input"></div>
         <div id="monitor_end_div" align="center" class="float-left"></div>
-    
    </div>
 
 
@@ -172,7 +171,7 @@ var animationTimer; // to set and stop setInterval
 var garden;
 var animationOn = 1;
 start_input.datetimepicker({
-    showSecond: true,
+    //showSecond: true,
     timeFormat: 'H:mm:ss',
     hourGrid: 4, 
     minuteGrid: 10,
@@ -182,8 +181,8 @@ start_input.datetimepicker({
     }
 });
 end_input.datetimepicker({
-    showSecond: true,
-    timeFormat: 'H:mm:ss',
+    //showSecond: true,
+timeFormat: 'H:mm:ss',
     hourGrid: 4, 
     minuteGrid: 10,
     onClose: function(dateText, inst) {
@@ -338,31 +337,32 @@ function setEndpoint(start, end) {
 
     var newData = dataGarden.getRange(start_mil, end_mil);
 
+    /*
     $.each(seriesData, function(i, d) {
             seriesData[i].length = 0;
     });
+    */
     //console.log(seriesData);
 
-    /*
     graphs.map(function(graph) {
         graph.series[0].data.length = 0;
     });
-    */
+    //console.log(newData);
     $.each(newData, function(i, item) {
         var time = new Date(item.time).getTime()/1000.0;
 
+        /*
         $.each(categories, function(label, pathArray) {
             var val = getFieldValue(pathArray, item);
             seriesData[label].push({x: time, y: val});
         });
+        */
 
-        /*
         graphs.map(function(graph) {
             var val = getFieldValue(categories[graph.element.id], item);
+            console.log(val);
             graph.series[0].data.push({x: time, y: val});
-            graph.update();
         });
-        */
 
     });
 
@@ -380,9 +380,9 @@ function setEndpoint(start, end) {
         displayEndTime.setHours(displayEndTime.getHours() + 8);
         //end_input.val(displayEndTime.getMonth()+1 + "/" + displayEndTime.getDate() + "/" + displayEndTime.getFullYear() + " " + displayEndTime.getHours() + ":" + ('0'+displayEndTime.getMinutes()).slice(-2) + ":" + ('0'+displayEndTime.getSeconds()).slice(-2));
         */
-    } else {
-        TINY.box.show({html:'Please enter a valid time range',animate:false,close:false,boxid:'error',top:100})
-    }
+        } else {
+            TINY.box.show({html:'Please enter a valid time range',animate:false,close:false,boxid:'error',top:100})
+        }
     }
 
 function isValidDate(d) {

@@ -134,7 +134,7 @@ def setGrowLights(obj, secsFromStart):
 def setLeak(obj, secsFromStart):
   val = 0
   minute = secsFromStart / 60
-  if (minute > .5 and minute < 1.5) or (minute > 4 and minute < 5) or (minute > 20 and minute < 40) or (minute > 80 and minute < 86) or (minute > 160 and minute < 190):
+  if (minute > 4 and minute < 7) or (minute > 10 and minute < 20) or (minute > 80 and minute < 86) or (minute > 160 and minute < 190):
     val = 1
   obj["report"]["leak_detector_sensor"]["leak"] = val
 

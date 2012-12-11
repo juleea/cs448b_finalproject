@@ -462,21 +462,21 @@ function initGraphs(data, textStatus, jqXHR) {
 
     $("#monitor_end_div").text(latestTime.getMonth()+1 + "/" + latestTime.getDate() + "/" + latestTime.getFullYear() + " " + latestTime.getHours() + ":" + ('0' + latestTime.getMinutes()).slice(-2) + ":" + ('0'+latestTime.getSeconds()).slice(-2));
 
+    initGraph("gb_level", "Growbed water level", "#4169E1", "%", 0, 110);
     initGraph("temperature", "Temperature", "#DA503F", "C", 0, 80);
     initGraph("flow_rate", "Flow rate", "#00ADEE", "gpm", 0, 1.4);
-    initGraph("light_level", "Light level", "#EEB111", "%", 0, 110);
-    initGraph("gb_level", "Growbed water level", "#4169E1", "%", 0, 110);
     initGraph("humidity", "Humidity", "#8DC63F", "", 0, 80); // TODO: check this
-
-
+    initGraph("light_level", "Light level", "#EEB111", "%", 0, 110);
+    
     initBooleanGraph("tank_full", "Tank full", "#22E1B4");
     initBooleanGraph("fish_feeder", "Fish feeder", "#F17527");
     initBooleanGraph("fish_tank_pump", "Fish tank pump", "FFDE17");
     // initBooleanGraph("flow_switch", "Flow switch", "#FFDE17");
     initBooleanGraph("grow_lights", "Grow lights", "#A888BA");
-    initBooleanGraph("leak", "Water leak", "#EAA4C9");
     initBooleanGraph("backup_reservoir", "Backup reservoir full", "#3A96D2");
     initBooleanGraph("reservoir_pump", "Reservoir pump", "#7AB79D");
+    initBooleanGraph("leak", "Water leak", "#EAA4C9");
+    
 
     graphs.map(function(graph) {
         var valId = graph.element.id + "_val";

@@ -324,14 +324,12 @@ function setEndpoint(start, end) {
     if (!isValidDate(start_date)) {
         return;
     }
-    var start_mil = start_date.getTime();
+    var start_mil = start_date.getTime() - 8 * 60 * 60 * 1000;
     end_date = new Date(end);
     if (!isValidDate(end_date)) return;
-    console.log(end_date);
-    var end_mil = end_date.getTime();
+    var end_mil = end_date.getTime() - 8 * 60 * 60 * 1000;;
 
-    console.log(start_mil);
-    console.log(end_mil);
+    console.log("query range: " + start_date + " to " + end_date);
 
     var newData = dataGarden.getRange(start_mil, end_mil);
 

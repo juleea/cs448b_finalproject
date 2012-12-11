@@ -86,7 +86,7 @@ def setFlowRate(obj, objToCopy):
 
 def setLightLevel(obj, secsFromStart):
   oldLL = obj["report"]["photocell_sensor"]["lightLevel"]
-  if secsFromStart > (60 * 40):
+  if secsFromStart > (60 * 50):
     oldLL = oldLL - 20
   obj["report"]["photocell_sensor"]["lightLevel"] = oldLL
 

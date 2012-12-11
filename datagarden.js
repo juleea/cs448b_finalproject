@@ -6,14 +6,13 @@ function DataGarden(garden, useLive) {
 	var that = this;
 
 	if (!useLive) {
-		this.now = new Date("2012-12-05T16:28:56.000Z");
-		this.bigBang = new Date("2012-12-05T16:07:56.000Z");
-		this.apocalypse = new Date("2012-12-05T20:01:06.000Z");
+		this.now = new Date("2012-12-05T08:32:06.000Z");
+		this.bigBang = new Date("2012-12-05T08:02:06.000Z");
+		this.apocalypse = new Date("2012-12-05T12:02:06.000Z");//2012-12-05T20:01:06.000Z");
 		this.nextIndex = 0;
 		this.dataInterval = 10000; // time (in milliseconds) between 2 data points
 		$.getJSON("../data/demodata.clean_.json", function(response) {
 			that.data = response;
-			console.log(response[0]);
 		});
 
 	}
@@ -78,7 +77,6 @@ DataGarden.prototype.getRange = function(start, end) {
         $("#preloader").hide(); // this is probably awkwardly not in the right place :(
         $("#inputs").show(); // this is probably awkwardly not in the right place :(
         //console.log(this.bigBang.getTime());
-        console.log((start - this.bigBang.getTime()) / this.dataInterval);
 		var startIndex = Math.min(Math.max(Math.floor((start - this.bigBang.getTime()) / this.dataInterval), 0), this.data.length);
 		var endIndex = Math.max(Math.min(Math.floor((end - this.bigBang.getTime()) / this.dataInterval), this.data.length), 0);
 		console.log("Effective index range queried: [" + startIndex  + ", " + endIndex + "]");

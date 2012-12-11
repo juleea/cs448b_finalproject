@@ -28,6 +28,11 @@ body {
     background-color: #ffffff;
 }
 
+#info {
+	position: absolute;
+	margin-top: -200px;
+	margin-left: 720px;
+}
 .rsgraph_wrapper {
 	/*margin-top: 20px;
 	margin-bottom: 20px;*/

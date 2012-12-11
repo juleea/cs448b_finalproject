@@ -306,11 +306,11 @@ function setEndpoint(start, end) {
     }
     var displayStartTime = new Date(seriesData['humidity'][0].x * 1000);
     displayStartTime.setHours(displayStartTime.getHours() + 8);
-    start_input.val(displayStartTime.getMonth()+1 + "/" + displayStartTime.getDate() + "/" + displayStartTime.getFullYear() + " " + displayStartTime.getHours() + ":" + ('0'+displayStartTime.getMinutes()).slice(-2) + ":" + displayStartTime.getSeconds());
+    start_input.val(displayStartTime.getMonth()+1 + "/" + displayStartTime.getDate() + "/" + displayStartTime.getFullYear() + " " + displayStartTime.getHours() + ":" + ('0'+displayStartTime.getMinutes()).slice(-2) + ":" + ('0'+displayStartTime.getSeconds().slice(-2)));
 
     var displayEndTime = new Date(seriesData['humidity'][seriesData['humidity'].length-1].x * 1000);
     displayEndTime.setHours(displayEndTime.getHours() + 8);
-    end_input.val(displayEndTime.getMonth()+1 + "/" + displayEndTime.getDate() + "/" + displayEndTime.getFullYear() + " " + displayEndTime.getHours() + ":" + ('0'+displayEndTime.getMinutes()).slice(-2) + ":" + displayEndTime.getSeconds());
+    end_input.val(displayEndTime.getMonth()+1 + "/" + displayEndTime.getDate() + "/" + displayEndTime.getFullYear() + " " + displayEndTime.getHours() + ":" + ('0'+displayEndTime.getMinutes()).slice(-2) + ":" + ('0'+displayEndTime.getSeconds()).slice(-2));
 }
 
 function isValidDate(d) {
@@ -405,12 +405,12 @@ function initGraphs(data, textStatus, jqXHR) {
     });
     var startTime = new Date(data[0].time);
     startTime.setHours(startTime.getHours() + 8);
-    $("#monitor_start_div").text(startTime.getMonth()+1 + "/" + startTime.getDate() + "/" + startTime.getFullYear() + " " + startTime.getHours() + ":" + ('0' + startTime.getMinutes()).slice(-2) + ":" + startTime.getSeconds());
+    $("#monitor_start_div").text(startTime.getMonth()+1 + "/" + startTime.getDate() + "/" + startTime.getFullYear() + " " + startTime.getHours() + ":" + ('0' + startTime.getMinutes()).slice(-2) + ":" + ('0'+startTime.getSeconds()).slice(-2));
 
 
     var latestTime = new Date(data[data.length-1].time);
     latestTime.setHours(latestTime.getHours() + 8);
-    $("#monitor_end_div").text(latestTime.getMonth()+1 + "/" + latestTime.getDate() + "/" + latestTime.getFullYear() + " " + latestTime.getHours() + ":" + ('0' + startTime.getMinutes()).slice(-2) + ":" + latestTime.getSeconds());
+    $("#monitor_end_div").text(latestTime.getMonth()+1 + "/" + latestTime.getDate() + "/" + latestTime.getFullYear() + " " + latestTime.getHours() + ":" + ('0' + startTime.getMinutes()).slice(-2) + ":" + ('0'+latestTime.getSeconds()).slice(-2));
 
     initGraph("temperature", "Temperature", "#DA503F", "C", 15, 25);
     initGraph("flow_rate", "Flow rate", "#00ADEE", "gpm", 1, 2.4);
@@ -571,7 +571,7 @@ var getLatestData = function(){
 
     var latestTime = new Date(newData[newData.length-1].time);
     latestTime.setHours(latestTime.getHours() + 8);
-    $("#monitor_end_div").text(latestTime.getMonth()+1 + "/" + latestTime.getDate() + "/" + latestTime.getFullYear() + " " + latestTime.getHours() + ":" + latestTime.getMinutes().format("MM") + ":" + latestTime.getSeconds());
+    $("#monitor_end_div").text(latestTime.getMonth()+1 + "/" + latestTime.getDate() + "/" + latestTime.getFullYear() + " " + latestTime.getHours() + ":" + ('0' + latestTime.getMinutes()).slice(-2) + ":" + ('0'+latestTime.getSeconds()).slice(-2));
 
     // FOR ANIMATION 
 

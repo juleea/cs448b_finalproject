@@ -6,6 +6,7 @@
 .rickshaw_graph svg {
 	display: block;	
 	overflow: hidden;
+    opacity: 0.7;
 }
 
 /* ticks */

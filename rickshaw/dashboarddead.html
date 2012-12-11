@@ -558,6 +558,7 @@ var getLatestData = function(){
         });
 
     var latestTime = new Date(newData[newData.length-1].time);
+    latestTime.setHours(latestTime.getHours() + 8);
     $("#monitor_end_div").text(latestTime.getMonth()+1 + "/" + latestTime.getDate() + "/" + latestTime.getFullYear() + " " + latestTime.getHours() + ":" + latestTime.getMinutes() + ":" + latestTime.getSeconds());
 
     // FOR ANIMATION 

@@ -449,7 +449,12 @@ function initGraphs(data, textStatus, jqXHR) {
     graphs.map(function(graph) {
         var valId = graph.element.id + "_val";
         var value = graph.series[0].data[graph.series[0].data.length-1].y;
-        $('#'+valId).text(value);
+        if (valId == "temperature_val") value += " C";
+        if (valId == "flow_rate_val") value += " gpm";
+        if (valId == "gb_level_val") value += " %";
+        $('#'+valId).fadeOut(function() {
+            $(this).text(value).fadeIn();
+        });
     });
 
     var hoverDetail = new Rickshaw.Graph.HoverDetail( {
@@ -605,7 +610,12 @@ var getLatestData = function(){
     graphs.map(function(graph) {
         var valId = graph.element.id + "_val";
         var value = graph.series[0].data[graph.series[0].data.length-1].y;
-        $('#'+valId).text(value);
+        if (valId == "temperature_val") value += " C";
+        if (valId == "flow_rate_val") value += " gpm";
+        if (valId == "gb_level_val") value += " %";
+        $('#'+valId).fadeOut(function() {
+            $(this).text(value).fadeIn();
+        });
     });
 
     // FOR ANIMATION 

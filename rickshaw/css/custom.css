@@ -42,7 +42,6 @@ body {
     background-color: #ffffff;
 }
 
-
 .prettytitle {
     width: 100%;
     text-align: right;
@@ -67,6 +66,13 @@ body {
 	margin-right: 50px;
 }
 
+=======
+#info {
+	position: absolute;
+	width:650px;
+	margin-top: -200px;
+	margin-left: 720px;
+}
 .rsgraph_wrapper {
 	/*margin-top: 20px;
 	margin-bottom: 20px;*/

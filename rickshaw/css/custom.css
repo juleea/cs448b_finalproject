@@ -4,6 +4,13 @@ body {
    // background-color: #B9DCF0;
 }
 
+#tag {
+	position: absolute;
+	margin: 100px 30px 10px 0px;	
+	font-size: 12px;
+	font-color: #222;
+}
+
 #preloader {
 	width: 670px;
 	height: 600px;
@@ -24,9 +31,39 @@ body {
 }
 
 #animation {
-	display:inline-block;
+    position: absolute;
+    margin-left:15px;
+    display:inline-block;
     background-color: #ffffff;
 }
+
+#title {
+    position: absolute;
+    display:inline-block;
+    margin-left:15px; 
+    margin-top: 400px;
+}
+
+.prettytitle {
+    width: 100%;
+    text-align: center;
+    font-size: 75px;
+    font-family: "Nevis";
+    margin: 80px 0px 0px 15px;
+    color: transparent;
+    background-color: rgba(82,96,117,0.3);
+    -webkit-background-clip: text;
+    text-shadow: rgba(255,255,255,0.2) 0 4px 6px, rgba(255,255,255,0.3)
+    1px 3px 3px;
+}
+
+#subtitle {
+	font-size: 40px;
+	margin-top: -10px;
+	text-align:right;
+	margin-rigth:30px;
+}
+
 
 .rsgraph_wrapper {
 	/*margin-top: 20px;

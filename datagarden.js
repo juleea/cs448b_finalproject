@@ -11,7 +11,7 @@ function DataGarden(garden, useLive) {
 		this.apocalypse = new Date("2012-12-05T20:01:06.000Z");
 		this.nextIndex = 0;
 		this.dataInterval = 10000; // time (in milliseconds) between 2 data points
-		$.getJSON("../data/fakedata_.json", function(response) {
+		$.getJSON("../data/demodata_.json", function(response) {
 			that.data = response;
 			console.log(response[0]);
 		});

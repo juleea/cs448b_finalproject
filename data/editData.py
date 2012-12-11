@@ -4,6 +4,7 @@ import json
 import datetime
 import random
 
+
 def editData(filenamePrefix):
   originalFn = filenamePrefix + ".json"
   cleanFilename = filenamePrefix + "_.json"
@@ -20,6 +21,11 @@ def editData(filenamePrefix):
   flowRateFileSmall.close()  
   flowRateFile.close()
 
+  tempDataFilename = "ecovillage.1354183200000.n1440.temp.json"
+  tempDataFile = open(tempDataFilename)
+  tempData = json.load(tempDataFile)
+  tempDataFile.close()
+
   start = datetime.datetime.fromtimestamp(1354723736)
 
   for (i, obj) in enumerate(jsonArr):
@@ -35,8 +41,14 @@ def editData(filenamePrefix):
 
     if (i < len(flowRateDataSmall)):
       flowObject = flowRateDataSmall[i]
+    
+    if (i < len(tempData)):
+      setTemperature(obj, tempData[i])
+    else:
+      setTemperature(obj, obj)
 
-    setTemperature(obj, secsFromStart)    
+
+#    setTemperature(obj, secsFromStart)    
     setFlowRate(obj, flowObject)
     setLightLevel(obj, secsFromStart)
     setGbLevel(obj, secsFromStart)
@@ -60,20 +72,23 @@ def editData(filenamePrefix):
 
 # CONTINUOUS
 
-def setTemperature(obj, secsFromStart):
-  prevTemp = obj["report"]["temperature_sensor"]["temperature"]
-  obj["report"]["temperature_sensor"]["temperature"] = round(prevTemp * (-1) - 5, 2)
+def setTemperature(obj, objToCopy):
+  prevTemp = objToCopy["report"]["temperature_sensor"]["temperature"]
+  obj["report"]["temperature_sensor"]["temperature"] = max(round(prevTemp * .6, 2), 0)
 
 def setFlowRate(obj, objToCopy):
   #TODO change
   rate = 0
   if "flow_rate_sensor" in objToCopy["report"]:
     rate = round(objToCopy["report"]["flow_rate_sensor"]["flowRate"] - 1.0, 2)
+  rate = max(rate, 0)
   obj["report"]["flow_rate_sensor"]["flowRate"] = rate
 
 def setLightLevel(obj, secsFromStart):
   oldLL = obj["report"]["photocell_sensor"]["lightLevel"]
-#  obj["report", "photocell_sensor", "lightLevel"] = 
+  if secsFromStart > (60 * 40):
+    oldLL = oldLL - 20
+  obj["report"]["photocell_sensor"]["lightLevel"] = oldLL
 
 def setGbLevel(obj, secsFromStart):
   oldGbLevel = obj["report"]["gb_level_sensor"]["gbLevel"]
@@ -89,14 +104,14 @@ def setHumidity(obj, secsFromStart):
 def setTankFull(obj, secsFromStart):
   val = 0
   min = secsFromStart / 60
-  if (min > 10 and min < 20) or (min > 70 and min < 80):
+  if (min > 10 and min < 30) or (min > 80 and min < 90):
     val = 1
   obj["report"]["tank_level_sensor"]["full"] = val
 
 def setFishFeeder(obj, secsFromStart):
   min = secsFromStart / 60
   val = 0
-  if min > 5 and min < 10:
+  if min > 40 and min < 60:
     val = 1  
   obj["report"]["fish_feeder"]["on"] = val
 
@@ -107,17 +122,14 @@ def setFishTankPump(obj, secsFromStart):
 def setFlowSwitch(obj, objToCopy):
   val = 0
   if "flow_switch_sensor" in objToCopy["report"]:
-    val = objToCopy["report"]["flow_switch_sensor"]["flow"]
-  
+    val = objToCopy["report"]["flow_switch_sensor"]["flow"]  
   obj["report"]["flow_switch_sensor"]["flow"] = val
 
-
-  obj["report"]["flow_switch_sensor"]["flow"]
-
 def setGrowLights(obj, secsFromStart):
-  #TODO
-  oldGL = obj["report"]["grow_lights"]["on"]
-#  obj["report"]["grow_lights"]["on"] = 
+  val = 1
+  if secsFromStart > 60 * 50:
+    val = 0
+  obj["report"]["grow_lights"]["on"] = val
 
 def setLeak(obj, secsFromStart):
   val = 0

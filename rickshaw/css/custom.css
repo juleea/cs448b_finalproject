@@ -26,6 +26,7 @@ body {
 /*	float: left;*/
 	width: 670px;
 	/*width: 980px;*/
+    z-index: 0;
 	margin: 10px 0px;
 }
 
@@ -98,6 +99,14 @@ body {
 
 
 
+.value {
+    position: absolute;
+    right: 1px;
+    padding-top: 55px;
+    padding-right: 3px;
+    font-size: 13px;
+    color: #666666;
+}
 .label{
 	position: absolute;
 	right: 1px;

@@ -167,8 +167,8 @@ var gardenAnim;
 var animationTimer; // to set and stop setInterval
 var garden;
 var animationOn = 1;
-start_input.datetimepicker({showSecond: true, timeFormat: 'HH:mm:ss'});
-end_input.datetimepicker({showSecond: true, timeFormat: 'HH:mm:ss'});
+start_input.datetimepicker({showSecond: true, timeFormat: 'HH:mm:ss', hourGrid: 4, minuteGrid: 10});
+end_input.datetimepicker({showSecond: true, timeFormat: 'HH:mm:ss', hourGrid: 4, minuteGrid: 10});
 
 start_input.onEnter(function() {
         clearInterval(updateInterval);
@@ -234,7 +234,7 @@ $("input[name='mode']").change(function() {
         $("#end_div").hide();
         updateInterval = setInterval( function() { getLatestData(); }, refreshInterval );
         setTimeout(function() {
-            $("#animation").fadeIn('slow');
+            $("#animation").fadeIn('slow').css("display","inline-block");
         }, 2000);
         animationOn = 1;
         //$('div svg').animate({
@@ -272,13 +272,13 @@ function setEndpoint(start, end) {
     var start_mil = start_date.getTime();
     end_date = new Date(end);
     if (!isValidDate(end_date)) return;
+    console.log(end_date);
     var end_mil = end_date.getTime();
 
     console.log(start_mil);
     console.log(end_mil);
 
     var newData = dataGarden.getRange(start_mil, end_mil);
-    console.log("new data: " + newData);
 
     $.each(seriesData, function(i, d) {
             seriesData[i].length = 0;
@@ -299,9 +299,11 @@ function setEndpoint(start, end) {
         });
     }
     var displayStartTime = new Date(seriesData['humidity'][0].x * 1000);
+    displayStartTime.setHours(displayStartTime.getHours() + 8);
     start_input.val(displayStartTime.getMonth()+1 + "/" + displayStartTime.getDate() + "/" + displayStartTime.getFullYear() + " " + displayStartTime.getHours() + ":" + displayStartTime.getMinutes() + ":" + displayStartTime.getSeconds());
 
     var displayEndTime = new Date(seriesData['humidity'][seriesData['humidity'].length-1].x * 1000);
+    displayEndTime.setHours(displayEndTime.getHours() + 8);
     end_input.val(displayEndTime.getMonth()+1 + "/" + displayEndTime.getDate() + "/" + displayEndTime.getFullYear() + " " + displayEndTime.getHours() + ":" + displayEndTime.getMinutes() + ":" + displayEndTime.getSeconds());
 }
 
@@ -396,10 +398,12 @@ function initGraphs(data, textStatus, jqXHR) {
         seriesData[label] = seriesData[label];
     });
     var startTime = new Date(data[0].time);
+    startTime.setHours(startTime.getHours() + 8);
     $("#monitor_start_div").text(startTime.getMonth()+1 + "/" + startTime.getDate() + "/" + startTime.getFullYear() + " " + startTime.getHours() + ":" + startTime.getMinutes() + ":" + startTime.getSeconds());
 
 
     var latestTime = new Date(data[data.length-1].time);
+    latestTime.setHours(latestTime.getHours() + 8);
     $("#monitor_end_div").text(latestTime.getMonth()+1 + "/" + latestTime.getDate() + "/" + latestTime.getFullYear() + " " + latestTime.getHours() + ":" + latestTime.getMinutes() + ":" + latestTime.getSeconds());
 
     initGraph("temperature", "Temperature", "#c05020", "C", 15, 30);
@@ -560,7 +564,7 @@ var getLatestData = function(){
         });
 
     var latestTime = new Date(newData[newData.length-1].time);
-    $("#monitor_end_div").text(latestTime.getMonth()+1 + "-" + latestTime.getDate() + "-" + latestTime.getFullYear() + " " + latestTime.getHours() + ":" + latestTime.getMinutes() + ":" + latestTime.getSeconds());
+    $("#monitor_end_div").text(latestTime.getMonth()+1 + "/" + latestTime.getDate() + "/" + latestTime.getFullYear() + " " + latestTime.getHours() + ":" + latestTime.getMinutes() + ":" + latestTime.getSeconds());
 
     // FOR ANIMATION 
 

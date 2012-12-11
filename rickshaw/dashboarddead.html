@@ -266,13 +266,13 @@ function setEndpoint(start, end) {
     var start_mil = start_date.getTime();
     end_date = new Date(end);
     if (!isValidDate(end_date)) return;
+    console.log(end_date);
     var end_mil = end_date.getTime();
 
     console.log(start_mil);
     console.log(end_mil);
 
     var newData = dataGarden.getRange(start_mil, end_mil);
-    console.log("new data: " + newData);
 
     $.each(seriesData, function(i, d) {
             seriesData[i].length = 0;
@@ -293,9 +293,11 @@ function setEndpoint(start, end) {
         });
     }
     var displayStartTime = new Date(seriesData['humidity'][0].x * 1000);
+    displayStartTime.setHours(displayStartTime.getHours() + 8);
     start_input.val(displayStartTime.getMonth()+1 + "/" + displayStartTime.getDate() + "/" + displayStartTime.getFullYear() + " " + displayStartTime.getHours() + ":" + displayStartTime.getMinutes() + ":" + displayStartTime.getSeconds());
 
     var displayEndTime = new Date(seriesData['humidity'][seriesData['humidity'].length-1].x * 1000);
+    displayEndTime.setHours(displayEndTime.getHours() + 8);
     end_input.val(displayEndTime.getMonth()+1 + "/" + displayEndTime.getDate() + "/" + displayEndTime.getFullYear() + " " + displayEndTime.getHours() + ":" + displayEndTime.getMinutes() + ":" + displayEndTime.getSeconds());
 }
 
@@ -390,10 +392,12 @@ function initGraphs(data, textStatus, jqXHR) {
         seriesData[label] = seriesData[label];
     });
     var startTime = new Date(data[0].time);
+    startTime.setHours(startTime.getHours() + 8);
     $("#monitor_start_div").text(startTime.getMonth()+1 + "/" + startTime.getDate() + "/" + startTime.getFullYear() + " " + startTime.getHours() + ":" + startTime.getMinutes() + ":" + startTime.getSeconds());
 
 
     var latestTime = new Date(data[data.length-1].time);
+    latestTime.setHours(latestTime.getHours() + 8);
     $("#monitor_end_div").text(latestTime.getMonth()+1 + "/" + latestTime.getDate() + "/" + latestTime.getFullYear() + " " + latestTime.getHours() + ":" + latestTime.getMinutes() + ":" + latestTime.getSeconds());
 
     initGraph("temperature", "Temperature", "#c05020", "C", 15, 30);

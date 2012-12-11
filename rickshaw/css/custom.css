@@ -4,6 +4,10 @@ body {
    // background-color: #B9DCF0;
 }
 
+#inputs {
+    display: none;
+}
+
 #preloader {
 	width: 670px;
 	height: 600px;

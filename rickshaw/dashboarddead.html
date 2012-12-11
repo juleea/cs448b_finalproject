@@ -487,7 +487,7 @@ function initGraphs(data, textStatus, jqXHR) {
     $("#monitor_end_div").text(latestTime.getMonth()+1 + "/" + latestTime.getDate() + "/" + latestTime.getFullYear() + " " + latestTime.getHours() + ":" + ('0' + latestTime.getMinutes()).slice(-2) + ":" + ('0'+latestTime.getSeconds()).slice(-2));
 
     initGraph("gb_level", "Growbed water level", "#4169E1", "%", 0, 110);
-    initGraph("temperature", "Temperature", "#DA503F", "C", 0, 80);
+    initGraph("temperature", "Temperature", "#DA503F", "&deg;C", 0, 80);
     initGraph("flow_rate", "Flow rate", "#00ADEE", "gpm", 0, 1.4);
     initGraph("humidity", "Humidity", "#8DC63F", "", 0, 80); // TODO: check this
     initGraph("light_level", "Light level", "#EEB111", "%", 0, 110);
@@ -505,11 +505,11 @@ function initGraphs(data, textStatus, jqXHR) {
     graphs.map(function(graph) {
         var valId = graph.element.id + "_val";
         var value = graph.series[0].data[graph.series[0].data.length-1].y;
-        if (valId == "temperature_val") value += " C";
+        if (valId == "temperature_val") value += " &deg;C";
         if (valId == "flow_rate_val") value += " gpm";
         if (valId == "gb_level_val" || valId == "light_level_val") value += " %";
         $('#'+valId).fadeOut(function() {
-            $(this).text(value).fadeIn();
+            $(this).html(value).fadeIn();
         });
     });
 
@@ -673,11 +673,11 @@ var getLatestData = function(){
     graphs.map(function(graph) {
         var valId = graph.element.id + "_val";
         var value = graph.series[0].data[graph.series[0].data.length-1].y;
-        if (valId == "temperature_val") value += " C";
+        if (valId == "temperature_val") value += " &deg;C";
         if (valId == "flow_rate_val") value += " gpm";
         if (valId == "gb_level_val" || valId == "light_level_val") value += " %";
         $('#'+valId).fadeOut(function() {
-            $(this).text(value).fadeIn();
+            $(this).html(value).fadeIn();
         });
         graph.update();
     });

@@ -212,6 +212,7 @@ $("input[name='mode']").change(function() {
         end_input.val($("#monitor_end_div").text());
         clearInterval(updateInterval);
         $("#animation").fadeOut('slow');
+        $("#info").fadeOut('slow');
         animationOn = 0;
         clearInterval(animationTimer); 
         //$('div svg').animate({
@@ -239,6 +240,7 @@ $("input[name='mode']").change(function() {
         updateInterval = setInterval( function() { getLatestData(); }, refreshInterval );
         setTimeout(function() {
             $("#animation").fadeIn('slow').css("display","inline-block");
+            $("#info").fadeIn('slow');
         }, 2000);
         animationOn = 1;
         //$('div svg').animate({

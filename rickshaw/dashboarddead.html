@@ -358,7 +358,6 @@ function setEndpoint(start, end) {
 
         graphs.map(function(graph) {
             var val = getFieldValue(categories[graph.element.id], item);
-            console.log(val);
             graph.series[0].data.push({x: time, y: val});
         });
 
@@ -490,11 +489,11 @@ function initGraphs(data, textStatus, jqXHR) {
     initGraph("humidity", "Humidity", "#8DC63F", "", 0, 80); // TODO: check this
     initGraph("light_level", "Light level", "#EEB111", "%", 0, 110);
     
-    initBooleanGraph("tank_full", "Tank full", "#22E1B4");
+    initBooleanGraph("grow_lights", "Grow lights", "#A888BA");
     initBooleanGraph("fish_feeder", "Fish feeder", "#F17527");
+    initBooleanGraph("tank_full", "Tank full", "#22E1B4");
     initBooleanGraph("fish_tank_pump", "Fish tank pump", "FFDE17");
     // initBooleanGraph("flow_switch", "Flow switch", "#FFDE17");
-    initBooleanGraph("grow_lights", "Grow lights", "#A888BA");
     initBooleanGraph("backup_reservoir", "Backup reservoir full", "#3A96D2");
     initBooleanGraph("reservoir_pump", "Reservoir pump", "#7AB79D");
     initBooleanGraph("leak", "Water leak", "#EAA4C9");

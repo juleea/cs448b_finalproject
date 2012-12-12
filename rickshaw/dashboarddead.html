@@ -358,7 +358,7 @@ function setEndpoint(start, end) {
 
         graphs.map(function(graph) {
             var val = getFieldValue(categories[graph.element.id], item);
-            console.log(val);
+            //console.log(val);
             graph.series[0].data.push({x: time, y: val});
         });
 
@@ -371,7 +371,7 @@ function setEndpoint(start, end) {
         /*
         var displayStartTime = new Date(graphs[0].series[0].data[0].x * 1000);
         displayStartTime.setHours(displayStartTime.getHours() + 8);
-        //start_input.val(displayStartTime.getMonth()+1 + "/" + displayStartTime.getDate() + "/" + displayStartTime.getFullYear() + " " + displayStartTime.getHours() + ":" + ('0'+displayStartTime.getMinutes()).slice(-2) + ":" + ('0'+displayStartTime.getSeconds()).slice(-2));
+        //start_input.val(displayStartTime.getMonth()+1 + "/" + ('0'+displayStartTime.getDate()).slice(-2) + "/" + displayStartTime.getFullYear() + " " + displayStartTime.getHours() + ":" + ('0'+displayStartTime.getMinutes()).slice(-2) + ":" + ('0'+displayStartTime.getSeconds()).slice(-2));
 
         console.log(seriesData);
         var displayEndTime = new Date(graphs[0].series[0].data[graphs[0].series[0].data.length-1].x * 1000);
@@ -476,13 +476,13 @@ function initGraphs(data, textStatus, jqXHR) {
 
     var startTime = new Date(data[0].time);
     startTime.setHours(startTime.getHours() + 8);
-    $("#monitor_start_div").text(startTime.getMonth()+1 + "/" + startTime.getDate() + "/" + startTime.getFullYear() + " " + startTime.getHours() + ":" + ('0' + startTime.getMinutes()).slice(-2) + ":" + ('0'+startTime.getSeconds()).slice(-2));
+    $("#monitor_start_div").text(startTime.getMonth()+1 + "/" + ('0'+startTime.getDate()).slice(-2) + "/" + startTime.getFullYear() + " " + startTime.getHours() + ":" + ('0' + startTime.getMinutes()).slice(-2) + ":" + ('0'+startTime.getSeconds()).slice(-2));
 
 
     var latestTime = new Date(data[data.length-1].time);
     latestTime.setHours(latestTime.getHours() + 8);
 
-    $("#monitor_end_div").text(latestTime.getMonth()+1 + "/" + latestTime.getDate() + "/" + latestTime.getFullYear() + " " + latestTime.getHours() + ":" + ('0' + latestTime.getMinutes()).slice(-2) + ":" + ('0'+latestTime.getSeconds()).slice(-2));
+    $("#monitor_end_div").text(latestTime.getMonth()+1 + "/" + ('0'+latestTime.getDate()).slice(-2) + "/" + latestTime.getFullYear() + " " + latestTime.getHours() + ":" + ('0' + latestTime.getMinutes()).slice(-2) + ":" + ('0'+latestTime.getSeconds()).slice(-2));
 
     initGraph("gb_level", "Growbed water level", "#4169E1", "%", 0, 110);
     initGraph("temperature", "Temperature", "#DA503F", "&deg;C", 0, 80);
@@ -665,7 +665,7 @@ var getLatestData = function(){
         });
     var latestTime = new Date(newData[newData.length-1].time);
     latestTime.setHours(latestTime.getHours() + 8);
-    $("#monitor_end_div").text(latestTime.getMonth()+1 + "/" + latestTime.getDate() + "/" + latestTime.getFullYear() + " " + latestTime.getHours() + ":" + ('0' + latestTime.getMinutes()).slice(-2) + ":" + ('0'+latestTime.getSeconds()).slice(-2));
+    $("#monitor_end_div").text(latestTime.getMonth()+1 + "/" + ('0'+latestTime.getDate()).slice(-2) + "/" + latestTime.getFullYear() + " " + latestTime.getHours() + ":" + ('0' + latestTime.getMinutes()).slice(-2) + ":" + ('0'+latestTime.getSeconds()).slice(-2));
 
 
     graphs.map(function(graph) {

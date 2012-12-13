@@ -80,7 +80,7 @@
 		<p class="prettytitle" id="subtitle">Kijani Grows Aquaponics</p>
 	</div>-->
 
-    <div id="info">
+    <div id="info" style="background-color:#fff">
         <p style="font-size: 28px;">Kijani Grows: Visualizing an Urban Aquaponic Garden</p>
         <p>Cindy Chang, Emily Cheng, Julia Lee, JJ Liu &nbsp;&nbsp; CS448B Fall 2012</p>
         <p>Learn about <a href="http://www.youtube.com/watch?v=3IryIOyPfTE">Eric Maundu</a> and his mission to reduce disparities through <a href="http://en.wikipedia.org/wiki/Aquaponics">aquaponics</a> through his organization <a href="http://www.kijanigrows.com/">Kijani Grows</a></p>
@@ -240,6 +240,7 @@ $("input[name='mode']").change(function() {
         $("#animation").fadeOut('slow');
         $("#info").fadeOut('slow');
         animationOn = 0;
+        gardenAnim = null;
         clearInterval(animationTimer); 
         //$('div svg').animate({
             //width: "95%"}, 1000

@@ -119,7 +119,7 @@ def setFishFeeder(obj, secsFromStart):
 def setFishTankPump(obj, secsFromStart):
   val = (secsFromStart/(60 * 10))%2 #turn pump on every 10 minutes
   if obj["report"]["leak_detector_sensor"]["leak"] == 1:
-    val = 0 # turn off pumps if there's a leak
+    val = 0 # turn off pumps if there's a leakt
   obj["report"]["fish_tank_pump"]["on"] = val
 
 def setFlowSwitch(obj, objToCopy):
@@ -137,7 +137,7 @@ def setGrowLights(obj, secsFromStart):
 def setLeak(obj, secsFromStart):
   val = 0
   minute = secsFromStart / 60
-  if (minute > 4 and minute < 7) or (minute > 21 and minute < 24) or (minute > 80 and minute < 86) or (minute > 160 and minute < 190):
+  if (minute > 4 and minute < 13) or (minute > 21 and minute < 33) or (minute > 80 and minute < 86) or (minute > 160 and minute < 190):
     val = 1
   obj["report"]["leak_detector_sensor"]["leak"] = val
 

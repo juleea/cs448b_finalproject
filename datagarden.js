@@ -6,7 +6,7 @@ function DataGarden(garden, useLive) {
 	var that = this;
 
 	if (!useLive) {
-		this.now = new Date("2012-12-05T08:32:56.000Z");
+		this.now = new Date("2012-12-05T08:30:56.000Z");
 		this.bigBang = new Date("2012-12-05T08:08:56.000Z");
 		this.apocalypse = new Date("2012-12-05T12:08:56.000Z");//2012-12-05T20:01:06.000Z");
 		this.nextIndex = 0;

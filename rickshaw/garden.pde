@@ -32,6 +32,7 @@ String baseImg = "kijani-grows-3.png";
 String baseImgLabeled = "kijani-grows-labels-3.png";
 
 void setup() {
+  frameRate(3);
   // size of screen
   size(width,height);
   // set background to white
@@ -42,6 +43,7 @@ void setup() {
 
 void draw() {
   image(img,0,0,img.width/1.5,img.height/1.5);
+  //println(frameRate);
 }
 
 void drawButtons() {

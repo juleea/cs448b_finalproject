@@ -1,24 +1,38 @@
 
-<!doctype>
+<!DOCTYPE html>
 <head>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
 	<link type="text/css" rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css">
 	<link type="text/css" rel="stylesheet" href="css/graph.css">
 	<link type="text/css" rel="stylesheet" href="css/detail.css">
 	<link type="text/css" rel="stylesheet" href="css/legend.css">
 	<link type="text/css" rel="stylesheet" href="css/lines.css">
     <link type="text/css" rel="stylesheet" href="css/custom.css">
+    <link href="http://fonts.googleapis.com/css?family=Calibri" rel="stylesheet" type="text/css">
 	
     <script src="../d3.v2.js"></script>
 
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.15/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="jquery.jqtransform.js"></script>
+    <script type="text/javascript" src="../datagarden.js"></script>
+    <link rel="stylesheet" media="all" type="text/css" href="css/jquery-ui-timepicker-addon.css" />
+    <script type="text/javascript" src="js/jquery-ui-timepicker-addon.js"></script>
+    <script type="text/javascript" src="js/tinybox.js"></script>
 
 	<script src="rickshaw.js"></script>
 	<script src="Rickshaw.Graph.RangeSlider.js"></script>
+	
+	<!-- FOR ANIMATION -->
+	<script type="text/javascript" src="processing.js"></script>
+    <title>Kijani Grows</title>
 </head>
 <body>
 
 <div id="charts">
+    <div id="preloader"></div>
     <div id="chart_container"></div>
 
     <div id="legend_container">
@@ -26,29 +40,360 @@
         <div id="legend"></div>
     </div>
 
+    <div id="xaxis"></div>
+
     <div id="slider"></div>
+    <div id="inputs">
+        <div style="display: none;" id="start_div" align="center" class="float-left"><input type="text" id="start_input"></div>
+        <div id="monitor_start_div" align="center" class="float-left"></div>
+        <div align="center" class="float-left">
+
+        <input checked id="monitor_input" name="mode" value="monitor" type="radio">Monitor
+        <input id="analysis_input" name="mode" value="analysis" type="radio">Analysis
+
+        <!--
+    <div class="radiolist">
+    <p class="selected">
+        <input id="monitor_input" name="mode" value="monitor" type="radio">
+        <a class="radio-select" href="#">Monitor mode</a>
+    </p>
+    <p>
+        <input id="analysis_input" name="mode" value="analysis" type="radio">
+        <a class="radio-select" href="#">Analysis mode</a>
+    </p>
+    </div>
+    -->
+
+        </div>
+        <div style="display: none;" id="end_div" align="center" class="float-left"><input type="text" id="end_input"></div>
+        <div id="monitor_end_div" align="center" class="float-left"></div>
+   </div>
+
+
 </div>
 
-<script>
 
-var garden = getQueryParameters();
-var categories = {
-   "Flow Rate": ["report", "flow_rate_sensor", "flowRate"],
-   "Temperature": ["report", "temperature_sensor", "temperature"],
+	<div id="animation"  style="">
+	<canvas id="sketch" data-processing-sources="garden.pde" tabindex="0" width="1150" height="600" style="image-rendering: -webkit-optimize-contrast !important;"></canvas> 
+	</div>
+	<!--<div id="title" style=""><h1 class="prettytitle">Garden Dashboard</h1>
+		<p class="prettytitle" id="subtitle">Kijani Grows Aquaponics</p>
+	</div>-->
+
+    <div id="info" style="background-color:#fff">
+        <p style="font-size: 28px;">Kijani Grows: Visualizing an Urban Aquaponic Garden</p>
+        <p>Cindy Chang, Emily Cheng, Julia Lee, JJ Liu &nbsp;&nbsp; CS448B Fall 2012</p>
+        <p>Learn about <a href="http://www.youtube.com/watch?v=3IryIOyPfTE">Eric Maundu</a> and his mission to reduce disparities through <a href="http://en.wikipedia.org/wiki/Aquaponics">aquaponics</a> through his organization <a href="http://www.kijanigrows.com/">Kijani Grows</a></p>
+    </div>
+
+<script>
+jQuery.fn.onEnter = function(callback)
+{
+    this.keyup(function(e)
+    {
+        if(e.keyCode == 13)
+    {
+    e.preventDefault();
+    if (typeof callback == 'function')
+    callback.apply(this);
+    }
+    }
+    );
+    return this;
 }
+
+$(".radiolist .radio-select").click(
+    function(event) {
+        event.preventDefault();
+        var $boxes = $(this).parent().parent().children();
+        $boxes.removeClass("selected");
+        $(this).removeAttr("checked");
+        $(this).parent().addClass("selected");
+        $(this).parent().find(":radio").attr("checked","checked");
+    }
+);
+
+var paramPairs = getQueryParameters();
+var garden = paramPairs.garden;
+var visibleTimeRange = 5 * 60 * 1000; // time range (milliseconds) to display on graphs 
+
+var categories = {
+   
+   //continues variable measurements
+   "flow_rate": ["report", "flow_rate_sensor", "flowRate"],
+   "temperature": ["report", "temperature_sensor", "temperature"],
+   "light_level": ["report", "photocell_sensor", "lightLevel"],
+   "gb_level": ["report", "gb_level_sensor", "gbLevel"],
+   "humidity": ["report", "humidity_sensor", "humidity"],
+
+   //boolean variable measurements
+   "tank_full": ["report", "tank_level_sensor", "full"],
+   "fish_feeder": ["report", "fish_feeder", "on"],
+   "fish_tank_pump": ["report", "fish_tank_pump", "on"],
+   // "flow_switch": ["report", "flow_switch_sensor", "flow"],
+   "grow_lights": ["report", "grow_lights", "on"],
+   "leak": ["report", "leak_detector_sensor", "leak"],
+   "backup_reservoir": ["report", "reservior_level_sensor", "full"],
+   "reservoir_pump": ["report", "reservior_pump", "on"],
+
+}
+var dataGarden;
+
+var initData;
 //map (key is the same as in categories)
 var seriesData = initSeriesData(categories);
 var graphs = [];
+var hoverGraphs = [];
 
-var refreshInterval = 5000; // 10 seconds
-var maxNumPointsPerInterval = 1;
+// var refreshInterval = 5000; // 10 seconds
+// var maxNumPointsPerInterval = 1;
 var lastEndTime;
 
-var numInitialPoints = 10;
-getData(garden, numInitialPoints, initGraphs);
+var ptsPerRefresh = 1;
+var dataInterval = 10000;
+var averageDataInterval = 10000; // To estimate the index of old data to exclude
+var refreshInterval = ptsPerRefresh * dataInterval;
 
+var numInitialPoints = 10;
+
+var start_input = $("#start_input");
+var end_input = $("#end_input");
+
+var monitor_input = $("#monitor_input");
+var analysis_input = $("#analysis_input");
+
+var monitorSeriesData = [];
+
+// variables for animation portion
+var processingInstance;
+var gardenAnim;
+var animationTimer; // to set and stop setInterval
+var garden;
+var animationOn = 1;
+start_input.datetimepicker({
+    //showSecond: true,
+    timeFormat: 'H:mm:ss',
+    hourGrid: 4, 
+    minuteGrid: 10,
+    onClose: function(dateText, inst) {
+        clearInterval(updateInterval);
+        setEndpoint(dateText, end_input.val());
+    }
+});
+end_input.datetimepicker({
+    //showSecond: true,
+timeFormat: 'H:mm:ss',
+    hourGrid: 4, 
+    minuteGrid: 10,
+    onClose: function(dateText, inst) {
+        clearInterval(updateInterval);
+        setEndpoint(start_input.val(), dateText); 
+    }
+});
+
+start_input.onEnter(function() {
+        clearInterval(updateInterval);
+        setEndpoint(start_input.val(), end_input.val());
+    }
+);
+end_input.onEnter(function() {
+        clearInterval(updateInterval);
+        setEndpoint(start_input.val(), end_input.val());
+    }
+);
+
+
+createDataGarden();
+setTimeout(
+    function() {
+        getData(garden, numInitialPoints, initGraphs);
+    }, 5000);
+var updateInterval;
+setTimeout(
+    function() {
+        updateInterval = setInterval( function() { getLatestData(); }, refreshInterval );
+    }, 5000);
+
+$(function() {
+    $("#monitor_input").jqTransform();
+});
+
+var chartStartWidth = $('#charts').width();
+$(document).ready(function() {
+
+$("input[name='mode']").change(function() {
+    if ($("input[name='mode']:checked").val() == 'analysis') { // Analysis
+        console.log('analysis');
+        graphs.map(function(graph) {
+            var valId = graph.element.id + "_val";
+            $('#'+valId).fadeOut();
+            monitorSeriesData[graph.element.id] = [].concat(graph.series[0].data);
+        });
+
+        $("#monitor_start_div").hide();
+        $("#monitor_end_div").hide();
+        $("#start_div").show();
+        $("#end_div").show();
+        start_input.val($("#monitor_start_div").text());
+        end_input.val($("#monitor_end_div").text());
+        clearInterval(updateInterval);
+        $("#animation").fadeOut('slow');
+        $("#info").fadeOut('slow');
+        animationOn = 0;
+        gardenAnim = null;
+        clearInterval(animationTimer); 
+        //$('div svg').animate({
+            //width: "95%"}, 1000
+        //);
+        setTimeout(function() {
+            $('#charts').animate({
+                width: "1200px"}, 2000
+            );
+            $('#slider').animate({
+                width: "100%"}, 2000
+            );
+            setTimeout(function() {
+                var newWidth = ($('#charts').width());//*1.84);
+                
+                graphs.map(function(graph) {
+                    graph.configure({width: newWidth, gapSize:0});
+                    graph.render();
+                });
+                }, 2000);
+        }, 500);
+   } else { // Monitor
+        console.log('monitor');
+        graphs.map(function(graph) {
+            var valId = graph.element.id + "_val";
+            $('#'+valId).fadeIn();
+            graph.series[0].data.length = 0;
+            graph.series[0].data = [].concat(monitorSeriesData[graph.element.id]);
+            graph.update();
+        });
+        /*
+        $.each(categories, function(label, pathArray) {
+            seriesData[label] = [].concat(monitorSeriesData[label]);
+        });
+$.each(graphs, function(i, graph) {
+            graph.update();
+        });
+*/
+
+        /*
+    $.each(seriesData, function(i, d) {
+            seriesData[i].length = 0;
+    });
+    */
+
+
+        $("#monitor_start_div").show();
+        $("#monitor_end_div").show();
+        $("#start_div").hide();
+        $("#end_div").hide();
+        updateInterval = setInterval( function() { getLatestData(); }, refreshInterval );
+        setTimeout(function() {
+            $("#animation").fadeIn('slow').css("display","inline-block");
+            $("#info").fadeIn('slow');
+        }, 2000);
+        animationOn = 1;
+        //$('div svg').animate({
+            //width: "50%"}, 1000
+        //);
+        $('#charts').animate({
+            width: chartStartWidth}, 2000
+        );
+        setTimeout(function() {
+            graphs.map(function(graph) {
+                graph.configure({width: 670});
+                graph.render();
+            });
+        }, 1500);
+
+        /*
+        $.each(seriesData, function(i, d) {
+                seriesData[i].length = 0;
+        });
+        */
+
+    }
+});
+});
+    
 
 // *** FUNCTIONS *** //
+
+function setEndpoint(start, end) {
+    start_date = new Date(start);
+    if (!isValidDate(start_date)) {
+        return;
+    }
+    var start_mil = start_date.getTime() - 8 * 60 * 60 * 1000;
+    end_date = new Date(end);
+    if (!isValidDate(end_date)) return;
+    var end_mil = end_date.getTime() - 8 * 60 * 60 * 1000;;
+
+    console.log("query range: " + start_date + " to " + end_date);
+
+    var newData = dataGarden.getRange(start_mil, end_mil);
+
+    /*
+    $.each(seriesData, function(i, d) {
+            seriesData[i].length = 0;
+    });
+    */
+    //console.log(seriesData);
+
+    graphs.map(function(graph) {
+        graph.series[0].data.length = 0;
+    });
+    //console.log(newData);
+    $.each(newData, function(i, item) {
+        var time = new Date(item.time).getTime()/1000.0;
+
+        /*
+        $.each(categories, function(label, pathArray) {
+            var val = getFieldValue(pathArray, item);
+            seriesData[label].push({x: time, y: val});
+        });
+        */
+
+        graphs.map(function(graph) {
+            var val = getFieldValue(categories[graph.element.id], item);
+            graph.series[0].data.push({x: time, y: val});
+        });
+
+    });
+
+    if (newData && newData.length > 0) {
+        $.each(graphs, function(i, graph) {
+            graph.update();
+        });
+        /*
+        var displayStartTime = new Date(graphs[0].series[0].data[0].x * 1000);
+        displayStartTime.setHours(displayStartTime.getHours() + 8);
+        //start_input.val(displayStartTime.getMonth()+1 + "/" + displayStartTime.getDate() + "/" + displayStartTime.getFullYear() + " " + displayStartTime.getHours() + ":" + ('0'+displayStartTime.getMinutes()).slice(-2) + ":" + ('0'+displayStartTime.getSeconds()).slice(-2));
+
+        console.log(seriesData);
+        var displayEndTime = new Date(graphs[0].series[0].data[graphs[0].series[0].data.length-1].x * 1000);
+        displayEndTime.setHours(displayEndTime.getHours() + 8);
+        //end_input.val(displayEndTime.getMonth()+1 + "/" + displayEndTime.getDate() + "/" + displayEndTime.getFullYear() + " " + displayEndTime.getHours() + ":" + ('0'+displayEndTime.getMinutes()).slice(-2) + ":" + ('0'+displayEndTime.getSeconds()).slice(-2));
+        */
+        } else {
+            TINY.box.show({html:'Please enter a valid time range',animate:false,close:false,boxid:'error',top:100})
+        }
+    }
+
+function isValidDate(d) {
+      if ( Object.prototype.toString.call(d) !== "[object Date]" )
+              return false;
+        return !isNaN(d.getTime());
+}
+
+
+function createDataGarden(callback) {
+    // console.log("createDataGarden()");
+    dataGarden = new DataGarden(garden, true);
+}
 
 function getFieldValue(pathArray, object) {
     var found = object;
@@ -57,7 +402,7 @@ function getFieldValue(pathArray, object) {
             found = found[field];
         } else {
             console.error("getFieldValue(): " + field + " not found.");
-            return null;
+            return 0;
         }
     });
     return found;
@@ -86,31 +431,22 @@ function getQueryParameters() {
         pairs[pair[0]] = pair[1];
     });
 
-    garden = pairs.garden;
-    return garden;
+    return pairs;
 }
 
 function getData(garden, numEntries, callback) {
-    var curTime = new Date().toJSON();
-    lastEndTime = curTime;
+    initData = dataGarden.getInitialData(null, visibleTimeRange);
 
-    var queryUrl = "http://50.19.108.27/arduino/garden/" + garden + 
-         "?num="+numEntries;
+    textStatus = null;
+    jqXHR = null;
 
-    // "http://50.19.108.27/arduino/garden/ + garden + 
-    //     "?end_time="+curTime+"&num="+numEntries;
-
-    jQuery.ajax({
-        url: queryUrl,
-        type: "GET",
-        dataType: "json",
-        success: callback
-    });
+    callback(initData, textStatus, jqXHR);
 }
 
+
 function initGraphs(data, textStatus, jqXHR) {
-    console.log("initial data: " + data);
     $.each(data, function(i, item) {
+        //var time = new Date(item.time);
         var time = new Date(item.time).getTime()/1000.0;
         $.each(categories, function(label, pathArray) {
             var val = getFieldValue(pathArray, item);
@@ -119,12 +455,52 @@ function initGraphs(data, textStatus, jqXHR) {
     });
 
     $.each(categories, function(label, path) {
-        seriesData[label] = seriesData[label].reverse();
+        seriesData[label] = seriesData[label];
     });
 
-    initGraph("temperature", "Temperature", "#c05020", seriesData["Temperature"], "C");
-    initGraph("flowrate", "Flow Rate", "#30c020", seriesData["Flow Rate"], " flowrateunits");
+    var startTime = new Date(data[0].time);
+    startTime.setHours(startTime.getHours() + 8);
+    $("#monitor_start_div").text(startTime.getMonth()+1 + "/" + startTime.getDate() + "/" + startTime.getFullYear() + " " + startTime.getHours() + ":" + ('0' + startTime.getMinutes()).slice(-2) + ":" + ('0'+startTime.getSeconds()).slice(-2));
 
+
+    var latestTime = new Date(data[data.length-1].time);
+    latestTime.setHours(latestTime.getHours() + 8);
+
+    $("#monitor_end_div").text(latestTime.getMonth()+1 + "/" + latestTime.getDate() + "/" + latestTime.getFullYear() + " " + latestTime.getHours() + ":" + ('0' + latestTime.getMinutes()).slice(-2) + ":" + ('0'+latestTime.getSeconds()).slice(-2));
+
+    initGraph("gb_level", "Growbed water level", "#4169E1", "%", 0, 110);
+    initGraph("temperature", "Temperature", "#DA503F", "&deg;C", 0, 80);
+    initGraph("flow_rate", "Flow rate", "#00ADEE", "gpm", 0, 1.4);
+    initGraph("humidity", "Humidity", "#8DC63F", "", 0, 80); // TODO: check this
+    initGraph("light_level", "Light level", "#EEB111", "%", 0, 110);
+    
+    initBooleanGraph("grow_lights", "Grow lights", "#A888BA");
+    initBooleanGraph("fish_feeder", "Fish feeder", "#F17527");
+    initBooleanGraph("tank_full", "Fish tank full", "#22E1B4");
+    initBooleanGraph("fish_tank_pump", "Fish tank pump", "FFDE17");
+    // initBooleanGraph("flow_switch", "Flow switch", "#FFDE17");
+    initBooleanGraph("backup_reservoir", "Backup reservoir full", "#3A96D2");
+    initBooleanGraph("reservoir_pump", "Reservoir pump", "#7AB79D");
+    initBooleanGraph("leak", "Water leak", "#EAA4C9");
+    
+
+    graphs.map(function(graph) {
+        var valId = graph.element.id + "_val";
+        var value = graph.series[0].data[graph.series[0].data.length-1].y;
+        if (valId == "temperature_val") value += " &deg;C";
+        if (valId == "flow_rate_val") value += " gpm";
+        if (valId == "gb_level_val" || valId == "light_level_val") value += " %";
+        $('#'+valId).fadeOut(function() {
+            $(this).html(value).fadeIn();
+        });
+    });
+
+    var hoverDetail = new Rickshaw.Graph.HoverDetail( {
+        graphs: graphs,//data[0],
+        //xFormatter: function(x) { return x + " seconds" },
+        yFormatter: hoverGraphs
+        //yFormatter: function(y) { return y + " " + yunits }
+    } );
     //create slider
     var slider = new Rickshaw.Graph.RangeSlider(
         {
@@ -133,57 +509,77 @@ function initGraphs(data, textStatus, jqXHR) {
         }
     );
 
-    setInterval( function() { getLatestData(); }, refreshInterval );
-
 } 
 
-function initGraph(htmlId, name, color, dataArr, yunits) {
-    // instantiate a graph!
+function initBooleanGraph(htmlId, name, color, isBooleanGraph) {
+    initGraph(htmlId, name, color, "", 0, 1, true);
+}
+
+function initGraph(htmlId, name, color, yunits, ymin, ymax, isBooleanGraph) {
+    var height = 90;
+    var graphType = "area";
+    var gapSize = 0;
+
     var yaxisId = htmlId + "_yaxis";
     var wrapperId = htmlId + "_wrapper";
-    $("#chart_container").append("<div id='" + wrapperId + "'></div>");
-    $("#" + wrapperId).append("<div id='" + yaxisId + "'></div>");
-    $("#" + wrapperId).append("<div id='" + htmlId + "' class='rsgraph'></div>");
+    var labelId = htmlId + "_label";
+    var labelClass = "label";
 
+    if(isBooleanGraph) {
+        height = 25;
+        graphType = "bar";
+        gapSize = 0;
+        labelClass = "label_boolean"
+    } 
+
+    // create a new graph!
+    $("#chart_container").append("<div id='" + wrapperId + "' class='rsgraph_wrapper'></div>");
+    $("#" + wrapperId).append("<div id='" + labelId + "' class='" + labelClass + "'>" + name + "</div>");
+    if (!isBooleanGraph) {
+        $("#" + wrapperId).append("<div id='" + htmlId + "_val' class='value'></div>");
+    } 
+    $("#" + wrapperId).append("<div id='" + htmlId + "'></div>");
+    $("#" + wrapperId).append("<div id='" + yaxisId + "'></div>");
+
+    //console.log(seriesData[htmlId]);
     var graph = new Rickshaw.Graph(
     {
 	    element: document.getElementById(htmlId),
-	    width: 960,
-	    height: 75,
-        min: -30,
-        max: 30,
+	    width: 670,
+	    //width: 960,
+	    height: height,
+        min: ymin,
+        max: ymax,
         padding:
         {
             top: .1,
             bottom: .1
         },
-	    renderer: 'scatterplot', //line',
+	    renderer: graphType,
+        gapSize: gapSize,
         //dataURL: "http://50.19.108.27/arduino/garden/v1.1/?num=100",
         //onData: function(d) { return d },
     	series: [{
 			color: color,
-			data: dataArr,
+			data: seriesData[htmlId],
 			name: name,
 		}]
     });
     
 
 
-    hoverDetail = new Rickshaw.Graph.HoverDetail( {
+    /*
+    var hoverDetail = new Rickshaw.Graph.HoverDetail( {
         graph: graph,
-        formatter: function(series, x, y) {
-            var msg = series + " " + yunits;
-            console.log(msg);
-            return msg;
-
-        }
-        // xFormatter: function(x) { return x + "seconds" },
-        // yFormatter: function(y) { console.log('hey'); return y + " " + yunits }
+        //xFormatter: function(x) { return x + " seconds" },
+        yFormatter: function(y) { return y + " " + yunits }
     } );
+    */
+    //console.log("hover: ");
+    //console.log(hoverDetail);
 
     graphs.push(graph);
-
-    graph.render(); 
+    hoverGraphs[graph.element.id] = yunits;
 
 
     // var legend = new Rickshaw.Graph.Legend( {
@@ -197,59 +593,191 @@ function initGraph(htmlId, name, color, dataArr, yunits) {
     //     legend: legend
     // } );
 
-    // var axes = new Rickshaw.Graph.Axis.Time( {
-	   // graph: graph
-    // } );
-    // console.log($("#" + yaxisId));
-    var y_ticks = new Rickshaw.Graph.Axis.Y( {
-        graph: graph,
-    } );
 
-    // axes.render();
+    var time = new Rickshaw.Fixtures.Time();
+    //var minutes = time.unit('15 second');
+    //if (graph.element.id == "reservoir_pump") {
+        var xAxis = new Rickshaw.Graph.Axis.Time( {
+           graph: graph,
+           
+           //timeUnit: minutes,
+        } );
+        xAxis.render();
+    //}
+   
+
+    // console.log($("#" + yaxisId));
+
+    if (["temperature", "flow_rate", "light_level", "gb_level", "humidity"].indexOf(graph.element.id) != -1) {
+        var yAxis = new Rickshaw.Graph.Axis.Y( {
+            graph: graph,
+            orientation: 'right',
+            tickFormat: Rickshaw.Fixtures.Number.formatKMBT,
+            width: 50,
+            // element: document.getElementById($("#" + yaxisId)),
+            pixelsPerTick: 25,
+        } );
+
+        yAxis.render();
+    }
+
+    graph.render(); 
+
 }
 
 var getLatestData = function(){
+    // console.log("dashboarddead.getLastestData()");
+    
+    var newData = dataGarden.getLastN(ptsPerRefresh);
 
-    var start = lastEndTime;
-    var end = (new Date()).toJSON();
-    lastEndTime = end;
-    var queryUrl = "http://50.19.108.27/arduino/garden/range/" + garden 
-        + "?start_time=" + start + "&end_time=" + end + "&num=" + maxNumPointsPerInterval;
-        console.log(queryUrl);
-    jQuery.ajax({
-        url: queryUrl,
-        type: "GET",
-        dataType: "json",
-        success: function(newData, textStatus, jqXHR){
-            console.log("New data received: " + newSeriesData);
-            var newSeriesData = initSeriesData(categories);
+    var newSeriesData = initSeriesData(categories);
+    
+    $.each(newData, function(i, item) {
+        var time = new Date(item.time).getTime()/1000.0;
 
-            $.each(newData, function(i, item) {
-                var time = new Date(item.time).getTime()/1000.0;
-                console.log("New data time: " + new Date(time * 1000));
-                $.each(categories, function(label, pathArray) {
-                    var val = getFieldValue(pathArray, item);
-                    newSeriesData[label].push({x: time, y: val});
-                });
-            });
+        /*
+        $.each(categories, function(label, pathArray) {
+            var val = getFieldValue(pathArray, item);
+            console.log(pathArray);
+            seriesData[label].push({x: time, y: val});
+        });
+        */
+         graphs.map(function(graph) {
+            var val = getFieldValue(categories[graph.element.id], item);
+            graph.series[0].data.push({x: time, y: val});
+            graph.update();
+        });
+    var latestTime = new Date(newData[newData.length-1].time);
+    latestTime.setHours(latestTime.getHours() + 8);
+    $("#monitor_end_div").text(latestTime.getMonth()+1 + "/" + latestTime.getDate() + "/" + latestTime.getFullYear() + " " + latestTime.getHours() + ":" + ('0' + latestTime.getMinutes()).slice(-2) + ":" + ('0'+latestTime.getSeconds()).slice(-2));
 
-            if (newData.length > 0) {
-                $.each(categories, function(label, path) {
-                    newSeriesData[label] = newSeriesData[label].reverse();
-                    seriesData[label].push.apply(seriesData[label], newSeriesData[label]);
-                });
 
-                $.each(graphs, function(i, graph) {
-                    console.log("update " + graph.series[0].name)
-                    graph.update();
-                });
-            }
-        },
+    graphs.map(function(graph) {
+        var valId = graph.element.id + "_val";
+        var value = graph.series[0].data[graph.series[0].data.length-1].y;
+        if (valId == "temperature_val") value += " &deg;C";
+        if (valId == "flow_rate_val") value += " gpm";
+        if (valId == "gb_level_val" || valId == "light_level_val") value += " %";
+        $('#'+valId).fadeOut(function() {
+            $(this).html(value).fadeIn();
+        });
+        graph.update();
     });
+
+    // FOR ANIMATION 
+
+    if(!gardenAnim) { 
+	    processingInstance= Processing.getInstanceById('sketch');
+    	console.log("Init processingInstance");
+	gardenAnim = new processingInstance.MediaBed();
+	//gardenAnim =  new processingInstance.MediaBed(70,50,95,1.23,4,1,1,1,1,0,1);
+	processingInstance.draw();
+        
+    } 
+    if (animationOn) {
+	//var p = new processingInstance.MediaBed(gbLevel, ftLevel, lightLevel, flowRate, numFish, feederOn, lightOn, waterIsFlowing, pumpOn, leakage, isFlowing);
+        var currentState = newData[0]['report'];
+    	var gbLevel = currentState['gb_level_sensor'].gbLevel;
+    	var ftLevel = currentState['tank_level_sensor'].full == 1;
+    	var lightLevel = currentState['photocell_sensor'].lightLevel;
+    	var flowRate = currentState['flow_rate_sensor'].flowRate;
+    	var numFish = 5;
+    	var feederOn = currentState['fish_feeder'].on;
+    	var lightOn = currentState['grow_lights'].on;
+    	var waterIsFlowing = currentState['flow_switch_sensor'].flow;
+    	var pumpOn = currentState['fish_tank_pump'].on;
+    	var leakage = currentState['leak_detector_sensor'].leak;
+    	var isFlowing = flowRate >= 0.5 ? 1 : 0; // IS THIS RIGHT? ASK MAUNDU LATER?
+        var timestamp = new Date(time * 1000);
+    	gardenAnim.updateMediaBed(gbLevel, ftLevel, lightLevel, flowRate, numFish, feederOn, lightOn, waterIsFlowing, pumpOn, leakage, isFlowing, timestamp);
+	var frameInterval = 100;
+    	animationTimer = setInterval(function() { if(animationOn) { gardenAnim.animateMediaBed(); } }, frameInterval);
+	//gardenAnim = new processingInstance.MediaBed(gbLevel, ftLevel, lightLevel, flowRate, numFish, feederOn, lightOn, waterIsFlowing, pumpOn, leakage, isFlowing);
+     } else {
+	clearInterval(animationTimer);
+     }
+
+    });
+
+
+    if (newData && newData.length > 0) {
+        // $.each(categories, function(label, path) {
+        //     newSeriesData[label] = newSeriesData[label].reverse();
+        //     seriesData[label].push.apply(seriesData[label], newSeriesData[label]);
+        // });
+
+        //TODO: in progress -- remove old data outside the visibleTimeRange
+        // $.each(seriesData, function(series, dataArr) {
+        //     console.log(series + " -> " + dataArr);
+        //     console.log(dataArr.slice(-1));
+
+        //     var earliestTimeToShow = dataArr.slice(-1)[0].x - visibleTimeRange;
+        //     console.log("earliest time to show: " + earliestTimeToShow);
+        //     var firstIndexToShow = 0;
+        //     console.log(firstIndexToShow + " -> "+ dataArr[firstIndexToShow]);
+        //     while (dataArr[firstIndexToShow].x < earliestTimeToShow) {
+        //         firstIndexToShow++;
+        //         console.log("first index to show: " + firstIndexToShow);
+        //     }
+        //     seriesData[series] = dataArr.slice(firstIndexToShow, dataArr.length);
+
+        // });
+
+        $.each(graphs, function(i, graph) {
+            graph.update();
+        });
+    }
+
+
+
+    // var start = lastEndTime;
+    // var end = (new Date()).toJSON();
+    // lastEndTime = end;
+
+    // var queryUrl = "http://50.19.108.27/arduino/garden/range/" + garden 
+    //     + "?start_time=" + start + "&end_time=" + end + "&num=" + ptsPerRefresh;
+    //     console.log(queryUrl);
+    
+    // jQuery.ajax({
+    //     url: queryUrl,
+    //     type: "GET",
+    //     dataType: "json",
+    //     success: function(newData, textStatus, jqXHR){
+    //         console.log("New data received: " + newSeriesData);
+            
+
+    //         // var newSeriesData = initSeriesData(categories);
+
+    //         $.each(newData, function(i, item) {
+    //             var time = new Date(item.time).getTime()/1000.0;
+    //             console.log("New data time: " + new Date(time * 1000));
+    //             $.each(categories, function(label, pathArray) {
+    //                 var val = getFieldValue(pathArray, item);
+    //                 newSeriesData[label].push({x: time, y: val});
+    //             });
+    //         });
+
+    //         if (newData.length > 0) {
+    //             $.each(categories, function(label, path) {
+    //                 newSeriesData[label] = newSeriesData[label].reverse();
+    //                 seriesData[label].push.apply(seriesData[label], newSeriesData[label]);
+    //             });
+
+    //             $.each(graphs, function(i, graph) {
+    //                 console.log("update " + graph.series[0].name)
+    //                 graph.update();
+    //             });
+    //         }
+    //     },
+    // });
 };
 
+    // FUNCTIONS FOR ANIMATION PART
+    
 
 </script>
-
 </body>
-
+<!--<footer id="tag">
+<div style='color:#aaa'>Visualization by Cindy Chang, Emily Cheng, Julia Lee, JJ Liu</div>
+<div style='color:#aaa'>For Kiani Grows: Urban Garden Systems (www.kijanigrows.com)</div>
+</footer>-->

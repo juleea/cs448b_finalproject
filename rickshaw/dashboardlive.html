@@ -51,19 +51,6 @@
         <input checked id="monitor_input" name="mode" value="monitor" type="radio">Monitor
         <input id="analysis_input" name="mode" value="analysis" type="radio">Analysis
 
-        <!--
-    <div class="radiolist">
-    <p class="selected">
-        <input id="monitor_input" name="mode" value="monitor" type="radio">
-        <a class="radio-select" href="#">Monitor mode</a>
-    </p>
-    <p>
-        <input id="analysis_input" name="mode" value="analysis" type="radio">
-        <a class="radio-select" href="#">Analysis mode</a>
-    </p>
-    </div>
-    -->
-
         </div>
         <div style="display: none;" id="end_div" align="center" class="float-left"><input type="text" id="end_input"></div>
         <div id="monitor_end_div" align="center" class="float-left"></div>
@@ -202,16 +189,18 @@ end_input.onEnter(function() {
     }
 );
 
-
 createDataGarden();
-setTimeout(
-    function() {
-        getData(garden, numInitialPoints, initGraphs);
-    }, 5000);
+
+
+// UPDATING CODE. TODO: uncomment.
+
+getInitialData(garden, numInitialPoints, initGraphs);
+
 var updateInterval;
 setTimeout(
     function() {
-        updateInterval = setInterval( function() { getLatestData(); }, refreshInterval );
+        var now = new Date();
+        updateInterval = setInterval( function() { dataGarden.getRange(new Date(now - new Date(5000)), now, getLatestData); }, refreshInterval );
     }, 5000);
 
 $(function() {
@@ -221,106 +210,91 @@ $(function() {
 var chartStartWidth = $('#charts').width();
 $(document).ready(function() {
 
-$("input[name='mode']").change(function() {
-    if ($("input[name='mode']:checked").val() == 'analysis') { // Analysis
-        console.log('analysis');
-        graphs.map(function(graph) {
-            var valId = graph.element.id + "_val";
-            $('#'+valId).fadeOut();
-            monitorSeriesData[graph.element.id] = [].concat(graph.series[0].data);
-        });
+    $("input[name='mode']").change(function() {
+        if ($("input[name='mode']:checked").val() == 'analysis') { // Analysis
+            console.log('analysis');
+            graphs.map(function(graph) {
+                var valId = graph.element.id + "_val";
+                $('#'+valId).fadeOut();
+                monitorSeriesData[graph.element.id] = [].concat(graph.series[0].data);
+            });
 
-        $("#monitor_start_div").hide();
-        $("#monitor_end_div").hide();
-        $("#start_div").show();
-        $("#end_div").show();
-        start_input.val($("#monitor_start_div").text());
-        end_input.val($("#monitor_end_div").text());
-        clearInterval(updateInterval);
-        $("#animation").fadeOut('slow');
-        $("#info").fadeOut('slow');
-        animationOn = 0;
-        gardenAnim = null;
-        clearInterval(animationTimer); 
-        //$('div svg').animate({
-            //width: "95%"}, 1000
-        //);
-        setTimeout(function() {
+            $("#monitor_start_div").hide();
+            $("#monitor_end_div").hide();
+            $("#start_div").show();
+            $("#end_div").show();
+            start_input.val($("#monitor_start_div").text());
+            end_input.val($("#monitor_end_div").text());
+            clearInterval(updateInterval);
+            $("#animation").fadeOut('slow');
+            $("#info").fadeOut('slow');
+            animationOn = 0;
+            gardenAnim = null;
+            clearInterval(animationTimer); 
+            //$('div svg').animate({
+                //width: "95%"}, 1000
+            //);
+            setTimeout(function() {
+                $('#charts').animate({
+                    width: "1200px"}, 2000
+                );
+                $('#slider').animate({
+                    width: "100%"}, 2000
+                );
+                setTimeout(function() {
+                    var newWidth = ($('#charts').width());//*1.84);
+                    
+                    graphs.map(function(graph) {
+                        graph.configure({width: newWidth, gapSize:0});
+                        graph.render();
+                    });
+                    }, 2000);
+            }, 500);
+       } else { // Monitor
+            console.log('monitor');
+            graphs.map(function(graph) {
+                var valId = graph.element.id + "_val";
+                $('#'+valId).fadeIn();
+                graph.series[0].data.length = 0;
+                graph.series[0].data = [].concat(monitorSeriesData[graph.element.id]);
+                graph.update();
+            });
+
+            $("#monitor_start_div").show();
+            $("#monitor_end_div").show();
+            $("#start_div").hide();
+            $("#end_div").hide();
+            updateInterval = setInterval( function() { dataGarden.getRange(new Date(now - new Date(5000)), now, getLatestData); }, refreshInterval );
+            setTimeout(function() {
+                $("#animation").fadeIn('slow').css("display","inline-block");
+                $("#info").fadeIn('slow');
+            }, 2000);
+            animationOn = 1;
+            //$('div svg').animate({
+                //width: "50%"}, 1000
+            //);
             $('#charts').animate({
-                width: "1200px"}, 2000
-            );
-            $('#slider').animate({
-                width: "100%"}, 2000
+                width: chartStartWidth}, 2000
             );
             setTimeout(function() {
-                var newWidth = ($('#charts').width());//*1.84);
-                
                 graphs.map(function(graph) {
-                    graph.configure({width: newWidth, gapSize:0});
+                    graph.configure({width: 670});
                     graph.render();
                 });
-                }, 2000);
-        }, 500);
-   } else { // Monitor
-        console.log('monitor');
-        graphs.map(function(graph) {
-            var valId = graph.element.id + "_val";
-            $('#'+valId).fadeIn();
-            graph.series[0].data.length = 0;
-            graph.series[0].data = [].concat(monitorSeriesData[graph.element.id]);
-            graph.update();
-        });
-        /*
-        $.each(categories, function(label, pathArray) {
-            seriesData[label] = [].concat(monitorSeriesData[label]);
-        });
-$.each(graphs, function(i, graph) {
-            graph.update();
-        });
-*/
+            }, 1500);
 
-        /*
-    $.each(seriesData, function(i, d) {
-            seriesData[i].length = 0;
+        }
     });
-    */
-
-
-        $("#monitor_start_div").show();
-        $("#monitor_end_div").show();
-        $("#start_div").hide();
-        $("#end_div").hide();
-        updateInterval = setInterval( function() { getLatestData(); }, refreshInterval );
-        setTimeout(function() {
-            $("#animation").fadeIn('slow').css("display","inline-block");
-            $("#info").fadeIn('slow');
-        }, 2000);
-        animationOn = 1;
-        //$('div svg').animate({
-            //width: "50%"}, 1000
-        //);
-        $('#charts').animate({
-            width: chartStartWidth}, 2000
-        );
-        setTimeout(function() {
-            graphs.map(function(graph) {
-                graph.configure({width: 670});
-                graph.render();
-            });
-        }, 1500);
-
-        /*
-        $.each(seriesData, function(i, d) {
-                seriesData[i].length = 0;
-        });
-        */
-
-    }
-});
 });
     
 
 // *** FUNCTIONS *** //
+
+function updateSeriesData(newData) {
+
+    getLatestData(newData);
+
+}
 
 function setEndpoint(start, end) {
     start_date = new Date(start);
@@ -334,28 +308,14 @@ function setEndpoint(start, end) {
 
     console.log("query range: " + start_date + " to " + end_date);
 
-    var newData = dataGarden.getRange(start_mil, end_mil);
-
-    /*
-    $.each(seriesData, function(i, d) {
-            seriesData[i].length = 0;
-    });
-    */
-    //console.log(seriesData);
+    var newData = dataGarden.getRange(start_mil, end_mil, updateSeriesData);
 
     graphs.map(function(graph) {
         graph.series[0].data.length = 0;
     });
-    //console.log(newData);
+
     $.each(newData, function(i, item) {
         var time = new Date(item.time).getTime()/1000.0;
-
-        /*
-        $.each(categories, function(label, pathArray) {
-            var val = getFieldValue(pathArray, item);
-            seriesData[label].push({x: time, y: val});
-        });
-        */
 
         graphs.map(function(graph) {
             var val = getFieldValue(categories[graph.element.id], item);
@@ -378,20 +338,19 @@ function setEndpoint(start, end) {
         displayEndTime.setHours(displayEndTime.getHours() + 8);
         //end_input.val(displayEndTime.getMonth()+1 + "/" + displayEndTime.getDate() + "/" + displayEndTime.getFullYear() + " " + displayEndTime.getHours() + ":" + ('0'+displayEndTime.getMinutes()).slice(-2) + ":" + ('0'+displayEndTime.getSeconds()).slice(-2));
         */
-        } else {
-            TINY.box.show({html:'Please enter a valid time range',animate:false,close:false,boxid:'error',top:100})
-        }
+    } else {
+        TINY.box.show({html:'Please enter a valid time range',animate:false,close:false,boxid:'error',top:100})
     }
+}
 
 function isValidDate(d) {
-      if ( Object.prototype.toString.call(d) !== "[object Date]" )
-              return false;
-        return !isNaN(d.getTime());
+    if ( Object.prototype.toString.call(d) !== "[object Date]" )
+        return false;
+    return !isNaN(d.getTime());
 }
 
 
-function createDataGarden(callback) {
-    // console.log("createDataGarden()");
+function createDataGarden() {
     dataGarden = new DataGarden(garden, true);
 }
 
@@ -434,19 +393,23 @@ function getQueryParameters() {
     return pairs;
 }
 
-function getData(garden, numEntries, callback) {
-    initData = dataGarden.getInitialData(null, visibleTimeRange);
+function getInitialData(garden, numEntries, callback) {
 
-    textStatus = null;
-    jqXHR = null;
+    var endDate = new Date();
+    var startDate = new Date(endDate.getTime() - visibleTimeRange);
+    
+    dataGarden.getRange(startDate, endDate, callback);
 
-    callback(initData, textStatus, jqXHR);
 }
 
 
 function initGraphs(data, textStatus, jqXHR) {
+
+    $("#preloader").hide();
+    $("#inputs").show();
+
+    // TODO: decomp this with the data updates
     $.each(data, function(i, item) {
-        //var time = new Date(item.time);
         var time = new Date(item.time).getTime()/1000.0;
         $.each(categories, function(label, pathArray) {
             var val = getFieldValue(pathArray, item);
@@ -483,7 +446,6 @@ function initGraphs(data, textStatus, jqXHR) {
     initBooleanGraph("reservoir_pump", "Reservoir pump", "#7AB79D");
     initBooleanGraph("leak", "Water leak", "#EAA4C9");
     
-
     graphs.map(function(graph) {
         var valId = graph.element.id + "_val";
         var value = graph.series[0].data[graph.series[0].data.length-1].y;
@@ -532,7 +494,7 @@ function initGraph(htmlId, name, color, yunits, ymin, ymax, isBooleanGraph) {
         labelClass = "label_boolean"
     } 
 
-    // create a new graph!
+    // create tags for graph element!
     $("#chart_container").append("<div id='" + wrapperId + "' class='rsgraph_wrapper'></div>");
     $("#" + wrapperId).append("<div id='" + labelId + "' class='" + labelClass + "'>" + name + "</div>");
     if (!isBooleanGraph) {
@@ -556,57 +518,22 @@ function initGraph(htmlId, name, color, yunits, ymin, ymax, isBooleanGraph) {
             bottom: .1
         },
 	    renderer: graphType,
-        gapSize: gapSize,
-        //dataURL: "http://50.19.108.27/arduino/garden/v1.1/?num=100",
-        //onData: function(d) { return d },
     	series: [{
 			color: color,
 			data: seriesData[htmlId],
 			name: name,
 		}]
     });
-    
-
-
-    /*
-    var hoverDetail = new Rickshaw.Graph.HoverDetail( {
-        graph: graph,
-        //xFormatter: function(x) { return x + " seconds" },
-        yFormatter: function(y) { return y + " " + yunits }
-    } );
-    */
-    //console.log("hover: ");
-    //console.log(hoverDetail);
 
     graphs.push(graph);
     hoverGraphs[graph.element.id] = yunits;
 
-
-    // var legend = new Rickshaw.Graph.Legend( {
-    //     graph: graph,
-    //     element: document.getElementById('legend')
-
-    // } );
-
-    // var shelving = new Rickshaw.Graph.Behavior.Series.Toggle( {
-    //     graph: graph,
-    //     legend: legend
-    // } );
-
-
     var time = new Rickshaw.Fixtures.Time();
-    //var minutes = time.unit('15 second');
-    //if (graph.element.id == "reservoir_pump") {
-        var xAxis = new Rickshaw.Graph.Axis.Time( {
-           graph: graph,
-           
-           //timeUnit: minutes,
-        } );
-        xAxis.render();
-    //}
-   
-
-    // console.log($("#" + yaxisId));
+    var xAxis = new Rickshaw.Graph.Axis.Time( {
+       graph: graph,           
+       //timeUnit: minutes,
+    } );
+    xAxis.render();
 
     if (["temperature", "flow_rate", "light_level", "gb_level", "humidity"].indexOf(graph.element.id) != -1) {
         var yAxis = new Rickshaw.Graph.Axis.Y( {
@@ -625,159 +552,76 @@ function initGraph(htmlId, name, color, yunits, ymin, ymax, isBooleanGraph) {
 
 }
 
-var getLatestData = function(){
-    // console.log("dashboarddead.getLastestData()");
-    
-    var newData = dataGarden.getLastN(ptsPerRefresh);
-
-    var newSeriesData = initSeriesData(categories);
-    
+var getLatestData = function(newData) {
+        
     $.each(newData, function(i, item) {
         var time = new Date(item.time).getTime()/1000.0;
 
-        /*
-        $.each(categories, function(label, pathArray) {
-            var val = getFieldValue(pathArray, item);
-            console.log(pathArray);
-            seriesData[label].push({x: time, y: val});
-        });
-        */
-         graphs.map(function(graph) {
+        mostRecentData = new Date(item.time);
+
+        graphs.map(function(graph) {
             var val = getFieldValue(categories[graph.element.id], item);
             graph.series[0].data.push({x: time, y: val});
             graph.update();
         });
-    var latestTime = new Date(newData[newData.length-1].time);
-    latestTime.setHours(latestTime.getHours() + 8);
-    $("#monitor_end_div").text(latestTime.getMonth()+1 + "/" + latestTime.getDate() + "/" + latestTime.getFullYear() + " " + latestTime.getHours() + ":" + ('0' + latestTime.getMinutes()).slice(-2) + ":" + ('0'+latestTime.getSeconds()).slice(-2));
+        var latestTime = new Date(newData[newData.length-1].time);
+        latestTime.setHours(latestTime.getHours() + 8);
+        $("#monitor_end_div").text(latestTime.getMonth()+1 + "/" + latestTime.getDate() + "/" + latestTime.getFullYear() + " " + latestTime.getHours() + ":" + ('0' + latestTime.getMinutes()).slice(-2) + ":" + ('0'+latestTime.getSeconds()).slice(-2));
 
 
-    graphs.map(function(graph) {
-        var valId = graph.element.id + "_val";
-        var value = graph.series[0].data[graph.series[0].data.length-1].y;
-        if (valId == "temperature_val") value += " &deg;C";
-        if (valId == "flow_rate_val") value += " gpm";
-        if (valId == "gb_level_val" || valId == "light_level_val") value += " %";
-        $('#'+valId).fadeOut(function() {
-            $(this).html(value).fadeIn();
-        });
-        graph.update();
-    });
-
-    // FOR ANIMATION 
-
-    if(!gardenAnim) { 
-	    processingInstance= Processing.getInstanceById('sketch');
-    	console.log("Init processingInstance");
-	gardenAnim = new processingInstance.MediaBed();
-	//gardenAnim =  new processingInstance.MediaBed(70,50,95,1.23,4,1,1,1,1,0,1);
-	processingInstance.draw();
-        
-    } 
-    if (animationOn) {
-	//var p = new processingInstance.MediaBed(gbLevel, ftLevel, lightLevel, flowRate, numFish, feederOn, lightOn, waterIsFlowing, pumpOn, leakage, isFlowing);
-        var currentState = newData[0]['report'];
-    	var gbLevel = currentState['gb_level_sensor'].gbLevel;
-    	var ftLevel = currentState['tank_level_sensor'].full == 1;
-    	var lightLevel = currentState['photocell_sensor'].lightLevel;
-    	var flowRate = currentState['flow_rate_sensor'].flowRate;
-    	var numFish = 5;
-    	var feederOn = currentState['fish_feeder'].on;
-    	var lightOn = currentState['grow_lights'].on;
-    	var waterIsFlowing = currentState['flow_switch_sensor'].flow;
-    	var pumpOn = currentState['fish_tank_pump'].on;
-    	var leakage = currentState['leak_detector_sensor'].leak;
-    	var isFlowing = flowRate >= 0.5 ? 1 : 0; // IS THIS RIGHT? ASK MAUNDU LATER?
-        var timestamp = new Date(time * 1000);
-    	gardenAnim.updateMediaBed(gbLevel, ftLevel, lightLevel, flowRate, numFish, feederOn, lightOn, waterIsFlowing, pumpOn, leakage, isFlowing, timestamp);
-	var frameInterval = 100;
-    	animationTimer = setInterval(function() { if(animationOn) { gardenAnim.animateMediaBed(); } }, frameInterval);
-	//gardenAnim = new processingInstance.MediaBed(gbLevel, ftLevel, lightLevel, flowRate, numFish, feederOn, lightOn, waterIsFlowing, pumpOn, leakage, isFlowing);
-     } else {
-	clearInterval(animationTimer);
-     }
-
-    });
-
-
-    if (newData && newData.length > 0) {
-        // $.each(categories, function(label, path) {
-        //     newSeriesData[label] = newSeriesData[label].reverse();
-        //     seriesData[label].push.apply(seriesData[label], newSeriesData[label]);
-        // });
-
-        //TODO: in progress -- remove old data outside the visibleTimeRange
-        // $.each(seriesData, function(series, dataArr) {
-        //     console.log(series + " -> " + dataArr);
-        //     console.log(dataArr.slice(-1));
-
-        //     var earliestTimeToShow = dataArr.slice(-1)[0].x - visibleTimeRange;
-        //     console.log("earliest time to show: " + earliestTimeToShow);
-        //     var firstIndexToShow = 0;
-        //     console.log(firstIndexToShow + " -> "+ dataArr[firstIndexToShow]);
-        //     while (dataArr[firstIndexToShow].x < earliestTimeToShow) {
-        //         firstIndexToShow++;
-        //         console.log("first index to show: " + firstIndexToShow);
-        //     }
-        //     seriesData[series] = dataArr.slice(firstIndexToShow, dataArr.length);
-
-        // });
-
-        $.each(graphs, function(i, graph) {
+        graphs.map(function(graph) {
+            var valId = graph.element.id + "_val";
+            var value = graph.series[0].data[graph.series[0].data.length-1].y;
+            if (valId == "temperature_val") value += " &deg;C";
+            if (valId == "flow_rate_val") value += " gpm";
+            if (valId == "gb_level_val" || valId == "light_level_val") value += " %";
+            $('#'+valId).fadeOut(function() {
+                $(this).html(value).fadeIn();
+            });
             graph.update();
         });
-    }
 
+        // FOR ANIMATION 
 
-
-    // var start = lastEndTime;
-    // var end = (new Date()).toJSON();
-    // lastEndTime = end;
-
-    // var queryUrl = "http://50.19.108.27/arduino/garden/range/" + garden 
-    //     + "?start_time=" + start + "&end_time=" + end + "&num=" + ptsPerRefresh;
-    //     console.log(queryUrl);
-    
-    // jQuery.ajax({
-    //     url: queryUrl,
-    //     type: "GET",
-    //     dataType: "json",
-    //     success: function(newData, textStatus, jqXHR){
-    //         console.log("New data received: " + newSeriesData);
+        if(!gardenAnim) { 
+    	    processingInstance= Processing.getInstanceById('sketch');
+        	console.log("Init processingInstance");
+    	gardenAnim = new processingInstance.MediaBed();
+    	//gardenAnim =  new processingInstance.MediaBed(70,50,95,1.23,4,1,1,1,1,0,1);
+    	processingInstance.draw();
             
+        } 
+        if (animationOn) {
+    	//var p = new processingInstance.MediaBed(gbLevel, ftLevel, lightLevel, flowRate, numFish, feederOn, lightOn, waterIsFlowing, pumpOn, leakage, isFlowing);
+            var currentState = newData[0]['report'];
+        	var gbLevel = currentState['gb_level_sensor'].gbLevel;
+        	var ftLevel = currentState['tank_level_sensor'].full == 1;
+        	var lightLevel = currentState['photocell_sensor'].lightLevel;
+        	var flowRate = currentState['flow_rate_sensor'].flowRate;
+        	var numFish = 5;
+        	var feederOn = currentState['fish_feeder'].on;
+        	var lightOn = currentState['grow_lights'].on;
+        	var waterIsFlowing = currentState['flow_switch_sensor'].flow;
+        	var pumpOn = currentState['fish_tank_pump'].on;
+        	var leakage = currentState['leak_detector_sensor'].leak;
+        	var isFlowing = flowRate >= 0.5 ? 1 : 0; // IS THIS RIGHT? ASK MAUNDU LATER?
+            var timestamp = new Date(time * 1000);
+        	gardenAnim.updateMediaBed(gbLevel, ftLevel, lightLevel, flowRate, numFish, feederOn, lightOn, waterIsFlowing, pumpOn, leakage, isFlowing, timestamp);
+    	    var frameInterval = 100;
+        	animationTimer = setInterval(function() { if(animationOn) { gardenAnim.animateMediaBed(); } }, frameInterval);
+        	//gardenAnim = new processingInstance.MediaBed(gbLevel, ftLevel, lightLevel, flowRate, numFish, feederOn, lightOn, waterIsFlowing, pumpOn, leakage, isFlowing);
+        } else {
+    	   clearInterval(animationTimer);
+        
+        }
 
-    //         // var newSeriesData = initSeriesData(categories);
+    });
 
-    //         $.each(newData, function(i, item) {
-    //             var time = new Date(item.time).getTime()/1000.0;
-    //             console.log("New data time: " + new Date(time * 1000));
-    //             $.each(categories, function(label, pathArray) {
-    //                 var val = getFieldValue(pathArray, item);
-    //                 newSeriesData[label].push({x: time, y: val});
-    //             });
-    //         });
-
-    //         if (newData.length > 0) {
-    //             $.each(categories, function(label, path) {
-    //                 newSeriesData[label] = newSeriesData[label].reverse();
-    //                 seriesData[label].push.apply(seriesData[label], newSeriesData[label]);
-    //             });
-
-    //             $.each(graphs, function(i, graph) {
-    //                 console.log("update " + graph.series[0].name)
-    //                 graph.update();
-    //             });
-    //         }
-    //     },
-    // });
+    $.each(graphs, function(i, graph) {
+        graph.update();
+    });
 };
-
-    // FUNCTIONS FOR ANIMATION PART
-    
+ 
 
 </script>
 </body>
-<!--<footer id="tag">
-<div style='color:#aaa'>Visualization by Cindy Chang, Emily Cheng, Julia Lee, JJ Liu</div>
-<div style='color:#aaa'>For Kiani Grows: Urban Garden Systems (www.kijanigrows.com)</div>
-</footer>-->

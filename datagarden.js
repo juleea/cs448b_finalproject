@@ -9,7 +9,7 @@ function DataGarden(garden, useLive) {
 	if (!useLive) {
 		this.now = new Date("2012-12-05T08:32:56.000Z");
 		this.bigBang = new Date("2012-12-05T08:08:56.000Z");
-		this.apocalypse = new Date("2012-12-05T12:08:56.000Z");//2012-12-05T20:01:06.000Z");
+		this.apocalypse = new Date("2012-12-05T12:08:56.000Z");
 		this.nextIndex = 0;
 		this.dataInterval = 10000; // time (in milliseconds) between 2 data points
 		$.getJSON("../data/demodata.clean_.json", function(response) {
@@ -69,7 +69,7 @@ DataGarden.prototype.getInitialData = function(start, interval) {
 
 // Get all data in the interval specified in epoch time (in milliseconds).
 // start time is inclusive, end time is exclusive
-DataGarden.prototype.getRange = function(start, end) {
+DataGarden.prototype.getRange = function(startDate, endDate, updateFunction) {
 
 	// var queryUrl = "http://50.19.108.27/arduino/garden/" + garden + "?num=" + numEntries;
 
@@ -80,25 +80,29 @@ DataGarden.prototype.getRange = function(start, end) {
 	}
 
 	if (!this.useLive) {
-        $("#preloader").hide(); // this is probably awkwardly not in the right place :(
-        $("#inputs").show(); // this is probably awkwardly not in the right place :(
+//TODO CHANGE TO HANDLE startDate and endDate inste
+
+		var start = startDate.getTime();
+		var end = endDate.getTime();
 		var startIndex = Math.min(Math.max(Math.floor((start - this.bigBang.getTime()) / this.dataInterval), 0), this.data.length);
 		var endIndex = Math.max(Math.min(Math.floor((end - this.bigBang.getTime()) / this.dataInterval), this.data.length), 0);
 		console.log("Effective index range queried: [" + startIndex  + ", " + endIndex + "]");
 		return this.data.slice(startIndex, endIndex);
 
 	} else {
-		http://50.19.108.27/arduino/garden/range/v2?start_time=2012-11-20T02:37:38.963Z&end_time=2012-11-28T02:37:38.963Z&num=10
-		var queryUrl = "http://50.19.108.27/arduino/garden/range/" + garden + "?end_time=" + curTime + "&num=" + numEntries;
+		var numEntries = Math.floor((endDate.getTime() - startDate.getTime()) / 10000 + 4);
+		// http://50.19.108.27/arduino/garden/range/v2?start_time=2012-11-20T02:37:38.963Z&end_time=2012-11-28T02:37:38.963Z&num=10
+		var queryUrl = "http://50.19.108.27/arduino/garden/range/" + garden + "?start_time=" + startDate.toJSON() + "&end_time=" + endDate.toJSON() + "&num=" + numEntries;
 	    
-	    var results = [];
+	    console.log("query: " + queryUrl);
+
 	    jQuery.ajax({
 	        url: queryUrl,
 	        type: "GET",
 	        dataType: "json",
-	  		success: function(data, textStatus, jqXHR) { results = data; console.log("range retrieved.") }
+	  		success: function(data, textStatus, jqXHR) { updateFunction(data); console.log("data retrieved: " + data.length); }
 	    });
-	    console.log( "returning results" );
-	    return results;
+
+	    
 	}
 }

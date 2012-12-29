@@ -72,23 +72,6 @@
     </div>
 
 <script>
-/*
-jQuery.fn.onEnter = function(callback)
-{
-    this.keyup(function(e)
-    {
-        if(e.keyCode == 13)
-    {
-    e.preventDefault();
-    if (typeof callback == 'function')
-    callback.apply(this);
-    }
-    }
-    );
-    return this;
-}
-*/
-
 
 $(".radiolist .radio-select").click(
     function(event) {
@@ -101,8 +84,16 @@ $(".radiolist .radio-select").click(
     }
 );
 
+var useLiveData = false; // CHANGE THIS TO USE DEMO VS LIVE DATA
+
+
+var ptsPerRefresh = 3;
+var dataInterval = 10000;
+var refreshInterval = ptsPerRefresh * dataInterval;
+
 var paramPairs = getQueryParameters();
 var garden = paramPairs.garden;
+var dataGarden = new DataGarden(garden, useLiveData, dataInterval);
 var visibleTimeRange = 5 * 60 * 1000; // time range (milliseconds) to display on graphs 
 
 var categories = {
@@ -125,24 +116,12 @@ var categories = {
    "reservoir_pump": ["report", "reservior_pump", "on"],
 
 }
-var dataGarden;
 
 var initData;
 //map (key is the same as in categories)
 var seriesData = initSeriesData(categories);
 var graphs = [];
 var hoverGraphs = [];
-
-// var refreshInterval = 5000; // 10 seconds
-// var maxNumPointsPerInterval = 1;
-var lastEndTime;
-
-var ptsPerRefresh = 1;
-var dataInterval = 10000;
-var averageDataInterval = 10000; // To estimate the index of old data to exclude
-var refreshInterval = ptsPerRefresh * dataInterval;
-
-var numInitialPoints = 10;
 
 var start_input = $("#start_input");
 var end_input = $("#end_input");
@@ -152,11 +131,12 @@ var analysis_input = $("#analysis_input");
 
 var monitorSeriesData = [];
 
+
+
 // variables for animation portion
 var processingInstance;
 var gardenAnim;
 var animationTimer; // to set and stop setInterval
-var garden;
 var animationOn = 1;
 start_input.datetimepicker({
     //showSecond: true,
@@ -190,21 +170,20 @@ end_input.onEnter(function() {
     }
 );
 
-createDataGarden();
-
-
-// UPDATING CODE. TODO: uncomment.
-
-getInitialData(garden, numInitialPoints, initGraphs);
-
 var updateInterval;
+
 setTimeout(
     function() {
-        updateInterval = setInterval( function() { 
-            var now = new Date();
-            dataGarden.getRange(new Date(now - new Date(5000)), now, getLatestData); },
-            refreshInterval );
-    }, 5000);
+        getInitialData.call(this, garden, initGraphs); 
+        updateInterval = setInterval(
+            function() { 
+                var now = new Date();
+                dataGarden.getRange(new Date(now - new Date(refreshInterval)), now, true, displayNewData); 
+            }, refreshInterval
+        );
+    }, 2000 // wait 2 sec for datagarden data to load. Necessary for demo data to load from file.
+);
+
 
 $(function() {
     $("#monitor_input").jqTransform();
@@ -267,11 +246,15 @@ $(document).ready(function() {
             $("#monitor_end_div").show();
             $("#start_div").hide();
             $("#end_div").hide();
-            updateInterval = setInterval( function() { dataGarden.getRange(new Date(now - new Date(5000)), now, getLatestData); }, refreshInterval );
+            updateInterval = setInterval(function() { 
+                dataGarden.getRange(new Date(now - new Date(refreshInterval)), now, true, displayNewData);
+            }, refreshInterval);
+            
             setTimeout(function() {
                 $("#animation").fadeIn('slow').css("display","inline-block");
                 $("#info").fadeIn('slow');
             }, 2000);
+            
             animationOn = 1;
             //$('div svg').animate({
                 //width: "50%"}, 1000
@@ -293,25 +276,21 @@ $(document).ready(function() {
 
 // *** FUNCTIONS *** //
 
-function updateSeriesData(newData) {
-
-    getLatestData(newData);
-
-}
-
 function setEndpoint(start, end) {
-    start_date = new Date(start);
-    if (!isValidDate(start_date)) {
+    var startDate = new Date(start);
+    if (!isValidDate(startDate)) {
         return;
     }
-    var start_mil = start_date.getTime() - 8 * 60 * 60 * 1000;
-    end_date = new Date(end);
-    if (!isValidDate(end_date)) return;
-    var end_mil = end_date.getTime() - 8 * 60 * 60 * 1000;;
+    // var start_mil = startDate.getTime() - 8 * 60 * 60 * 1000;
+    var endDate = new Date(end);
+    if (!isValidDate(endDate)) return;
+    // var end_mil = endDate.getTime() - 8 * 60 * 60 * 1000;;
 
-    console.log("query range: " + start_date + " to " + end_date);
+    console.log("query range: " + startDate + " to " + endDate);
 
-    var newData = dataGarden.getRange(start_mil, end_mil, updateSeriesData);
+    var dateOffset = new Date(8 * 60 * 60 * 1000);
+
+    var newData = dataGarden.getRange(new Date(startDate - dateOffset), new Date(endDate - dateOffset), false, displayNewData);
 
     graphs.map(function(graph) {
         graph.series[0].data.length = 0;
@@ -331,18 +310,13 @@ function setEndpoint(start, end) {
         $.each(graphs, function(i, graph) {
             graph.update();
         });
-        /*
-        var displayStartTime = new Date(graphs[0].series[0].data[0].x * 1000);
-        displayStartTime.setHours(displayStartTime.getHours() + 8);
-        //start_input.val(displayStartTime.getMonth()+1 + "/" + displayStartTime.getDate() + "/" + displayStartTime.getFullYear() + " " + displayStartTime.getHours() + ":" + ('0'+displayStartTime.getMinutes()).slice(-2) + ":" + ('0'+displayStartTime.getSeconds()).slice(-2));
-
-        console.log(seriesData);
-        var displayEndTime = new Date(graphs[0].series[0].data[graphs[0].series[0].data.length-1].x * 1000);
-        displayEndTime.setHours(displayEndTime.getHours() + 8);
-        //end_input.val(displayEndTime.getMonth()+1 + "/" + displayEndTime.getDate() + "/" + displayEndTime.getFullYear() + " " + displayEndTime.getHours() + ":" + ('0'+displayEndTime.getMinutes()).slice(-2) + ":" + ('0'+displayEndTime.getSeconds()).slice(-2));
-        */
     } else {
-        TINY.box.show({html:'Please enter a valid time range',animate:false,close:false,boxid:'error',top:100})
+        TINY.box.show({
+            html:'Please enter a valid time range',
+            animate:false,
+            close:false,
+            boxid:'error',
+            top:100});
     }
 }
 
@@ -350,11 +324,6 @@ function isValidDate(d) {
     if ( Object.prototype.toString.call(d) !== "[object Date]" )
         return false;
     return !isNaN(d.getTime());
-}
-
-
-function createDataGarden() {
-    dataGarden = new DataGarden(garden, true);
 }
 
 function getFieldValue(pathArray, object) {
@@ -396,15 +365,14 @@ function getQueryParameters() {
     return pairs;
 }
 
-function getInitialData(garden, numEntries, callback) {
+function getInitialData(garden, callback) {
 
     var endDate = new Date();
     var startDate = new Date(endDate.getTime() - visibleTimeRange);
     
-    dataGarden.getRange(startDate, endDate, callback);
+    dataGarden.getRange(startDate, endDate, true, callback);
 
 }
-
 
 function initGraphs(data, textStatus, jqXHR) {
 
@@ -555,7 +523,7 @@ function initGraph(htmlId, name, color, yunits, ymin, ymax, isBooleanGraph) {
 
 }
 
-var getLatestData = function(newData) {
+var displayNewData = function(newData) {
         
     $.each(newData, function(i, item) {
         var time = new Date(item.time).getTime()/1000.0;
@@ -567,6 +535,7 @@ var getLatestData = function(newData) {
             graph.series[0].data.push({x: time, y: val});
             graph.update();
         });
+
         var latestTime = new Date(newData[newData.length-1].time);
         latestTime.setHours(latestTime.getHours() + 8);
         $("#monitor_end_div").text(latestTime.getMonth()+1 + "/" + latestTime.getDate() + "/" + latestTime.getFullYear() + " " + latestTime.getHours() + ":" + ('0' + latestTime.getMinutes()).slice(-2) + ":" + ('0'+latestTime.getSeconds()).slice(-2));
@@ -589,13 +558,11 @@ var getLatestData = function(newData) {
         if(!gardenAnim) { 
     	    processingInstance= Processing.getInstanceById('sketch');
         	console.log("Init processingInstance");
-    	gardenAnim = new processingInstance.MediaBed();
-    	//gardenAnim =  new processingInstance.MediaBed(70,50,95,1.23,4,1,1,1,1,0,1);
-    	processingInstance.draw();
-            
+        	gardenAnim = new processingInstance.MediaBed();
+        	processingInstance.draw();
         } 
+
         if (animationOn) {
-    	//var p = new processingInstance.MediaBed(gbLevel, ftLevel, lightLevel, flowRate, numFish, feederOn, lightOn, waterIsFlowing, pumpOn, leakage, isFlowing);
             var currentState = newData[0]['report'];
         	var gbLevel = currentState['gb_level_sensor'].gbLevel;
         	var ftLevel = currentState['tank_level_sensor'].full == 1;
@@ -612,9 +579,10 @@ var getLatestData = function(newData) {
         	gardenAnim.updateMediaBed(gbLevel, ftLevel, lightLevel, flowRate, numFish, feederOn, lightOn, waterIsFlowing, pumpOn, leakage, isFlowing, timestamp);
     	    var frameInterval = 100;
         	animationTimer = setInterval(function() { if(animationOn) { gardenAnim.animateMediaBed(); } }, frameInterval);
-        	//gardenAnim = new processingInstance.MediaBed(gbLevel, ftLevel, lightLevel, flowRate, numFish, feederOn, lightOn, waterIsFlowing, pumpOn, leakage, isFlowing);
+
         } else {
-    	   clearInterval(animationTimer);
+    	   
+           clearInterval(animationTimer);
         
         }
 

@@ -332,8 +332,8 @@ function getFieldValue(pathArray, object) {
         if (field in found) {
             found = found[field];
         } else {
-            console.error("getFieldValue(): " + field + " not found.");
-            return 0;
+            console.log("getFieldValue(): " + field + " not found.");
+            return null;
         }
     });
     return found;
@@ -384,7 +384,9 @@ function initGraphs(data, textStatus, jqXHR) {
         var time = new Date(item.time).getTime()/1000.0;
         $.each(categories, function(label, pathArray) {
             var val = getFieldValue(pathArray, item);
-            seriesData[label].push({x: time, y: val});
+            if (val !== null) {
+                seriesData[label].push({x: time, y: val});
+            }
         });
     });
 

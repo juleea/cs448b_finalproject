@@ -43,7 +43,6 @@ void setup() {
 
 void draw() {
   image(img,0,0,img.width/1.5,img.height/1.5);
-  //println(frameRate);
 }
 
 void drawButtons() {

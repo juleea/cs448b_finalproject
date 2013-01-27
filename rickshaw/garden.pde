@@ -17,7 +17,7 @@ int flowAlphaVal = 0;
 color noflow = color(255); 
 color water = color(100,149,237);
 color waterpipes = color(80,140,200); 
-color lightOn = color(186,85,211);
+
 // How set rgb as 
 int width = 650;
 int height = 470;
@@ -43,120 +43,6 @@ void setup() {
 
 void draw() {
   image(img,0,0,img.width/1.5,img.height/1.5);
-}
-
-// DRAWS GROWBED WATER LEVEL - PARAM: PERCENTAGE FILLED (eg. 70% = 0.70)
-// rect( topleft x, topleft y, width, height );
-// BASE EMPTY: rect(0, 230, 350, 300);
-// BASE FULL: rect(0, 100, 350, 300);
-float drawGrowbedLevel(float percentFull) {
-  int growbedTankFull = 100;
-  int growbedTankEmpty = 230;
-  float waterLevel = growbedTankEmpty - (growbedTankEmpty-growbedTankFull) * (percentFull/100.0);
-  stroke(water);
-  fill(water);
-  rect(0, waterLevel, 350, 300); 
-  return waterLevel;
-}
-
-// Draws either full or half full depending on ftFull boolean
-// BASE EMPTY: rect(350, 402, 350, 300);
-// BASE FULL: rect(350, 285, 350, 300);
-float drawFishTankLevel(boolean ftFull) {
-  int fishTankFull = 285;
-  int fishTankEmpty = 402;
-  float percentFill = ftFull ? 1 : 0.50;
-  float waterLevel = fishTankEmpty - (fishTankEmpty-fishTankFull) * (percentFill);
-  stroke(water);
-  fill(water);
-  rect(350, waterLevel, 350, 300); 
-  return waterLevel;
-}  
-
-// Same as above, but w/o drawing rectangle itself
-//float calculateFishTankAbsLevel(float percentFull) {
-//  int fishTankFull = 285;
-//  int fishTankEmpty = 402;
-//  float waterLevel = fishTankEmpty - (fishTankEmpty-fishTankFull) * (percentFull/100.0);
-//  return waterLevel;
-//}
-
-void drawGrowLight(boolean on) {
-  if(on) {
-    stroke(lightOn);
-    fill(lightOn);
-    rect(40,0,300,5);
-  }
-}
-
-void drawLeakage(boolean leak) {
-  if(!leak) return;
-  stroke(water);
-  fill(water);
-  ellipse(180,400,160,20);
-  ellipse(100,390,70,10);
-  ellipse(145,380,40,5);
-}
-
-// DRAWS THE TUBING - PARAM: BOOLEAN, TRUE IF WATER FLOWING
-// TRUE - BLUE COLOR, FALSE - ORANGE COLOR
-void drawIrrigationPipe(boolean flowing) {
-  if (flowing) {
-    stroke(waterpipes);
-    fill(waterpipes);
-  } else { // not flowing
-    stroke(noflow);
-    fill(noflow); 
-  }
-  rect(580,30,15,400); 
-  rect(305,30,15,80);
-  rect(30,100,290,15);
-  rect(305,35,300,15); 
-}
-
-void drawDrainagePipe(boolean flowing) {
-  if(!flowing) return;
-  stroke(waterpipes);
-  fill(waterpipes);
-  rect(350,150,70,50);
-}
-
-void  drawFlowRate(float rate) {
-  int pipeLeft = 315;
-  int pipeRight = 545;
-  if (flowCycle > pipeRight-pipeLeft) {
-    flowCycle = 0;
-    flowAlphaVal = 0;
-  }
-  if (flowCycle < 50 && flowAlphaVal < 255) flowAlphaVal+=5;
-  if (flowCycle > 120 && flowAlphaVal > 0) flowAlphaVal-=2;
-  if (rate <= 0) flowAlphaVal = 255;
-  if (rate <= 0) flowCycle = 50;
-  
-  String label = "";
-  if (rate > 0) {
-    fill(0,0,205,flowAlphaVal);
-    label += rate + " gpm";
-  } else {
-    fill(165,42,42,flowAlphaVal);
-    label += "0 gpm";
-  }
-  text(label, pipeRight-flowCycle, 40, 60, 20);
-  flowCycle++;
-}
-
-void drawDroplets(float flowRate) {
-  int fallDistance = 60;
-  int dropSize = 3;
-  if (dropCycle > fallDistance) dropCycle = 0;
-  if (flowRate < 0.5) return;
-  stroke(waterpipes);
-  fill(waterpipes);
-  for (int i = growbedStartX + 10 ; i < growbedStartX + growbedWidth ; i += 25 ) {
-    triangle(i + dropSize/2, growbedStartY + dropCycle, i - dropSize/2, growbedStartY + dropSize*2 + dropCycle, i + dropSize, growbedStartY + dropSize*2 + dropCycle);
-    ellipse(i + dropSize/2, growbedStartY + dropSize*2 + dropCycle, dropSize, dropSize);
-  }
-  dropCycle++;
 }
 
 
@@ -207,24 +93,6 @@ void mousePressed() {
   
 }
 
-void drawDetails(float gbLevel, boolean ftFull, float lightLevel, boolean lightOn, 
-		 float flowRate, boolean feederOn, boolean growbedDraining,
-                 boolean pumpOn, boolean leakage) {
-  fill(238,232,170);
-  string ftStatus = ftFull ? "Full" : "Not Full";
-  text("Growbed Water Level: "+ gbLevel +"%", 80, 180, 100, 80); 
-  text("Fish Tank Level: "+ftStatus, 400, 370, 80, 30);
-  text("Light Level: " + lightLevel + "%  " + composeBoolStatus("Grow Lights",lightOn), 50, 5, 120, 30);
-  text("Flow Rate: " + flowRate + " gpm", 400, 20, 150, 30);
-  fill(0);
-  boolean irrig = flowRate >= 0.5 ?  true : false;
-  text(composeBoolStatus("Fish Feeder", feederOn), 400, 290, 120, 30);
-  text(composeBoolStatus("Irrigation", irrig), 80, 120, 80, 30); 
-  text(composeBoolStatus("Pump",pumpOn), 540, 405, 120, 30);
-  fill(238,232,170);
-  text(composeBoolStatus("Growbed Draining",growbedDraining), 365, 130, 80, 30); 
-  text(composeBoolStatus("Leakage",leakage), 50, 405, 80, 30);
-}
 
 string composeBoolStatus(string varType, bool on) {
   return on ? varType+": On" : varType+": Off";	
@@ -268,6 +136,7 @@ class MediaBed {
   boolean isFlowing;
   final int FISH_TANK_FULL = 344;
   final int FISH_TANK_NOT_FULL = 285;
+  
   
   MediaBed() { 
     img = loadImage(baseImg);
@@ -356,6 +225,115 @@ class MediaBed {
     overLabelButton = (mouseX > 120 && mouseX < 180 && mouseY > 440) ? true : false;
   }
   
+  
+// DRAWS GROWBED WATER LEVEL - PARAM: PERCENTAGE FILLED (eg. 70% = 0.70)
+// rect( topleft x, topleft y, width, height );
+// BASE EMPTY: rect(0, 230, 350, 300);
+// BASE FULL: rect(0, 100, 350, 300);
+float drawGrowbedLevel(float percentFull) {
+  int growbedTankFull = 100;
+  int growbedTankEmpty = 230;
+  float waterLevel = growbedTankEmpty - (growbedTankEmpty-growbedTankFull) * (percentFull/100.0);
+  stroke(water);
+  fill(water);
+  rect(0, waterLevel, 350, 300); 
+  return waterLevel;
+}
+
+// Draws either full or half full depending on ftFull boolean
+// BASE EMPTY: rect(350, 402, 350, 300);
+// BASE FULL: rect(350, 285, 350, 300);
+float drawFishTankLevel(boolean ftFull) {
+  int fishTankFull = 285;
+  int fishTankEmpty = 402;
+  float percentFill = ftFull ? 1 : 0.50;
+  float waterLevel = fishTankEmpty - (fishTankEmpty-fishTankFull) * (percentFill);
+  stroke(water);
+  fill(water);
+  rect(350, waterLevel, 350, 300); 
+  return waterLevel;
+}  
+
+void drawGrowLight(boolean on) {
+  if(on) {
+    stroke(lightOn);
+    fill(lightOn);
+    rect(40,0,300,5);
+  }
+}
+
+void drawLeakage(boolean leak) {
+  if(!leak) return;
+  stroke(water);
+  fill(water);
+  ellipse(180,400,160,20);
+  ellipse(100,390,70,10);
+  ellipse(145,380,40,5);
+}
+
+// DRAWS THE TUBING - PARAM: BOOLEAN, TRUE IF WATER FLOWING
+// TRUE - BLUE COLOR, FALSE - ORANGE COLOR
+void drawIrrigationPipe(boolean flowing) {
+  if (flowing) {
+    stroke(waterpipes);
+    fill(waterpipes);
+  } else { // not flowing
+    stroke(noflow);
+    fill(noflow); 
+  }
+  rect(580,30,15,400); 
+  rect(305,30,15,80);
+  rect(30,100,290,15);
+  rect(305,35,300,15); 
+}
+
+void drawDrainagePipe(boolean flowing) {
+  if(!flowing) return;
+  stroke(waterpipes);
+  fill(waterpipes);
+  rect(350,150,70,50);
+}
+
+void  drawFlowRate(float rate) {
+  int pipeLeft = 315;
+  int pipeRight = 545;
+  if (flowCycle > pipeRight-pipeLeft) {
+    flowCycle = 0;
+    flowAlphaVal = 0;
+  }
+  if (flowCycle < 50 && flowAlphaVal < 255) flowAlphaVal+=5;
+  if (flowCycle > 120 && flowAlphaVal > 0) flowAlphaVal-=2;
+  if (rate <= 0) flowAlphaVal = 255;
+  if (rate <= 0) flowCycle = 50;
+  
+  String label = "";
+  if (rate > 0) {
+    fill(0,0,205,flowAlphaVal);
+    label += rate + " gpm";
+  } else {
+    fill(165,42,42,flowAlphaVal);
+    label += "0 gpm";
+  }
+  text(label, pipeRight-flowCycle, 40, 60, 20);
+  flowCycle++;
+}
+
+void drawDroplets(float flowRate) {
+  int fallDistance = 60;
+  int dropSize = 3;
+  if (dropCycle > fallDistance) dropCycle = 0;
+  if (flowRate < 0.5) return;
+  stroke(waterpipes);
+  fill(waterpipes);
+  for (int i = growbedStartX + 10 ; i < growbedStartX + growbedWidth ; i += 25 ) {
+    triangle(i + dropSize/2, growbedStartY + dropCycle, i - dropSize/2, growbedStartY + dropSize*2 + dropCycle, i + dropSize, growbedStartY + dropSize*2 + dropCycle);
+    ellipse(i + dropSize/2, growbedStartY + dropSize*2 + dropCycle, dropSize, dropSize);
+  }
+  dropCycle++;
+}
+
+  
+  // Draws buttons for "details" and "labels" on bottom left
   void drawButtons() {
 	// Offsets allow for "popping up" animation on hover
 	int detailYOffset = overDetailButton ? 10 : 0;
@@ -370,6 +348,27 @@ class MediaBed {
 	text("Details", 50, 450 - detailYOffset, 80, 50); 
 	text("Labels", 130, 450 - labelYOffset, 80, 50); 
   }
+  
+  // Draws the text details that can be seen when you click the "Details" button at bottom left
+  void drawDetails(float gbLevel, boolean ftFull, float lightLevel, boolean lightOn, 
+		 float flowRate, boolean feederOn, boolean growbedDraining,
+                 boolean pumpOn, boolean leakage) {
+	fill(238,232,170);
+	string ftStatus = ftFull ? "Full" : "Not Full";
+	text("Growbed Water Level: "+ gbLevel +"%", 80, 180, 100, 80); 
+	text("Fish Tank Level: "+ftStatus, 400, 370, 80, 30);
+	text("Light Level: " + lightLevel + "%  " + composeBoolStatus("Grow Lights",lightOn), 50, 5, 120, 30);
+	text("Flow Rate: " + flowRate + " gpm", 400, 20, 150, 30);
+	fill(0);
+	boolean irrig = flowRate >= 0.5 ?  true : false;
+	text(composeBoolStatus("Fish Feeder", feederOn), 400, 290, 120, 30);
+	text(composeBoolStatus("Irrigation", irrig), 80, 120, 80, 30); 
+	text(composeBoolStatus("Pump",pumpOn), 540, 405, 120, 30);
+	fill(238,232,170);
+	text(composeBoolStatus("Growbed Draining",growbedDraining), 365, 130, 80, 30); 
+	text(composeBoolStatus("Leakage",leakage), 50, 405, 80, 30);
+  }
+
 
 
   void drawDateTime() {

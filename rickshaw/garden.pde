@@ -17,7 +17,7 @@ int flowAlphaVal = 0;
 color noflow = color(255); 
 color water = color(100,149,237);
 color waterpipes = color(80,140,200); 
-
+color lightOn = color(186,85,211);
 // How set rgb as 
 int width = 650;
 int height = 470;
@@ -46,81 +46,14 @@ void draw() {
 }
 
 
-Fish [] makeFish(int numFish, float tankWaterLevel) {
-  Fish [] fishies = new Fish[numFish];
-  for (int i = 0; i < numFish; i++) {
-    int randVelocity = int(random(1,2.5));
-    int randX = int(random(fishTankStartX + 35, fishTankStartX + fishTankWidth - 30));
-    int randY = int(random(tankWaterLevel + 10, fishTankStartY + 105));
-    Fish f = new Fish(randX,  randY, randVelocity);
-    fishies[i] = f;
-  }
-  return fishies;
-}
-
-void animateFish(Fish [] fishies) {
-  int tankLeftBound = fishTankStartX + 35;
-  int tankRightBound = fishTankStartX + fishTankWidth - 30;
-  for (int i = 0; i < fishies.length; i++) {
-    int maybeTurn = int(random(0,100));
-    Fish currFish = fishies[i];
-    if (currFish.getX() <= tankLeftBound && currFish.getVelocity() < 0 ||
-        currFish.getX() >= tankRightBound && currFish.getVelocity() > 0 ) {
-        currFish.turn();
-    } else if (maybeTurn == 1) {
-        currFish.turn();
-    }
-    currFish.swim();
-    currFish.display();
-  }
-}
-
-void mousePressed() {
-  if (overTank) {
-    for (int i = 0; i < fishies.length; i++) {
-      int currVel = fishies[i].getVelocity(); 
-      if (currVel == 0) {
-        fishies[i].setVelocity(true);
-      } else {
-        fishies[i].setVelocity(false);
-      }
-    } 
-  } else if (overDetailButton) {
-    showDetails = !showDetails;
-  } else if (overLabelButton) {
-    showLabels = !showLabels;
-  }
-  
-}
-
-
-string composeBoolStatus(string varType, bool on) {
-  return on ? varType+": On" : varType+": Off";	
-}
-
-
-void setWhiteTransparent(PImage img) {
-  int[]  maskArray=new int[img.width*img.height];
-  img.loadPixels();
-  for (int i=0; i<img.width*img.height; i++) {
-    if((img.pixels[i] & 0x00FFFFFF) == 0x00FFFFFF) {
-      maskArray[i]=0;      
-    } else {
-      maskArray[i]=img.pixels[i] >>> 24;
-    }
-  }
-  img.updatePixels();
-  img.mask(maskArray);  
-
-} 
-
 /////////////////////
 // MEDIA BED CLASS //
 /////////////////////
 
-// Technically the global variables I have at top should we in the MediaBed class
-// And technically all the draw-related methods should be private methods in the
-// MediaBed class, but for now, this works ... 
+// Technically the global variables I have at top could/should be in the MediaBed class
+// as well as all draw-related methods should be private methods in the
+// MediaBed class, but for now, this works -- weird things about Processing that make
+// the colors break if I move the functions into the class
 
 class MediaBed {
   float gbLevel;
@@ -137,13 +70,15 @@ class MediaBed {
   final int FISH_TANK_FULL = 344;
   final int FISH_TANK_NOT_FULL = 285;
   
-  
+  // Constructor with empty params
   MediaBed() { 
     img = loadImage(baseImg);
     imgLabeled = loadImage(baseImgLabeled);
     setWhiteTransparent(img);
     setWhiteTransparent(imgLabeled);
   }
+  
+  // Constructor
   MediaBed(float gbLevel, boolean ftFull, float lightLevel, float flowRate, int numFish,
            boolean feederOn, boolean lightOn, boolean growbedDraining, boolean pumpOn, 
            boolean leakage, boolean isFlowing) {
@@ -225,114 +160,6 @@ class MediaBed {
     overLabelButton = (mouseX > 120 && mouseX < 180 && mouseY > 440) ? true : false;
   }
   
-  
-// DRAWS GROWBED WATER LEVEL - PARAM: PERCENTAGE FILLED (eg. 70% = 0.70)
-// rect( topleft x, topleft y, width, height );
-// BASE EMPTY: rect(0, 230, 350, 300);
-// BASE FULL: rect(0, 100, 350, 300);
-float drawGrowbedLevel(float percentFull) {
-  int growbedTankFull = 100;
-  int growbedTankEmpty = 230;
-  float waterLevel = growbedTankEmpty - (growbedTankEmpty-growbedTankFull) * (percentFull/100.0);
-  stroke(water);
-  fill(water);
-  rect(0, waterLevel, 350, 300); 
-  return waterLevel;
-}
-
-// Draws either full or half full depending on ftFull boolean
-// BASE EMPTY: rect(350, 402, 350, 300);
-// BASE FULL: rect(350, 285, 350, 300);
-float drawFishTankLevel(boolean ftFull) {
-  int fishTankFull = 285;
-  int fishTankEmpty = 402;
-  float percentFill = ftFull ? 1 : 0.50;
-  float waterLevel = fishTankEmpty - (fishTankEmpty-fishTankFull) * (percentFill);
-  stroke(water);
-  fill(water);
-  rect(350, waterLevel, 350, 300); 
-  return waterLevel;
-}  
-
-void drawGrowLight(boolean on) {
-  if(on) {
-    stroke(lightOn);
-    fill(lightOn);
-    rect(40,0,300,5);
-  }
-}
-
-void drawLeakage(boolean leak) {
-  if(!leak) return;
-  stroke(water);
-  fill(water);
-  ellipse(180,400,160,20);
-  ellipse(100,390,70,10);
-  ellipse(145,380,40,5);
-}
-
-// DRAWS THE TUBING - PARAM: BOOLEAN, TRUE IF WATER FLOWING
-// TRUE - BLUE COLOR, FALSE - ORANGE COLOR
-void drawIrrigationPipe(boolean flowing) {
-  if (flowing) {
-    stroke(waterpipes);
-    fill(waterpipes);
-  } else { // not flowing
-    stroke(noflow);
-    fill(noflow); 
-  }
-  rect(580,30,15,400); 
-  rect(305,30,15,80);
-  rect(30,100,290,15);
-  rect(305,35,300,15); 
-}
-
-void drawDrainagePipe(boolean flowing) {
-  if(!flowing) return;
-  stroke(waterpipes);
-  fill(waterpipes);
-  rect(350,150,70,50);
-}
-
-void  drawFlowRate(float rate) {
-  int pipeLeft = 315;
-  int pipeRight = 545;
-  if (flowCycle > pipeRight-pipeLeft) {
-    flowCycle = 0;
-    flowAlphaVal = 0;
-  }
-  if (flowCycle < 50 && flowAlphaVal < 255) flowAlphaVal+=5;
-  if (flowCycle > 120 && flowAlphaVal > 0) flowAlphaVal-=2;
-  if (rate <= 0) flowAlphaVal = 255;
-  if (rate <= 0) flowCycle = 50;
-  
-  String label = "";
-  if (rate > 0) {
-    fill(0,0,205,flowAlphaVal);
-    label += rate + " gpm";
-  } else {
-    fill(165,42,42,flowAlphaVal);
-    label += "0 gpm";
-  }
-  text(label, pipeRight-flowCycle, 40, 60, 20);
-  flowCycle++;
-}
-
-void drawDroplets(float flowRate) {
-  int fallDistance = 60;
-  int dropSize = 3;
-  if (dropCycle > fallDistance) dropCycle = 0;
-  if (flowRate < 0.5) return;
-  stroke(waterpipes);
-  fill(waterpipes);
-  for (int i = growbedStartX + 10 ; i < growbedStartX + growbedWidth ; i += 25 ) {
-    triangle(i + dropSize/2, growbedStartY + dropCycle, i - dropSize/2, growbedStartY + dropSize*2 + dropCycle, i + dropSize, growbedStartY + dropSize*2 + dropCycle);
-    ellipse(i + dropSize/2, growbedStartY + dropSize*2 + dropCycle, dropSize, dropSize);
-  }
-  dropCycle++;
-}
-
-  
   // Draws buttons for "details" and "labels" on bottom left
   void drawButtons() {
 	// Offsets allow for "popping up" animation on hover
@@ -369,8 +196,7 @@ void drawDroplets(float flowRate) {
 	text(composeBoolStatus("Leakage",leakage), 50, 405, 80, 30);
   }
 
-
-
+  // Adds timestamp to bottom right corner
   void drawDateTime() {
     if (timestamp == "") return;
     fill(0); 
@@ -431,3 +257,192 @@ class Fish {
      velocity *= -1;
    }  
 }
+
+
+
+// DRAWS GROWBED WATER LEVEL - PARAM: PERCENTAGE FILLED (eg. 70% = 0.70)
+// rect( topleft x, topleft y, width, height );
+// BASE EMPTY: rect(0, 230, 350, 300);
+// BASE FULL: rect(0, 100, 350, 300);
+float drawGrowbedLevel(float percentFull) {
+  int growbedTankFull = 100;
+  int growbedTankEmpty = 230;
+  float waterLevel = growbedTankEmpty - (growbedTankEmpty-growbedTankFull) * (percentFull/100.0);
+  stroke(water);
+  fill(water);
+  rect(0, waterLevel, 350, 300); 
+  return waterLevel;
+}
+
+// Draws either full or half full depending on ftFull boolean
+// BASE EMPTY: rect(350, 402, 350, 300);
+// BASE FULL: rect(350, 285, 350, 300);
+float drawFishTankLevel(boolean ftFull) {
+  int fishTankFull = 285;
+  int fishTankEmpty = 402;
+  float percentFill = ftFull ? 1 : 0.50;
+  float waterLevel = fishTankEmpty - (fishTankEmpty-fishTankFull) * (percentFill);
+  stroke(water);
+  fill(water);
+  rect(350, waterLevel, 350, 300); 
+  return waterLevel;
+}  
+
+// Draws purple grow light when grow light is on
+void drawGrowLight(boolean on) {
+  if(on) {
+    stroke(lightOn);
+    fill(lightOn);
+    rect(40,0,300,5);
+  }
+}
+
+// Draws puddle on ground below growbed if leak is true
+void drawLeakage(boolean leak) {
+  if(!leak) return;
+  stroke(water);
+  fill(water);
+  ellipse(180,400,160,20);
+  ellipse(100,390,70,10);
+  ellipse(145,380,40,5);
+}
+
+// DRAWS THE TUBING - PARAM: BOOLEAN, TRUE IF WATER FLOWING
+// TRUE - BLUE COLOR, FALSE - WHITE COLOR
+void drawIrrigationPipe(boolean flowing) {
+  if (flowing) {
+    stroke(waterpipes);
+    fill(waterpipes);
+  } else { // not flowing
+    stroke(noflow);
+    fill(noflow); 
+  }
+  rect(580,30,15,400); 
+  rect(305,30,15,80);
+  rect(30,100,290,15);
+  rect(305,35,300,15); 
+}
+
+// Fills the drain pipe with white or blue depending on if there is flow
+void drawDrainagePipe(boolean flowing) {
+  if(!flowing) return;
+  stroke(waterpipes);
+  fill(waterpipes);
+  rect(350,150,70,50);
+}
+
+// Creates animated flow rate label in the tubing
+void  drawFlowRate(float rate) {
+  int pipeLeft = 315;
+  int pipeRight = 545;
+  if (flowCycle > pipeRight-pipeLeft) {
+    flowCycle = 0;
+    flowAlphaVal = 0;
+  }
+  if (flowCycle < 50 && flowAlphaVal < 255) flowAlphaVal+=5;
+  if (flowCycle > 120 && flowAlphaVal > 0) flowAlphaVal-=2;
+  if (rate <= 0) flowAlphaVal = 255;
+  if (rate <= 0) flowCycle = 50;
+  
+  String label = "";
+  if (rate > 0) {
+    fill(0,0,205,flowAlphaVal);
+    label += rate + " gpm";
+  } else {
+    fill(165,42,42,flowAlphaVal);
+    label += "0 gpm";
+  }
+  text(label, pipeRight-flowCycle, 40, 60, 20);
+  flowCycle++;
+}
+
+// Draws irrigation droplets if irrigation is on
+void drawDroplets(float flowRate) {
+  int fallDistance = 60;
+  int dropSize = 3;
+  if (dropCycle > fallDistance) dropCycle = 0;
+  if (flowRate < 0.5) return;
+  stroke(waterpipes);
+  fill(waterpipes);
+  for (int i = growbedStartX + 10 ; i < growbedStartX + growbedWidth ; i += 25 ) {
+    triangle(i + dropSize/2, growbedStartY + dropCycle, i - dropSize/2, growbedStartY + dropSize*2 + dropCycle, i + dropSize, growbedStartY + dropSize*2 + dropCycle);
+    ellipse(i + dropSize/2, growbedStartY + dropSize*2 + dropCycle, dropSize, dropSize);
+  }
+  dropCycle++;
+}
+
+// Creates fish in fish tank
+Fish [] makeFish(int numFish, float tankWaterLevel) {
+  Fish [] fishies = new Fish[numFish];
+  for (int i = 0; i < numFish; i++) {
+    int randVelocity = int(random(1,2.5));
+    int randX = int(random(fishTankStartX + 35, fishTankStartX + fishTankWidth - 30));
+    int randY = int(random(tankWaterLevel + 10, fishTankStartY + 105));
+    Fish f = new Fish(randX,  randY, randVelocity);
+    fishies[i] = f;
+  }
+  return fishies;
+}
+
+void animateFish(Fish [] fishies) {
+  int tankLeftBound = fishTankStartX + 35;
+  int tankRightBound = fishTankStartX + fishTankWidth - 30;
+  for (int i = 0; i < fishies.length; i++) {
+    int maybeTurn = int(random(0,100));
+    Fish currFish = fishies[i];
+    if (currFish.getX() <= tankLeftBound && currFish.getVelocity() < 0 ||
+        currFish.getX() >= tankRightBound && currFish.getVelocity() > 0 ) {
+        currFish.turn();
+    } else if (maybeTurn == 1) {
+        currFish.turn();
+    }
+    currFish.swim();
+    currFish.display();
+  }
+}
+
+void mousePressed() {
+  if (overTank) {
+    for (int i = 0; i < fishies.length; i++) {
+      int currVel = fishies[i].getVelocity(); 
+      if (currVel == 0) {
+        fishies[i].setVelocity(true);
+      } else {
+        fishies[i].setVelocity(false);
+      }
+    } 
+  } else if (overDetailButton) {
+    showDetails = !showDetails;
+  } else if (overLabelButton) {
+    showLabels = !showLabels;
+  }
+}
+
+// Creates strings for the detail labels when that is shown
+string composeBoolStatus(string varType, bool on) {
+  return on ? varType+": On" : varType+": Off";	
+}
+
+// Method to make the white parts of the original kijani grows
+// garden image (made in photoshop) transparent
+// by creating a mask. probably is what is making the animation slow
+// in the processing environment, this only needs to be called once
+// to create mask, but somehow in the Processing.js javascript version,
+// you need to call it with every animation frame, thus the lagging/ 
+// potentially slow animations is probably being caused by this
+// since you iterate through all of the pixels with every frame of
+// animation. Unsure how to fix efficiently.
+void setWhiteTransparent(PImage img) {
+  int[]  maskArray=new int[img.width*img.height];
+  img.loadPixels();
+  for (int i=0; i<img.width*img.height; i++) {
+    if((img.pixels[i] & 0x00FFFFFF) == 0x00FFFFFF) {
+      maskArray[i]=0;      
+    } else {
+      maskArray[i]=img.pixels[i] >>> 24;
+    }
+  }
+  img.updatePixels();
+  img.mask(maskArray);  
+
+} 

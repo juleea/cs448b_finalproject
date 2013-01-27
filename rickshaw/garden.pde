@@ -246,14 +246,15 @@ void setWhiteTransparent(PImage img) {
 
 } 
 
-// MEDIA BED CLASS
+/////////////////////
+// MEDIA BED CLASS //
+/////////////////////
+
 // Technically the global variables I have at top should we in the MediaBed class
 // And technically all the draw-related methods should be private methods in the
 // MediaBed class, but for now, this works ... 
 
 class MediaBed {
-
-
   float gbLevel;
   boolean ftFull;
   float lightLevel;
@@ -265,6 +266,8 @@ class MediaBed {
   boolean pumpOn;
   boolean leakage;
   boolean isFlowing;
+  final int FISH_TANK_FULL = 344;
+  final int FISH_TANK_NOT_FULL = 285;
   
   MediaBed() { 
     img = loadImage(baseImg);
@@ -290,11 +293,12 @@ class MediaBed {
     imgLabeled = loadImage(baseImgLabeled);
     setWhiteTransparent(img);
     setWhiteTransparent(imgLabeled);
-    float absoluteFTLevel = ftFull ? 344 : 285; // don't hardcode later
+    float absoluteFTLevel = ftFull ? FISH_TANK_FULL : FISH_TANK_NOT_FULL; 
     fishies = makeFish(numFish, absoluteFTLevel);
   }
   
-   // just a repeat of MediaBed constructor. Should really unify code later
+   // Notes: just a repeat of MediaBed constructor. Quick, but
+   // should really separate this into 1 update function for each variable in the future
    void updateMediaBed(float gbLevel, boolean ftFull, float lightLevel, float flowRate, int numFish,
            boolean feederOn, boolean lightOn, boolean growbedDraining, boolean pumpOn, 
            boolean leakage, boolean isFlowing, string time) {
@@ -309,16 +313,12 @@ class MediaBed {
     this.pumpOn = pumpOn;
     this.leakage = leakage;
     this.isFlowing = isFlowing;
-    //img = loadImage(baseImg);
-    //imgLabeled = loadImage(baseImgLabeled);
-    //setWhiteTransparent(img);
-    //setWhiteTransparent(imgLabeled);
-    float absoluteFTLevel = ftFull ? 285 : 344; // don't hardcode later
-    //fishies = makeFish(numFish, absoluteFTLevel);
+    float absoluteFTLevel = ftFull ? FISH_TANK_FULL : FISH_TANK_NOT_FULL; 
     timestamp = time;
     animateMediaBed();	
   }
 
+  // called at every time interval to animate the visualization and also update to data
   void animateMediaBed() {
     console.log('animating media bed!');
     
@@ -357,32 +357,33 @@ class MediaBed {
   }
   
   void drawButtons() {
-  // Offsets allow for "popping up" animation on hover
-  int detailYOffset = overDetailButton ? 10 : 0;
-  int labelYOffset = overLabelButton ? 10 : 0;
-  int fillDetail = showDetails ? 0 : 255;
-  int fillLabel = showLabels ? 0 : 255;
-  fill(fillDetail);
-  rect(40, 445 - detailYOffset, 65, 90);
-  fill(fillLabel);
-  rect(120, 445 - labelYOffset, 60, 90);
-  fill(lightOn);
-  text("Details", 50, 450 - detailYOffset, 80, 50); 
-  text("Labels", 130, 450 - labelYOffset, 80, 50); 
-}
+	// Offsets allow for "popping up" animation on hover
+	int detailYOffset = overDetailButton ? 10 : 0;
+	int labelYOffset = overLabelButton ? 10 : 0;
+	int fillDetail = showDetails ? 0 : 255;
+	int fillLabel = showLabels ? 0 : 255;
+	fill(fillDetail);
+	rect(40, 445 - detailYOffset, 65, 90);
+	fill(fillLabel);
+	rect(120, 445 - labelYOffset, 60, 90);
+	fill(lightOn);
+	text("Details", 50, 450 - detailYOffset, 80, 50); 
+	text("Labels", 130, 450 - labelYOffset, 80, 50); 
+  }
 
 
-void drawDateTime() {
-  if (timestamp == "") return;
-  fill(0); 
-  text(timestamp, 495, 440, 200, 30);
-}
-
+  void drawDateTime() {
+    if (timestamp == "") return;
+    fill(0); 
+    text(timestamp, 495, 440, 200, 30);
+  }
   
 }
 
+//////////////////////////////////////////////
+// FISH CLASS FOR ANIMATED FISH IN THE TANK //
+//////////////////////////////////////////////
 
-// FISH CLASS FOR ANIMATED FISH IN THE TANK
 class Fish {
    color fishColor = color(255,127,80);
    int xpos;

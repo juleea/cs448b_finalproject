@@ -14,7 +14,7 @@ boolean showLabels = false;
 int dropCycle = 0;
 int flowCycle = 0;
 int flowAlphaVal = 0;
-color noflow = color(255); // color(255,127,80);
+color noflow = color(255); 
 color water = color(100,149,237);
 color waterpipes = color(80,140,200); 
 color lightOn = color(186,85,211);
@@ -43,21 +43,6 @@ void setup() {
 
 void draw() {
   image(img,0,0,img.width/1.5,img.height/1.5);
-}
-
-void drawButtons() {
-  // Offsets allow for "popping up" animation on hover
-  int detailYOffset = overDetailButton ? 10 : 0;
-  int labelYOffset = overLabelButton ? 10 : 0;
-  int fillDetail = showDetails ? 0 : 255;
-  int fillLabel = showLabels ? 0 : 255;
-  fill(fillDetail);
-  rect(40, 445 - detailYOffset, 65, 90);
-  fill(fillLabel);
-  rect(120, 445 - labelYOffset, 60, 90);
-  fill(lightOn);
-  text("Details", 50, 450 - detailYOffset, 80, 50); 
-  text("Labels", 130, 450 - labelYOffset, 80, 50); 
 }
 
 // DRAWS GROWBED WATER LEVEL - PARAM: PERCENTAGE FILLED (eg. 70% = 0.70)
@@ -245,14 +230,6 @@ string composeBoolStatus(string varType, bool on) {
   return on ? varType+": On" : varType+": Off";	
 }
 
-void drawDateTime() {
-  if (timestamp == "") return;
-  fill(0); 
-  text(timestamp, 495, 440, 200, 30);
-}
-
-void drawLabels() { }
-
 
 void setWhiteTransparent(PImage img) {
   int[]  maskArray=new int[img.width*img.height];
@@ -269,12 +246,14 @@ void setWhiteTransparent(PImage img) {
 
 } 
 
-// MEDIA BED CLASS YAY!
+// MEDIA BED CLASS
 // Technically the global variables I have at top should we in the MediaBed class
 // And technically all the draw-related methods should be private methods in the
 // MediaBed class, but for now, this works ... 
 
 class MediaBed {
+
+
   float gbLevel;
   boolean ftFull;
   float lightLevel;
@@ -355,13 +334,12 @@ class MediaBed {
     drawIrrigationPipe(isFlowing);
     float absoluteGBLevel = drawGrowbedLevel(gbLevel);
     drawDrainagePipe(growbedDraining);
-   //tint(0, 153, 204);
     if (showLabels) {
       image(imgLabeled,0,0,imgLabeled.width/1.5,imgLabeled.height/1.5);
     } else {
       image(img,0,0,img.width/1.5,img.height/1.5);
     }
-  //noTint();
+
     drawDateTime();
     drawButtons();
     drawGrowLight(lightOn);
@@ -370,18 +348,41 @@ class MediaBed {
     drawDroplets(flowRate); 
     animateFish(fishies);
   
-    if ( showDetails ) drawDetails(gbLevel,ftFull,lightLevel, lightOn,flowRate,feederOn, growbedDraining, pumpOn, leakage);
-    if ( showLabels ) drawLabels();
+    if ( showDetails ) 
+    	drawDetails(gbLevel,ftFull,lightLevel, lightOn,flowRate,feederOn, growbedDraining, pumpOn, leakage);
   
     overTank = (mouseX > fishTankWidth && mouseY > fishTankStartY) ? true : false;
     overDetailButton = (mouseX > 40 && mouseX < 105 && mouseY > 440) ? true : false;
     overLabelButton = (mouseX > 120 && mouseX < 180 && mouseY > 440) ? true : false;
   }
   
+  void drawButtons() {
+  // Offsets allow for "popping up" animation on hover
+  int detailYOffset = overDetailButton ? 10 : 0;
+  int labelYOffset = overLabelButton ? 10 : 0;
+  int fillDetail = showDetails ? 0 : 255;
+  int fillLabel = showLabels ? 0 : 255;
+  fill(fillDetail);
+  rect(40, 445 - detailYOffset, 65, 90);
+  fill(fillLabel);
+  rect(120, 445 - labelYOffset, 60, 90);
+  fill(lightOn);
+  text("Details", 50, 450 - detailYOffset, 80, 50); 
+  text("Labels", 130, 450 - labelYOffset, 80, 50); 
 }
 
 
-// FISH CLASS YAY!
+void drawDateTime() {
+  if (timestamp == "") return;
+  fill(0); 
+  text(timestamp, 495, 440, 200, 30);
+}
+
+  
+}
+
+
+// FISH CLASS FOR ANIMATED FISH IN THE TANK
 class Fish {
    color fishColor = color(255,127,80);
    int xpos;

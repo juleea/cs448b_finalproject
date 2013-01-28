@@ -259,6 +259,15 @@ $(document).ready(function() {
             //$('div svg').animate({
                 //width: "50%"}, 1000
             //);
+            
+            //Create new instance of garden when switching back from analysis to monitor mode
+//             if(!gardenAnim) {
+//     	    	processingInstance= Processing.getInstanceById('sketch');
+//         		console.log("Init processingInstance!");
+//         		gardenAnim = new processingInstance.MediaBed();
+//         		processingInstance.draw();
+//         	}	 
+        
             $('#charts').animate({
                 width: chartStartWidth}, 2000
             );
@@ -556,13 +565,13 @@ var displayNewData = function(newData) {
         });
 
         // FOR ANIMATION 
-
-        if(!gardenAnim) { 
+	    if(!gardenAnim) {
     	    processingInstance= Processing.getInstanceById('sketch');
-        	console.log("Init processingInstance");
+        	console.log("Init processingInstance!");
         	gardenAnim = new processingInstance.MediaBed();
         	processingInstance.draw();
         } 
+
 
         if (animationOn) {
             var currentState = newData[0]['report'];
@@ -576,11 +585,20 @@ var displayNewData = function(newData) {
         	var waterIsFlowing = currentState['flow_switch_sensor'].flow;
         	var pumpOn = currentState['fish_tank_pump'].on;
         	var leakage = currentState['leak_detector_sensor'].leak;
-        	var isFlowing = flowRate >= 0.5 ? 1 : 0; // IS THIS RIGHT? ASK MAUNDU LATER?
+        	var isFlowing = flowRate >= 0.5 ? 1 : 0; // IS THIS RIGHT? ASK ERIC LATER? BASICALLY IF FLOW RATE >0.5 is Flowing is true
             var timestamp = new Date(time * 1000);
         	gardenAnim.updateMediaBed(gbLevel, ftLevel, lightLevel, flowRate, numFish, feederOn, lightOn, waterIsFlowing, pumpOn, leakage, isFlowing, timestamp);
     	    var frameInterval = 100;
-        	animationTimer = setInterval(function() { if(animationOn) { gardenAnim.animateMediaBed(); } }, frameInterval);
+        	animationTimer = setInterval(function() { if(animationOn) { 
+        		        if(!gardenAnim) {
+    	    				processingInstance= Processing.getInstanceById('sketch');
+        					console.log("Init processingInstance!");
+        					gardenAnim = new processingInstance.MediaBed();
+        					processingInstance.draw();
+        				} 
+        			gardenAnim.animateMediaBed(); 
+        			
+        	} }, frameInterval);
 
         } else {
     	   

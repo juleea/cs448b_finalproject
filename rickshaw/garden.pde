@@ -28,8 +28,8 @@ int fishTankStartY = 285;
 int growbedWidth = 300;
 int growbedStartX = 40;
 int growbedStartY = 100;
-String baseImg = "kijani-grows-3.png";
-String baseImgLabeled = "kijani-grows-labels-3.png";
+String baseImg = "img/kijani-grows-3.png";
+String baseImgLabeled = "img/kijani-grows-labels-3.png";
 
 void setup() {
   frameRate(3);

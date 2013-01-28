@@ -3,7 +3,7 @@ cs448b_finalproject
 Cindy Chang, Emily Cheng, Julia Lee, JJ Liu
 
 CS448b final project: visualization for Kijani Grows.
-The final visualization dashboard is located at ./rickshaw/dashboarddemo.html
+The visualization dashboard is located at ./rickshaw/dashboard.html
 
 NOTE: 
 ** Best viewed in Chrome or Safari. 

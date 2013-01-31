@@ -1,618 +1,601 @@
 <!DOCTYPE html>
 <head>
-
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-
-	<link type="text/css" rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css">
-	<link type="text/css" rel="stylesheet" href="css/graph.css">
-	<link type="text/css" rel="stylesheet" href="css/detail.css">
-	<link type="text/css" rel="stylesheet" href="css/legend.css">
-	<link type="text/css" rel="stylesheet" href="css/lines.css">
-    <link type="text/css" rel="stylesheet" href="css/custom.css">
-    <link href="http://fonts.googleapis.com/css?family=Calibri" rel="stylesheet" type="text/css">
-	
-    <script src="d3.v2.js"></script>
-
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
-	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.15/jquery-ui.min.js"></script>
-    <script type="text/javascript" src="jquery.jqtransform.js"></script>
-    <script type="text/javascript" src="datagarden.js"></script>
-    <link rel="stylesheet" media="all" type="text/css" href="css/jquery-ui-timepicker-addon.css" />
-    <script type="text/javascript" src="js/jquery-ui-timepicker-addon.js"></script>
-    <script type="text/javascript" src="js/tinybox.js"></script>
-    <script type="text/javascript" src="js/util.js"></script>
-
-	<script src="rickshaw.js"></script>
-	<script src="Rickshaw.Graph.RangeSlider.js"></script>
-	
-	<!-- FOR ANIMATION -->
-	<script type="text/javascript" src="processing.js"></script>
-    <title>Kijani Grows</title>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <link type="text/css" rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" />
+   <link type="text/css" rel="stylesheet" href="css/graph.css" />
+   <link type="text/css" rel="stylesheet" href="css/detail.css" />
+   <link type="text/css" rel="stylesheet" href="css/legend.css" />
+   <link type="text/css" rel="stylesheet" href="css/lines.css" />
+   <link type="text/css" rel="stylesheet" href="css/custom.css" />
+   <script src="d3.v2.js"></script>
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+   <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.15/jquery-ui.min.js"></script>
+   <script type="text/javascript" src="jquery.jqtransform.js"></script>
+   <script type="text/javascript" src="datagarden.js"></script>
+   <link rel="stylesheet" media="all" type="text/css" href="css/jquery-ui-timepicker-addon.css" />
+   <script type="text/javascript" src="js/jquery-ui-timepicker-addon.js"></script>
+   <script type="text/javascript" src="js/tinybox.js"></script>
+   <script type="text/javascript" src="js/util.js"></script>
+   <script src="rickshaw.js"></script>
+   <script src="Rickshaw.Graph.RangeSlider.js"></script>
+   <!-- FOR ANIMATION -->
+   <script type="text/javascript" src="processing.js"></script>
+   <title>Kijani Grows</title>
 </head>
 <body>
-
-<div id="charts">
-    <div id="preloader"></div>
-    <div id="chart_container"></div>
-
-    <div id="legend_container">
-        <div id="smoother" title="Smoothing"></div>
-        <div id="legend"></div>
-    </div>
-
-    <div id="xaxis"></div>
-
-    <div id="slider"></div>
-    <div id="inputs">
-        <div style="display: none;" id="start_div" align="center" class="float-left"><input type="text" id="start_input"></div>
-        <div id="monitor_start_div" align="center" class="float-left"></div>
-        <div align="center" class="float-left">
-
-        <input checked id="monitor_input" name="mode" value="monitor" type="radio">Monitor
-        <input id="analysis_input" name="mode" value="analysis" type="radio">Analysis
-
-        </div>
-        <div style="display: none;" id="end_div" align="center" class="float-left"><input type="text" id="end_input"></div>
-        <div id="monitor_end_div" align="center" class="float-left"></div>
+   <div id="charts">
+      <div id="preloader"></div>
+      <div id="chart_container"></div>
+      <div id="legend_container">
+         <div id="smoother" title="Smoothing"></div>
+         <div id="legend"></div>
+      </div>
+      <div id="xaxis"></div>
+      <div id="slider"></div>
+      <div id="inputs">
+         <div style="display: none;" id="start_div" align="center" class="float-left"><input type="text" id="start_input" /></div>
+         <div id="monitor_start_div" align="center" class="float-left"></div>
+         <div align="center" class="float-left">
+            <input checked id="monitor_input" name="mode" value="monitor" type="radio" />Monitor
+            <input id="analysis_input" name="mode" value="analysis" type="radio" />Analysis
+         </div>
+         <div style="display: none;" id="end_div" align="center" class="float-left"><input type="text" id="end_input" /></div>
+         <div id="monitor_end_div" align="center" class="float-left"></div>
+      </div>
    </div>
-</div>
-
-
-	<div id="animation"  style="">
-	<canvas id="sketch" data-processing-sources="garden.pde" tabindex="0" width="1150" height="600" style="image-rendering: -webkit-optimize-contrast !important;"></canvas> 
-	</div>
-	<!--<div id="title" style=""><h1 class="prettytitle">Garden Dashboard</h1>
-		<p class="prettytitle" id="subtitle">Kijani Grows Aquaponics</p>
-	</div>-->
-
-    <div id="info" style="background-color:#fff">
-        <p style="font-size: 28px;">Kijani Grows: Visualizing an Urban Aquaponic Garden</p>
-        <p>Cindy Chang, Emily Cheng, Julia Lee, JJ Liu &nbsp;&nbsp; CS448B Fall 2012</p>
-        <p>Learn about <a href="http://www.youtube.com/watch?v=3IryIOyPfTE">Eric Maundu</a> and his mission to reduce disparities through <a href="http://en.wikipedia.org/wiki/Aquaponics">aquaponics</a> through his organization <a href="http://www.kijanigrows.com/">Kijani Grows</a></p>
-    </div>
-
-<script>
-
-$(".radiolist .radio-select").click(
-    function(event) {
-        event.preventDefault();
-        var $boxes = $(this).parent().parent().children();
-        $boxes.removeClass("selected");
-        $(this).removeAttr("checked");
-        $(this).parent().addClass("selected");
-        $(this).parent().find(":radio").attr("checked","checked");
-    }
-);
-
-var useLiveData = false; // CHANGE THIS TO USE DEMO VS LIVE DATA
-
-
-var ptsPerRefresh = 3;
-var dataInterval = 10000;
-var refreshInterval = ptsPerRefresh * dataInterval;
-
-var paramPairs = getQueryParameters();
-var garden = paramPairs.garden;
-var dataGarden = new DataGarden(garden, useLiveData, dataInterval);
-var visibleTimeRange = 5 * 60 * 1000; // time range (milliseconds) to display on graphs 
-
-var categories = {
-   
-   //continues variable measurements
-   "flow_rate": ["report", "flow_rate_sensor", "flowRate"],
-   "temperature": ["report", "temperature_sensor", "temperature"],
-   "light_level": ["report", "photocell_sensor", "lightLevel"],
-   "gb_level": ["report", "gb_level_sensor", "gbLevel"],
-   "humidity": ["report", "humidity_sensor", "humidity"],
-
-   //boolean variable measurements
-   "tank_full": ["report", "tank_level_sensor", "full"],
-   "fish_feeder": ["report", "fish_feeder", "on"],
-   "fish_tank_pump": ["report", "fish_tank_pump", "on"],
-   // "flow_switch": ["report", "flow_switch_sensor", "flow"],
-   "grow_lights": ["report", "grow_lights", "on"],
-   "leak": ["report", "leak_detector_sensor", "leak"],
-   "backup_reservoir": ["report", "reservior_level_sensor", "full"],
-   "reservoir_pump": ["report", "reservior_pump", "on"],
-
-}
-
-var initData;
-//map (key is the same as in categories)
-var seriesData = initSeriesData(categories);
-var graphs = [];
-var hoverGraphs = [];
-
-var start_input = $("#start_input");
-var end_input = $("#end_input");
-
-var monitor_input = $("#monitor_input");
-var analysis_input = $("#analysis_input");
-
-var monitorSeriesData = [];
-
-
-
-// variables for animation portion
-var processingInstance;
-var gardenAnim;
-var animationTimer; // to set and stop setInterval
-var animationOn = 1;
-start_input.datetimepicker({
-    //showSecond: true,
-    timeFormat: 'H:mm:ss',
-    hourGrid: 4, 
-    minuteGrid: 10,
-    onClose: function(dateText, inst) {
-        clearInterval(updateInterval);
-        setEndpoint(dateText, end_input.val());
-    }
-});
-end_input.datetimepicker({
-    //showSecond: true,
-timeFormat: 'H:mm:ss',
-    hourGrid: 4, 
-    minuteGrid: 10,
-    onClose: function(dateText, inst) {
-        clearInterval(updateInterval);
-        setEndpoint(start_input.val(), dateText); 
-    }
-});
-
-start_input.onEnter(function() {
-        clearInterval(updateInterval);
-        setEndpoint(start_input.val(), end_input.val());
-    }
-);
-end_input.onEnter(function() {
-        clearInterval(updateInterval);
-        setEndpoint(start_input.val(), end_input.val());
-    }
-);
-
-var updateInterval;
-
-setTimeout(
-    function() {
-        getInitialData.call(this, garden, initGraphs); 
-        updateInterval = setInterval(
-            function() { 
-                var now = new Date();
-                dataGarden.getRange(new Date(now - new Date(refreshInterval)), now, true, displayNewData); 
-            }, refreshInterval
-        );
-    }, 2000 // wait 2 sec for datagarden data to load. Necessary for demo data to load from file.
-);
-
-
-$(function() {
-    $("#monitor_input").jqTransform();
-});
-
-var chartStartWidth = $('#charts').width();
-$(document).ready(function() {
-
-    $("input[name='mode']").change(function() {
-        if ($("input[name='mode']:checked").val() == 'analysis') { // Analysis
-            console.log('analysis');
-            graphs.map(function(graph) {
-                var valId = graph.element.id + "_val";
-                $('#'+valId).fadeOut();
-                monitorSeriesData[graph.element.id] = [].concat(graph.series[0].data);
-            });
-
-            $("#monitor_start_div").hide();
-            $("#monitor_end_div").hide();
-            $("#start_div").show();
-            $("#end_div").show();
-            start_input.val($("#monitor_start_div").text());
-            end_input.val($("#monitor_end_div").text());
-            clearInterval(updateInterval);
-            $("#animation").fadeOut('slow');
-            $("#info").fadeOut('slow');
-            animationOn = 0;
-            gardenAnim = null;
-            clearInterval(animationTimer); 
-            //$('div svg').animate({
-                //width: "95%"}, 1000
-            //);
-            setTimeout(function() {
-                $('#charts').animate({
-                    width: "1200px"}, 2000
-                );
-                $('#slider').animate({
-                    width: "100%"}, 2000
-                );
-                setTimeout(function() {
-                    var newWidth = ($('#charts').width());//*1.84);
-                    
-                    graphs.map(function(graph) {
-                        graph.configure({width: newWidth, gapSize:0});
-                        graph.render();
-                    });
-                    }, 2000);
-            }, 500);
-       } else { // Monitor
-            console.log('monitor');
-            graphs.map(function(graph) {
-                var valId = graph.element.id + "_val";
-                $('#'+valId).fadeIn();
-                graph.series[0].data.length = 0;
-                graph.series[0].data = [].concat(monitorSeriesData[graph.element.id]);
-                graph.update();
-            });
-
-            $("#monitor_start_div").show();
-            $("#monitor_end_div").show();
-            $("#start_div").hide();
-            $("#end_div").hide();
-            updateInterval = setInterval(function() { 
-                dataGarden.getRange(new Date(now - new Date(refreshInterval)), now, true, displayNewData);
-            }, refreshInterval);
-            
-            setTimeout(function() {
-                $("#animation").fadeIn('slow').css("display","inline-block");
-                $("#info").fadeIn('slow');
-            }, 2000);
-            
-            animationOn = 1;
-            //$('div svg').animate({
-                //width: "50%"}, 1000
-            //);
-            
-            //Create new instance of garden when switching back from analysis to monitor mode
-//             if(!gardenAnim) {
-//     	    	processingInstance= Processing.getInstanceById('sketch');
-//         		console.log("Init processingInstance!");
-//         		gardenAnim = new processingInstance.MediaBed();
-//         		processingInstance.draw();
-//         	}	 
-        
-            $('#charts').animate({
-                width: chartStartWidth}, 2000
-            );
-            setTimeout(function() {
-                graphs.map(function(graph) {
-                    graph.configure({width: 670});
-                    graph.render();
-                });
-            }, 1500);
-
-        }
-    });
-});
-    
-
-// *** FUNCTIONS *** //
-
-function setEndpoint(start, end) {
-    var startDate = new Date(start);
-    if (!isValidDate(startDate)) {
-        return;
-    }
-    // var start_mil = startDate.getTime() - 8 * 60 * 60 * 1000;
-    var endDate = new Date(end);
-    if (!isValidDate(endDate)) return;
-    // var end_mil = endDate.getTime() - 8 * 60 * 60 * 1000;;
-
-    console.log("query range: " + startDate + " to " + endDate);
-
-    var dateOffset = new Date(8 * 60 * 60 * 1000);
-
-    var newData = dataGarden.getRange(new Date(startDate - dateOffset), new Date(endDate - dateOffset), false, displayNewData);
-
-    graphs.map(function(graph) {
-        graph.series[0].data.length = 0;
-    });
-
-    $.each(newData, function(i, item) {
-        var time = new Date(item.time).getTime()/1000.0;
-
-        graphs.map(function(graph) {
-            var val = getFieldValue(categories[graph.element.id], item);
-            graph.series[0].data.push({x: time, y: val});
-        });
-
-    });
-
-    if (newData && newData.length > 0) {
-        $.each(graphs, function(i, graph) {
-            graph.update();
-        });
-    } else {
-        TINY.box.show({
-            html:'Please enter a valid time range',
-            animate:false,
-            close:false,
-            boxid:'error',
-            top:100});
-    }
-}
-
-function isValidDate(d) {
-    if ( Object.prototype.toString.call(d) !== "[object Date]" )
-        return false;
-    return !isNaN(d.getTime());
-}
-
-function getFieldValue(pathArray, object) {
-    var found = object;
-    $.each(pathArray, function(i, field) {
-        if (field in found) {
-            found = found[field];
-        } else {
-            console.log("getFieldValue(): " + field + " not found.");
-            return null;
-        }
-    });
-    return found;
-
-}
-
-function initSeriesData(categories) {
-    var series = {};
-    $.each(categories, function(label, path) {
-        series[label] = [];
-    });
-    return series;
-}
-
-function getQueryParameters() {
-    var query = window.location.href.split('?')[1];
-    //query won't be set if ? isn't in the URL
-    if(!query) {
-        return { };
-    }
-
-    var params = query.split('&');
-    var pairs = {};
-    $.each(params, function(i, param) {
-        var pair = param.split('=');
-        pairs[pair[0]] = pair[1];
-    });
-
-    return pairs;
-}
-
-function getInitialData(garden, callback) {
-
-    var endDate = new Date();
-    var startDate = new Date(endDate.getTime() - visibleTimeRange);
-    
-    dataGarden.getRange(startDate, endDate, true, callback);
-
-}
-
-function initGraphs(data, textStatus, jqXHR) {
-
-    $("#preloader").hide();
-    $("#inputs").show();
-
-    // TODO: decomp this with the data updates
-    $.each(data, function(i, item) {
-        var time = new Date(item.time).getTime()/1000.0;
-        $.each(categories, function(label, pathArray) {
-            var val = getFieldValue(pathArray, item);
-            if (val !== null) {
-                seriesData[label].push({x: time, y: val});
-            }
-        });
-    });
-
-    $.each(categories, function(label, path) {
-        seriesData[label] = seriesData[label];
-    });
-
-    var startTime = new Date(data[0].time);
-    startTime.setHours(startTime.getHours() + 8);
-    $("#monitor_start_div").text(startTime.getMonth()+1 + "/" + startTime.getDate() + "/" + startTime.getFullYear() + " " + startTime.getHours() + ":" + ('0' + startTime.getMinutes()).slice(-2) + ":" + ('0'+startTime.getSeconds()).slice(-2));
-
-
-    var latestTime = new Date(data[data.length-1].time);
-    latestTime.setHours(latestTime.getHours() + 8);
-
-    $("#monitor_end_div").text(latestTime.getMonth()+1 + "/" + latestTime.getDate() + "/" + latestTime.getFullYear() + " " + latestTime.getHours() + ":" + ('0' + latestTime.getMinutes()).slice(-2) + ":" + ('0'+latestTime.getSeconds()).slice(-2));
-
-    initGraph("gb_level", "Growbed water level", "#4169E1", "%", 0, 110);
-    initGraph("temperature", "Temperature", "#DA503F", "&deg;C", 0, 80);
-    initGraph("flow_rate", "Flow rate", "#00ADEE", "gpm", 0, 1.4);
-    initGraph("humidity", "Humidity", "#8DC63F", "", 0, 80); // TODO: check this
-    initGraph("light_level", "Light level", "#EEB111", "%", 0, 110);
-    
-    initBooleanGraph("grow_lights", "Grow lights", "#A888BA");
-    initBooleanGraph("fish_feeder", "Fish feeder", "#F17527");
-    initBooleanGraph("tank_full", "Fish tank full", "#22E1B4");
-    initBooleanGraph("fish_tank_pump", "Fish tank pump", "FFDE17");
-    // initBooleanGraph("flow_switch", "Flow switch", "#FFDE17");
-    initBooleanGraph("backup_reservoir", "Backup reservoir full", "#3A96D2");
-    initBooleanGraph("reservoir_pump", "Reservoir pump", "#7AB79D");
-    initBooleanGraph("leak", "Water leak", "#EAA4C9");
-    
-    graphs.map(function(graph) {
-        var valId = graph.element.id + "_val";
-        var value = graph.series[0].data[graph.series[0].data.length-1].y;
-        if (valId == "temperature_val") value += " &deg;C";
-        if (valId == "flow_rate_val") value += " gpm";
-        if (valId == "gb_level_val" || valId == "light_level_val") value += " %";
-        $('#'+valId).fadeOut(function() {
-            $(this).html(value).fadeIn();
-        });
-    });
-
-    var hoverDetail = new Rickshaw.Graph.HoverDetail( {
-        graphs: graphs,//data[0],
-        //xFormatter: function(x) { return x + " seconds" },
-        yFormatter: hoverGraphs
-        //yFormatter: function(y) { return y + " " + yunits }
-    } );
-    //create slider
-    var slider = new Rickshaw.Graph.RangeSlider(
-        {
-            graph: graphs,
-            element: $('#slider')
-        }
-    );
-
-} 
-
-function initBooleanGraph(htmlId, name, color, isBooleanGraph) {
-    initGraph(htmlId, name, color, "", 0, 1, true);
-}
-
-function initGraph(htmlId, name, color, yunits, ymin, ymax, isBooleanGraph) {
-    var height = 90;
-    var graphType = "area";
-    var gapSize = 0;
-
-    var yaxisId = htmlId + "_yaxis";
-    var wrapperId = htmlId + "_wrapper";
-    var labelId = htmlId + "_label";
-    var labelClass = "label";
-
-    if(isBooleanGraph) {
-        height = 25;
-        graphType = "bar";
-        gapSize = 0;
-        labelClass = "label_boolean"
-    } 
-
-    // create tags for graph element!
-    $("#chart_container").append("<div id='" + wrapperId + "' class='rsgraph_wrapper'></div>");
-    $("#" + wrapperId).append("<div id='" + labelId + "' class='" + labelClass + "'>" + name + "</div>");
-    if (!isBooleanGraph) {
-        $("#" + wrapperId).append("<div id='" + htmlId + "_val' class='value'></div>");
-    } 
-    $("#" + wrapperId).append("<div id='" + htmlId + "'></div>");
-    $("#" + wrapperId).append("<div id='" + yaxisId + "'></div>");
-
-    //console.log(seriesData[htmlId]);
-    var graph = new Rickshaw.Graph(
-    {
-	    element: document.getElementById(htmlId),
-	    width: 670,
-	    //width: 960,
-	    height: height,
-        min: ymin,
-        max: ymax,
-        padding:
-        {
-            top: .1,
-            bottom: .1
-        },
-	    renderer: graphType,
-    	series: [{
-			color: color,
-			data: seriesData[htmlId],
-			name: name,
-		}]
-    });
-
-    graphs.push(graph);
-    hoverGraphs[graph.element.id] = yunits;
-
-    var time = new Rickshaw.Fixtures.Time();
-    var xAxis = new Rickshaw.Graph.Axis.Time( {
-       graph: graph,           
-       //timeUnit: minutes,
-    } );
-    xAxis.render();
-
-    if (["temperature", "flow_rate", "light_level", "gb_level", "humidity"].indexOf(graph.element.id) != -1) {
-        var yAxis = new Rickshaw.Graph.Axis.Y( {
-            graph: graph,
-            orientation: 'right',
-            tickFormat: Rickshaw.Fixtures.Number.formatKMBT,
-            width: 50,
-            // element: document.getElementById($("#" + yaxisId)),
-            pixelsPerTick: 25,
-        } );
-
-        yAxis.render();
-    }
-
-    graph.render(); 
-
-}
-
-var displayNewData = function(newData) {
-        
-    $.each(newData, function(i, item) {
-        var time = new Date(item.time).getTime()/1000.0;
-
-        mostRecentData = new Date(item.time);
-
-        graphs.map(function(graph) {
-            var val = getFieldValue(categories[graph.element.id], item);
-            graph.series[0].data.push({x: time, y: val});
-            graph.update();
-        });
-
-        var latestTime = new Date(newData[newData.length-1].time);
-        latestTime.setHours(latestTime.getHours() + 8);
-        $("#monitor_end_div").text(latestTime.getMonth()+1 + "/" + latestTime.getDate() + "/" + latestTime.getFullYear() + " " + latestTime.getHours() + ":" + ('0' + latestTime.getMinutes()).slice(-2) + ":" + ('0'+latestTime.getSeconds()).slice(-2));
-
-
-        graphs.map(function(graph) {
-            var valId = graph.element.id + "_val";
-            var value = graph.series[0].data[graph.series[0].data.length-1].y;
-            if (valId == "temperature_val") value += " &deg;C";
-            if (valId == "flow_rate_val") value += " gpm";
-            if (valId == "gb_level_val" || valId == "light_level_val") value += " %";
-            $('#'+valId).fadeOut(function() {
-                $(this).html(value).fadeIn();
-            });
-            graph.update();
-        });
-
-        // FOR ANIMATION 
-	    if(!gardenAnim) {
-    	    processingInstance= Processing.getInstanceById('sketch');
-        	console.log("Init processingInstance!");
-        	gardenAnim = new processingInstance.MediaBed();
-        	processingInstance.draw();
-        } 
-
-
-        if (animationOn) {
-            var currentState = newData[0]['report'];
-        	var gbLevel = currentState['gb_level_sensor'].gbLevel;
-        	var ftLevel = currentState['tank_level_sensor'].full == 1;
-        	var lightLevel = currentState['photocell_sensor'].lightLevel;
-        	var flowRate = currentState['flow_rate_sensor'].flowRate;
-        	var numFish = 5;
-        	var feederOn = currentState['fish_feeder'].on;
-        	var lightOn = currentState['grow_lights'].on;
-        	var waterIsFlowing = currentState['flow_switch_sensor'].flow;
-        	var pumpOn = currentState['fish_tank_pump'].on;
-        	var leakage = currentState['leak_detector_sensor'].leak;
-        	var isFlowing = flowRate >= 0.5 ? 1 : 0; // IS THIS RIGHT? ASK ERIC LATER? BASICALLY IF FLOW RATE >0.5 is Flowing is true
-            var timestamp = new Date(time * 1000);
-        	gardenAnim.updateMediaBed(gbLevel, ftLevel, lightLevel, flowRate, numFish, feederOn, lightOn, waterIsFlowing, pumpOn, leakage, isFlowing, timestamp);
-    	    var frameInterval = 100;
-        	animationTimer = setInterval(function() { if(animationOn) { 
-        		        if(!gardenAnim) {
-    	    				processingInstance= Processing.getInstanceById('sketch');
-        					console.log("Init processingInstance!");
-        					gardenAnim = new processingInstance.MediaBed();
-        					processingInstance.draw();
-        				} 
-        			gardenAnim.animateMediaBed(); 
-        			
-        	} }, frameInterval);
-
-        } else {
-    	   
-           clearInterval(animationTimer);
-        
-        }
-
-    });
-
-    $.each(graphs, function(i, graph) {
-        graph.update();
-    });
-};
- 
-
-</script>
+   <div id="animation" style="">
+      <canvas id="sketch" data-processing-sources="garden.pde" tabindex="0" width="1150" height="600" style="image-rendering: -webkit-optimize-contrast !important;"></canvas>
+   </div>
+   <!--<div id="title" style=""><h1 class="prettytitle">Garden Dashboard</h1>
+      <p class="prettytitle" id="subtitle">Kijani Grows Aquaponics</p>
+      </div>-->
+   <div id="info" style="background-color:#fff">
+      <p style="font-size: 28px;">Kijani Grows: Visualizing an Urban Aquaponic Garden</p>
+      <p>Cindy Chang, Emily Cheng, Julia Lee, JJ Liu &nbsp;&nbsp; CS448B Fall 2012</p>
+      <p>Learn about <a href="http://www.youtube.com/watch?v=3IryIOyPfTE">Eric Maundu</a> and his mission to reduce disparities through <a href="http://en.wikipedia.org/wiki/Aquaponics">aquaponics</a> through his organization <a href="http://www.kijanigrows.com/">Kijani Grows</a></p>
+   </div>
+   <script>
+      $(".radiolist .radio-select").click(
+          function(event) {
+              event.preventDefault();
+              var $boxes = $(this).parent().parent().children();
+              $boxes.removeClass("selected");
+              $(this).removeAttr("checked");
+              $(this).parent().addClass("selected");
+              $(this).parent().find(":radio").attr("checked","checked");
+          }
+      );
+      
+      var useLiveData = false; // CHANGE THIS TO USE DEMO VS LIVE DATA
+      
+      
+      var ptsPerRefresh = 3;
+      var dataInterval = 10000;
+      var refreshInterval = ptsPerRefresh * dataInterval;
+      
+      var paramPairs = getQueryParameters();
+      var garden = paramPairs.garden;
+      var dataGarden = new DataGarden(garden, useLiveData, dataInterval);
+      var visibleTimeRange = 5 * 60 * 1000; // time range (milliseconds) to display on graphs 
+      
+      var categories = {
+         
+         //continues variable measurements
+         "flow_rate": ["report", "flow_rate_sensor", "flowRate"],
+         "temperature": ["report", "temperature_sensor", "temperature"],
+         "light_level": ["report", "photocell_sensor", "lightLevel"],
+         "gb_level": ["report", "gb_level_sensor", "gbLevel"],
+         "humidity": ["report", "humidity_sensor", "humidity"],
+      
+         //boolean variable measurements
+         "tank_full": ["report", "tank_level_sensor", "full"],
+         "fish_feeder": ["report", "fish_feeder", "on"],
+         "fish_tank_pump": ["report", "fish_tank_pump", "on"],
+         // "flow_switch": ["report", "flow_switch_sensor", "flow"],
+         "grow_lights": ["report", "grow_lights", "on"],
+         "leak": ["report", "leak_detector_sensor", "leak"],
+         "backup_reservoir": ["report", "reservior_level_sensor", "full"],
+         "reservoir_pump": ["report", "reservior_pump", "on"],
+      
+      }
+      
+      var initData;
+      //map (key is the same as in categories)
+      var seriesData = initSeriesData(categories);
+      var graphs = [];
+      var hoverGraphs = [];
+      
+      var start_input = $("#start_input");
+      var end_input = $("#end_input");
+      
+      var monitor_input = $("#monitor_input");
+      var analysis_input = $("#analysis_input");
+      
+      var monitorSeriesData = [];
+      
+      
+      
+      // variables for animation portion
+      var processingInstance;
+      var gardenAnim;
+      var animationTimer; // to set and stop setInterval
+      var animationOn = 1;
+      start_input.datetimepicker({
+          //showSecond: true,
+          timeFormat: 'H:mm:ss',
+          hourGrid: 4, 
+          minuteGrid: 10,
+          onClose: function(dateText, inst) {
+              clearInterval(updateInterval);
+              setEndpoint(dateText, end_input.val());
+          }
+      });
+      end_input.datetimepicker({
+          //showSecond: true,
+      timeFormat: 'H:mm:ss',
+          hourGrid: 4, 
+          minuteGrid: 10,
+          onClose: function(dateText, inst) {
+              clearInterval(updateInterval);
+              setEndpoint(start_input.val(), dateText); 
+          }
+      });
+      
+      start_input.onEnter(function() {
+              clearInterval(updateInterval);
+              setEndpoint(start_input.val(), end_input.val());
+          }
+      );
+      end_input.onEnter(function() {
+              clearInterval(updateInterval);
+              setEndpoint(start_input.val(), end_input.val());
+          }
+      );
+      
+      var updateInterval;
+      
+      setTimeout(
+          function() {
+              getInitialData.call(this, garden, initGraphs); 
+              updateInterval = setInterval(
+                  function() { 
+                      var now = new Date();
+                      dataGarden.getRange(new Date(now - new Date(refreshInterval)), now, true, displayNewData); 
+                  }, refreshInterval
+              );
+          }, 2000 // wait 2 sec for datagarden data to load. Necessary for demo data to load from file.
+      );
+      
+      
+      $(function() {
+          $("#monitor_input").jqTransform();
+      });
+      
+      var chartStartWidth = $('#charts').width();
+      $(document).ready(function() {
+      
+          $("input[name='mode']").change(function() {
+              if ($("input[name='mode']:checked").val() == 'analysis') { // Analysis
+                  console.log('analysis');
+                  graphs.map(function(graph) {
+                      var valId = graph.element.id + "_val";
+                      $('#'+valId).fadeOut();
+                      monitorSeriesData[graph.element.id] = [].concat(graph.series[0].data);
+                  });
+      
+                  $("#monitor_start_div").hide();
+                  $("#monitor_end_div").hide();
+                  $("#start_div").show();
+                  $("#end_div").show();
+                  start_input.val($("#monitor_start_div").text());
+                  end_input.val($("#monitor_end_div").text());
+                  clearInterval(updateInterval);
+                  $("#animation").fadeOut('slow');
+                  $("#info").fadeOut('slow');
+                  animationOn = 0;
+                  gardenAnim = null;
+                  clearInterval(animationTimer); 
+                  //$('div svg').animate({
+                      //width: "95%"}, 1000
+                  //);
+                  setTimeout(function() {
+                      $('#charts').animate({
+                          width: "1200px"}, 2000
+                      );
+                      $('#slider').animate({
+                          width: "100%"}, 2000
+                      );
+                      setTimeout(function() {
+                          var newWidth = ($('#charts').width());//*1.84);
+                          
+                          graphs.map(function(graph) {
+                              graph.configure({width: newWidth, gapSize:0});
+                              graph.render();
+                          });
+                          }, 2000);
+                  }, 500);
+             } else { // Monitor
+                  console.log('monitor');
+                  graphs.map(function(graph) {
+                      var valId = graph.element.id + "_val";
+                      $('#'+valId).fadeIn();
+                      graph.series[0].data.length = 0;
+                      graph.series[0].data = [].concat(monitorSeriesData[graph.element.id]);
+                      graph.update();
+                  });
+      
+                  $("#monitor_start_div").show();
+                  $("#monitor_end_div").show();
+                  $("#start_div").hide();
+                  $("#end_div").hide();
+                  updateInterval = setInterval(function() { 
+                      var now = new Date();
+                      dataGarden.getRange(new Date(now - new Date(refreshInterval)), now, true, displayNewData);
+                  }, refreshInterval);
+                  
+                  setTimeout(function() {
+                      $("#animation").fadeIn('slow').css("display","inline-block");
+                      $("#info").fadeIn('slow');
+                  }, 2000);
+                  
+                  animationOn = 1;
+                  //$('div svg').animate({
+                      //width: "50%"}, 1000
+                  //);
+                  
+                  //Create new instance of garden when switching back from analysis to monitor mode
+      //             if(!gardenAnim) {
+      //              processingInstance= Processing.getInstanceById('sketch');
+      //                      console.log("Init processingInstance!");
+      //                      gardenAnim = new processingInstance.MediaBed();
+      //                      processingInstance.draw();
+      //              }        
+              
+                  $('#charts').animate({
+                      width: chartStartWidth}, 2000
+                  );
+                  setTimeout(function() {
+                      graphs.map(function(graph) {
+                          graph.configure({width: 670});
+                          graph.render();
+                      });
+                  }, 1500);
+      
+              }
+          });
+      });
+          
+      
+      // *** FUNCTIONS *** //
+      
+      function setEndpoint(start, end) {
+          var startDate = new Date(start);
+          if (!isValidDate(startDate)) {
+              return;
+          }
+          // var start_mil = startDate.getTime() - 8 * 60 * 60 * 1000;
+          var endDate = new Date(end);
+          if (!isValidDate(endDate)) return;
+          // var end_mil = endDate.getTime() - 8 * 60 * 60 * 1000;;
+      
+          console.log("query range: " + startDate + " to " + endDate);
+      
+          var dateOffset = new Date(8 * 60 * 60 * 1000);
+      
+          var newData = dataGarden.getRange(new Date(startDate - dateOffset), new Date(endDate - dateOffset), false, displayNewData);
+      
+          graphs.map(function(graph) {
+              graph.series[0].data.length = 0;
+          });
+      
+          $.each(newData, function(i, item) {
+              var time = new Date(item.time).getTime()/1000.0;
+      
+              graphs.map(function(graph) {
+                  var val = getFieldValue(categories[graph.element.id], item);
+                  graph.series[0].data.push({x: time, y: val});
+              });
+      
+          });
+      
+          if (newData && newData.length > 0) {
+              $.each(graphs, function(i, graph) {
+                  graph.update();
+              });
+          } else {
+              TINY.box.show({
+                  html:'Please enter a valid time range',
+                  animate:false,
+                  close:false,
+                  boxid:'error',
+                  top:100});
+          }
+      }
+      
+      function isValidDate(d) {
+          if ( Object.prototype.toString.call(d) !== "[object Date]" )
+              return false;
+          return !isNaN(d.getTime());
+      }
+      
+      function getFieldValue(pathArray, object) {
+          var found = object;
+          $.each(pathArray, function(i, field) {
+              if (field in found) {
+                  found = found[field];
+              } else {
+                  console.log("getFieldValue(): " + field + " not found.");
+                  return null;
+              }
+          });
+          return found;
+      
+      }
+      
+      function initSeriesData(categories) {
+          var series = {};
+          $.each(categories, function(label, path) {
+              series[label] = [];
+          });
+          return series;
+      }
+      
+      function getQueryParameters() {
+          var query = window.location.href.split('?')[1];
+          //query won't be set if ? isn't in the URL
+          if(!query) {
+              return { };
+          }
+      
+          var params = query.split('&');
+          var pairs = {};
+          $.each(params, function(i, param) {
+              var pair = param.split('=');
+              pairs[pair[0]] = pair[1];
+          });
+      
+          return pairs;
+      }
+      
+      function getInitialData(garden, callback) {
+      
+          var endDate = new Date();
+          var startDate = new Date(endDate.getTime() - visibleTimeRange);
+          
+          dataGarden.getRange(startDate, endDate, true, callback);
+      
+      }
+      
+      function initGraphs(data, textStatus, jqXHR) {
+      
+          $("#preloader").hide();
+          $("#inputs").show();
+      
+          // TODO: decomp this with the data updates
+          $.each(data, function(i, item) {
+              var time = new Date(item.time).getTime()/1000.0;
+              $.each(categories, function(label, pathArray) {
+                  var val = getFieldValue(pathArray, item);
+                  if (val !== null) {
+                      seriesData[label].push({x: time, y: val});
+                  }
+              });
+          });
+      
+          $.each(categories, function(label, path) {
+              seriesData[label] = seriesData[label];
+          });
+      
+          var startTime = new Date(data[0].time);
+          startTime.setHours(startTime.getHours() + 8);
+          $("#monitor_start_div").text(startTime.getMonth()+1 + "/" + startTime.getDate() + "/" + startTime.getFullYear() + " " + startTime.getHours() + ":" + ('0' + startTime.getMinutes()).slice(-2) + ":" + ('0'+startTime.getSeconds()).slice(-2));
+      
+      
+          var latestTime = new Date(data[data.length-1].time);
+          latestTime.setHours(latestTime.getHours() + 8);
+      
+          $("#monitor_end_div").text(latestTime.getMonth()+1 + "/" + latestTime.getDate() + "/" + latestTime.getFullYear() + " " + latestTime.getHours() + ":" + ('0' + latestTime.getMinutes()).slice(-2) + ":" + ('0'+latestTime.getSeconds()).slice(-2));
+      
+          initGraph("gb_level", "Growbed water level", "#4169E1", "%", 0, 110);
+          initGraph("temperature", "Temperature", "#DA503F", "&deg;C", 0, 80);
+          initGraph("flow_rate", "Flow rate", "#00ADEE", "gpm", 0, 1.4);
+          initGraph("humidity", "Humidity", "#8DC63F", "", 0, 80); // TODO: check this
+          initGraph("light_level", "Light level", "#EEB111", "%", 0, 110);
+          
+          initBooleanGraph("grow_lights", "Grow lights", "#A888BA");
+          initBooleanGraph("fish_feeder", "Fish feeder", "#F17527");
+          initBooleanGraph("tank_full", "Fish tank full", "#22E1B4");
+          initBooleanGraph("fish_tank_pump", "Fish tank pump", "FFDE17");
+          // initBooleanGraph("flow_switch", "Flow switch", "#FFDE17");
+          initBooleanGraph("backup_reservoir", "Backup reservoir full", "#3A96D2");
+          initBooleanGraph("reservoir_pump", "Reservoir pump", "#7AB79D");
+          initBooleanGraph("leak", "Water leak", "#EAA4C9");
+          
+          graphs.map(function(graph) {
+              var valId = graph.element.id + "_val";
+              var value = graph.series[0].data[graph.series[0].data.length-1].y;
+              if (valId == "temperature_val") value += " &deg;C";
+              if (valId == "flow_rate_val") value += " gpm";
+              if (valId == "gb_level_val" || valId == "light_level_val") value += " %";
+              $('#'+valId).fadeOut(function() {
+                  $(this).html(value).fadeIn();
+              });
+          });
+      
+          var hoverDetail = new Rickshaw.Graph.HoverDetail( {
+              graphs: graphs,//data[0],
+              //xFormatter: function(x) { return x + " seconds" },
+              yFormatter: hoverGraphs
+              //yFormatter: function(y) { return y + " " + yunits }
+          } );
+          //create slider
+          var slider = new Rickshaw.Graph.RangeSlider(
+              {
+                  graph: graphs,
+                  element: $('#slider')
+              }
+          );
+      
+      } 
+      
+      function initBooleanGraph(htmlId, name, color, isBooleanGraph) {
+          initGraph(htmlId, name, color, "", 0, 1, true);
+      }
+      
+      function initGraph(htmlId, name, color, yunits, ymin, ymax, isBooleanGraph) {
+          var height = 90;
+          var graphType = "area";
+          var gapSize = 0;
+      
+          var yaxisId = htmlId + "_yaxis";
+          var wrapperId = htmlId + "_wrapper";
+          var labelId = htmlId + "_label";
+          var labelClass = "label";
+      
+          if(isBooleanGraph) {
+              height = 25;
+              graphType = "bar";
+              gapSize = 0;
+              labelClass = "label_boolean"
+          } 
+      
+          // create tags for graph element!
+          $("#chart_container").append("<div id='" + wrapperId + "' class='rsgraph_wrapper'></div>");
+          $("#" + wrapperId).append("<div id='" + labelId + "' class='" + labelClass + "'>" + name + "</div>");
+          if (!isBooleanGraph) {
+              $("#" + wrapperId).append("<div id='" + htmlId + "_val' class='value'></div>");
+          } 
+          $("#" + wrapperId).append("<div id='" + htmlId + "'></div>");
+          $("#" + wrapperId).append("<div id='" + yaxisId + "'></div>");
+      
+          //console.log(seriesData[htmlId]);
+          var graph = new Rickshaw.Graph(
+          {
+                  element: document.getElementById(htmlId),
+                  width: 670,
+                  //width: 960,
+                  height: height,
+              min: ymin,
+              max: ymax,
+              padding:
+              {
+                  top: .1,
+                  bottom: .1
+              },
+                  renderer: graphType,
+              series: [{
+                              color: color,
+                              data: seriesData[htmlId],
+                              name: name,
+                      }]
+          });
+      
+          graphs.push(graph);
+          hoverGraphs[graph.element.id] = yunits;
+      
+          var time = new Rickshaw.Fixtures.Time();
+          var xAxis = new Rickshaw.Graph.Axis.Time( {
+             graph: graph,           
+             //timeUnit: minutes,
+          } );
+          xAxis.render();
+      
+          if (["temperature", "flow_rate", "light_level", "gb_level", "humidity"].indexOf(graph.element.id) != -1) {
+              var yAxis = new Rickshaw.Graph.Axis.Y( {
+                  graph: graph,
+                  orientation: 'right',
+                  tickFormat: Rickshaw.Fixtures.Number.formatKMBT,
+                  width: 50,
+                  // element: document.getElementById($("#" + yaxisId)),
+                  pixelsPerTick: 25,
+              } );
+      
+              yAxis.render();
+          }
+      
+          graph.render(); 
+      
+      }
+      
+      var displayNewData = function(newData) {
+              
+          $.each(newData, function(i, item) {
+              var time = new Date(item.time).getTime()/1000.0;
+      
+              mostRecentData = new Date(item.time);
+      
+              graphs.map(function(graph) {
+                  var val = getFieldValue(categories[graph.element.id], item);
+                  graph.series[0].data.push({x: time, y: val});
+                  graph.update();
+              });
+      
+              var latestTime = new Date(newData[newData.length-1].time);
+              latestTime.setHours(latestTime.getHours() + 8);
+              $("#monitor_end_div").text(latestTime.getMonth()+1 + "/" + latestTime.getDate() + "/" + latestTime.getFullYear() + " " + latestTime.getHours() + ":" + ('0' + latestTime.getMinutes()).slice(-2) + ":" + ('0'+latestTime.getSeconds()).slice(-2));
+      
+      
+              graphs.map(function(graph) {
+                  var valId = graph.element.id + "_val";
+                  var value = graph.series[0].data[graph.series[0].data.length-1].y;
+                  if (valId == "temperature_val") value += " &deg;C";
+                  if (valId == "flow_rate_val") value += " gpm";
+                  if (valId == "gb_level_val" || valId == "light_level_val") value += " %";
+                  $('#'+valId).fadeOut(function() {
+                      $(this).html(value).fadeIn();
+                  });
+                  graph.update();
+              });
+      
+              // FOR ANIMATION 
+                  if(!gardenAnim) {
+                  processingInstance= Processing.getInstanceById('sketch');
+                      console.log("Init processingInstance!");
+                      gardenAnim = new processingInstance.MediaBed();
+                      processingInstance.draw();
+              } 
+      
+      
+              if (animationOn) {
+                  var currentState = newData[0]['report'];
+                      var gbLevel = currentState['gb_level_sensor'].gbLevel;
+                      var ftLevel = currentState['tank_level_sensor'].full == 1;
+                      var lightLevel = currentState['photocell_sensor'].lightLevel;
+                      var flowRate = currentState['flow_rate_sensor'].flowRate;
+                      var numFish = 5;
+                      var feederOn = currentState['fish_feeder'].on;
+                      var lightOn = currentState['grow_lights'].on;
+                      var waterIsFlowing = currentState['flow_switch_sensor'].flow;
+                      var pumpOn = currentState['fish_tank_pump'].on;
+                      var leakage = currentState['leak_detector_sensor'].leak;
+                      var isFlowing = flowRate >= 0.5 ? 1 : 0; // IS THIS RIGHT? ASK ERIC LATER? BASICALLY IF FLOW RATE >0.5 is Flowing is true
+                  var timestamp = new Date(time * 1000);
+                      gardenAnim.updateMediaBed(gbLevel, ftLevel, lightLevel, flowRate, numFish, feederOn, lightOn, waterIsFlowing, pumpOn, leakage, isFlowing, timestamp);
+                  var frameInterval = 100;
+                      animationTimer = setInterval(function() { if(animationOn) { 
+                                      if(!gardenAnim) {
+                                              processingInstance= Processing.getInstanceById('sketch');
+                                                      console.log("Init processingInstance!");
+                                                      gardenAnim = new processingInstance.MediaBed();
+                                                      processingInstance.draw();
+                                              } 
+                                      gardenAnim.animateMediaBed(); 
+                                      
+                      } }, frameInterval);
+      
+              } else {
+                 
+                 clearInterval(animationTimer);
+              
+              }
+      
+          });
+      
+          $.each(graphs, function(i, graph) {
+              graph.update();
+          });
+      };
+       
+      
+   </script>
 </body>
